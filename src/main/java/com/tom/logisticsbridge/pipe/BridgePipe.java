@@ -1,64 +1,22 @@
 package com.tom.logisticsbridge.pipe;
 
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.text.TextComponentTranslation;
-
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.api.BridgeStack;
 import com.tom.logisticsbridge.tileentity.IBridge;
-
 import logisticspipes.interfaces.IChangeListener;
-import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
-import logisticspipes.interfaces.routing.ICraftItems;
-import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.interfaces.routing.IProvideItems;
-import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.interfaces.routing.IRequireReliableTransport;
+import logisticspipes.interfaces.routing.*;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipefxhandlers.Particles;
-import logisticspipes.pipes.PipeLogisticsChassi.ChassiTargetInformation;
+import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.request.ICraftingTemplate;
-import logisticspipes.request.IExtraPromise;
-import logisticspipes.request.IPromise;
-import logisticspipes.request.ItemCraftingTemplate;
-import logisticspipes.request.RequestLog;
-import logisticspipes.request.RequestTree;
+import logisticspipes.request.*;
 import logisticspipes.request.RequestTree.ActiveRequestType;
-import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
@@ -77,8 +35,29 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.TextComponentTranslation;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
+
+import javax.annotation.Nonnull;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IRequestItems, IChangeListener, ICraftItems, IRequireReliableTransport {
 	public static TextureType TEXTURE = Textures.empty;
@@ -364,9 +343,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 			_orderItemManager.sendFailed();
 		}
 	}
-	/**
-	 * @param list <item, amount>
-	 * */
+
 	@Override
 	public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
 		if (!isEnabled()) {
@@ -728,11 +705,15 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 		private SinkReply _sinkReply;
 		private SinkReply _sinkReplyDefault;
 
+		@Nonnull @Override public String getLPName() {
+			return ""; // TODO: PLEASE FIX THIS
+		}
+
 		@Override
 		public void registerPosition(ModulePositionType slot, int positionInt) {
 			super.registerPosition(slot, positionInt);
-			_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, new ChassiTargetInformation(getPositionInt()));
-			_sinkReplyDefault = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0, new ChassiTargetInformation(getPositionInt()));
+			_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, new PipeLogisticsChassis.ChassiTargetInformation(getPositionInt()));
+			_sinkReplyDefault = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0, new PipeLogisticsChassis.ChassiTargetInformation(getPositionInt()));
 		}
 
 		@Override
@@ -767,7 +748,6 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 		@Override public boolean interestedInAttachedInventory() { return false; }
 		@Override public boolean interestedInUndamagedID() { return false; }
 		@Override public boolean recievePassive() { return true; }
-
 	}
 	@Override
 	public void onWrenchClicked(EntityPlayer entityplayer) {
@@ -778,8 +758,8 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 		}
 	}
 
-	@Override
-	public boolean disconnectPipe(TileEntity tile, EnumFacing dir) {
-		return dir.getAxis() == Axis.Y && tile instanceof IBridge ? true : false;
-	}
+//	@Override
+//	public boolean disconnectPipe(TileEntity tile, EnumFacing dir) {
+//		return dir.getAxis() == Axis.Y && tile instanceof IBridge ? true : false;
+//	}
 }
