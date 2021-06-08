@@ -20,6 +20,42 @@ def mappings_version = '20171120-1.12'
 
 minecraft {
     mappings channel: 'snapshot', version: mappings_version
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+
+            mods {
+                logisticsbridge {
+                    sources = [sourceSets.main]
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run-server')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+
+            mods {
+                logisticsbridge {
+                    sources = [sourceSets.main]
+                }
+            }
+        }
+    }
 }
 
 repositories {
