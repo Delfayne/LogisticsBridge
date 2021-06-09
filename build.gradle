@@ -96,5 +96,5 @@ dependencies {
 }
 
 tasks.withType(Wrapper) {
-    version = 4.9
+    version = 5.0
 }
