@@ -1,43 +1,5 @@
 package com.tom.logisticsbridge;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.Set;
-
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-
-import com.tom.logisticsbridge.block.BlockBridgeAE;
-import com.tom.logisticsbridge.block.BlockCraftingManager;
-import com.tom.logisticsbridge.item.VirtualPatternAE;
-import com.tom.logisticsbridge.network.RequestIDListPacket;
-import com.tom.logisticsbridge.network.SetIDPacket;
-import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
-import com.tom.logisticsbridge.part.PartSatelliteBus;
-import com.tom.logisticsbridge.proxy.ClientProxy;
-import com.tom.logisticsbridge.tileentity.TileEntityBridgeAE;
-import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
-
 import appeng.api.AEPlugin;
 import appeng.api.IAppEngApi;
 import appeng.api.config.FuzzyMode;
@@ -63,8 +25,43 @@ import appeng.tile.AEBaseTile;
 import appeng.util.ItemSorters;
 import appeng.util.prioritylist.IPartitionList;
 import appeng.util.prioritylist.MergedPriorityList;
+import com.tom.logisticsbridge.block.BlockBridgeAE;
+import com.tom.logisticsbridge.block.BlockCraftingManager;
+import com.tom.logisticsbridge.item.VirtualPatternAE;
+import com.tom.logisticsbridge.network.RequestIDListPacket;
+import com.tom.logisticsbridge.network.SetIDPacket;
+import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
+import com.tom.logisticsbridge.part.PartSatelliteBus;
+import com.tom.logisticsbridge.proxy.ClientProxy;
+import com.tom.logisticsbridge.tileentity.TileEntityBridgeAE;
+import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
 import io.netty.buffer.ByteBuf;
 import logisticspipes.LPItems;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.Set;
 
 @AEPlugin
 public class AE2Plugin {
@@ -231,10 +228,14 @@ public class AE2Plugin {
 		block.setCreativeTab(CreativeTab.instance);
 		LogisticsBridge.registerBlock(block, AEBaseItemBlock::new);
 	}
-	public static void preInit(){
+	public static void preInit(ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		virtualPattern = new VirtualPatternAE();
-		LogisticsBridge.bridgeAE = new BlockBridgeAE().setUnlocalizedName("lb.bridge");
-		LogisticsBridge.craftingManager = new BlockCraftingManager().setUnlocalizedName("lb.crafting_managerAE");
+//		LogisticsBridge.bridgeAE = new BlockBridgeAE().setUnlocalizedName("lb.bridge");
+		LogisticsBridge.bridgeAE = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockBridgeAE").newInstance())
+				.setUnlocalizedName("lb.bridge");
+		LogisticsBridge.craftingManager = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockCraftingManager").newInstance())
+				.setUnlocalizedName("lb.crafting_managerAE");;
+//		LogisticsBridge.craftingManager = new BlockCraftingManager().setUnlocalizedName("lb.crafting_managerAE");
 		AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
 		AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
 		LogisticsBridge.registerItem(virtualPattern, true);

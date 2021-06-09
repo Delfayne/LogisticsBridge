@@ -72,16 +72,38 @@ repositories {
     flatDir { dirs "./lib" }
 }
 
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
 dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
-    compileOnly ":logisticspipes-0.10.3.114"
-    compileOnly ":MCMultiPart-2.5.3"
-    compileOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
-    compileOnly ":refinedstorage-1.6.16"
+    compileOnly deobf (":logisticspipes-0.10.3.114")
+    runtimeOnly ":logisticspipes-0.10.3.114"
+    compileOnly deobf (":MCMultiPart-2.5.3")
+    runtimeOnly ":MCMultiPart-2.5.3"
+    compileOnly deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
+    runtimeOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
+    compileOnly deobf (":refinedstorage-1.6.16")
+    runtimeOnly ":refinedstorage-1.6.16"
     compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
-    compileOnly ":appliedenergistics2-rv6-stable-7"
+    compileOnly deobf (":appliedenergistics2-rv6-stable-7")
+    runtimeOnly ":appliedenergistics2-rv6-stable-7"
+    // https://mvnrepository.com/artifact/javassist/javassist
+    shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
 }
 
 tasks.withType(Wrapper) {
     version = 5.0
 }
+
+jar {
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)) {
+            exclude 'META-INF', 'META-INF/**'
+        }
+    }
+}
+
+jar.finalizedBy('reobfJar')
