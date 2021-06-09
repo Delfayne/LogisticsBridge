@@ -5,7 +5,7 @@
   "description": "",
   "version": "${version}",
   "url" : "",
-  "authorList": ["tom5454", "DomamaN202"],
+  "authorList": ["tom5454", "DomamaN202", "SotS"],
   "logoFile" : "logo.png"
 }
 ]
