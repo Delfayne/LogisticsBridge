@@ -13,6 +13,8 @@ import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
 
 import appeng.block.AEBaseTileBlock;
 
+import javax.annotation.Nullable;
+
 public class BlockCraftingManager extends AEBaseTileBlock {
 
 	public BlockCraftingManager() {
@@ -32,5 +34,11 @@ public class BlockCraftingManager extends AEBaseTileBlock {
 			}
 		}
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createNewTileEntity(World worldIn, int meta) {
+		return new TileEntityCraftingManager();
 	}
 }

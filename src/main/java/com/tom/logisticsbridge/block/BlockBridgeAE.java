@@ -3,6 +3,7 @@ package com.tom.logisticsbridge.block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -11,6 +12,8 @@ import net.minecraft.world.World;
 import com.tom.logisticsbridge.tileentity.TileEntityBridgeAE;
 
 import appeng.block.AEBaseTileBlock;
+
+import javax.annotation.Nullable;
 
 public class BlockBridgeAE extends AEBaseTileBlock {
 
@@ -23,11 +26,17 @@ public class BlockBridgeAE extends AEBaseTileBlock {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+									EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if(!worldIn.isRemote){
 			TileEntityBridgeAE b = (TileEntityBridgeAE) worldIn.getTileEntity(pos);
 			b.blockClicked(playerIn);
 		}
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createNewTileEntity(World worldIn, int meta) {
+		return new TileEntityBridgeAE();
 	}
 }

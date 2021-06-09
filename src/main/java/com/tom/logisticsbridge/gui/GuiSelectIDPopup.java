@@ -1,22 +1,20 @@
 package com.tom.logisticsbridge.gui;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.math.BlockPos;
-
 import com.tom.logisticsbridge.network.RequestIDListPacket;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
-import logisticspipes.utils.string.StringUtils;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.math.BlockPos;
+import network.rs485.logisticspipes.util.TextUtil;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class GuiSelectIDPopup extends SubGuiScreen {
 	String GUI_LANG_KEY = "gui.popup.selectsatellite.";
@@ -51,16 +49,16 @@ public class GuiSelectIDPopup extends SubGuiScreen {
 	}
 
 	protected void drawTitle() {
-		mc.fontRenderer.drawStringWithShadow(StringUtils.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(StringUtils.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
+		mc.fontRenderer.drawStringWithShadow(TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		buttonList.clear();
-		buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, StringUtils.translate(GUI_LANG_KEY + "select")));
-		buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, StringUtils.translate(GUI_LANG_KEY + "exit")));
-		buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,  StringUtils.translate(GUI_LANG_KEY + "unset")));
+		buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "select")));
+		buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GUI_LANG_KEY + "exit")));
+		buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,  TextUtil.translate(GUI_LANG_KEY + "unset")));
 		buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
 		buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
 	}
