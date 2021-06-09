@@ -68,30 +68,16 @@ repositories {
         name = "forge"
         url = "https://files.minecraftforge.net/maven"
     }
-//    maven {
-//        name "refinedstorage"
-//        url = "https://repo.refinedmods.com/"
-//    }
-//    maven {
-//        name = "RS485 Cache"
-//        url = "https://www.rs485.network/maven-cache/"
-//    }
     flatDir { dirs "./lib" }
 }
 
 dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
-//    implementation group: 'com.github.RS485', name: 'LogisticsPipes', version: 'dev-mc1122-fg3-SNAPSHOT', classifier: 'deobf', changing: true
     compileOnly ":logisticspipes-0.10.3.114"
-//    compileOnly group: 'MCMultiPart2', name: 'MCMultiPart', version: '2.5.3', classifier: 'deobf', transitive: false
     compileOnly ":MCMultiPart-2.5.3"
-//    compileOnly group: 'cofh', name: 'ThermalDynamics', version: '1.12.2-2.5.5.21', classifier: 'deobf', transitive: false
     compileOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
-//    compileOnly group: 'refinedstorage', name: 'refinedstorage', version: '1.6.16-386', transitive: false
     compileOnly ":refinedstorage-1.6.16"
-//    compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
     compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
-//    compileOnly group: 'appeng', name: 'appliedenergistics2', version: 'rv6-stable-7', transitive: false
     compileOnly ":appliedenergistics2-rv6-stable-7"
 }
 
