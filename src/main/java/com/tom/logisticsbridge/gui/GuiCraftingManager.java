@@ -47,7 +47,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
     private final InventoryBasic inv;
 
     public GuiCraftingManager(EntityPlayer player, CraftingManager pipe) {
-        super(new ContainerCraftingManager(player, pipe, false));
+        super(new ContainerCraftingManager(player, pipe));
         this.player = player;
         this.pipe = pipe;
         popup = new PopupMenu();
@@ -143,15 +143,13 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                 if (mouseButton == 0) {
                     if ((held().isEmpty() && sl.getHasStack()) || (!sl.getHasStack() && CraftingManager.isCraftingModule(held())))
                         super.mouseClicked(mouseX, mouseY, mouseButton);
-                    else if (sl.getHasStack()) {
-                        if (pipe.isUpgradeModule(held(), sl.slotNumber)) {
-                            Slot slot = inventorySlots.inventorySlots.get(sl.slotNumber * 2 + 27);
-                            if ((!slot.getHasStack() && slot.isItemValid(held())) || (slot.getStack().isItemEqual(held()) && slot.getItemStackLimit(held()) <= slot.getStack().getCount() + 1))
-                                windowClick(sl.slotNumber * 2 + 27, 1, ClickType.PICKUP);
-                            slot = inventorySlots.inventorySlots.get(sl.slotNumber * 2 + 28);
-                            if ((!slot.getHasStack() && slot.isItemValid(held())) || (slot.getStack().isItemEqual(held()) && slot.getItemStackLimit(held()) <= slot.getStack().getCount() + 1))
-                                windowClick(sl.slotNumber * 2 + 28, 1, ClickType.PICKUP);
-                        }
+                    else if (sl.getHasStack() && pipe.isUpgradeModule(held(), sl.slotNumber)) {
+                        Slot slot = inventorySlots.inventorySlots.get(sl.slotNumber * 2 + 27);
+                        if ((!slot.getHasStack() && slot.isItemValid(held())) || (slot.getStack().isItemEqual(held()) && slot.getItemStackLimit(held()) <= slot.getStack().getCount() + 1))
+                            pickupClick(sl.slotNumber * 2 + 27, 1);
+                        slot = inventorySlots.inventorySlots.get(sl.slotNumber * 2 + 28);
+                        if ((!slot.getHasStack() && slot.isItemValid(held())) || (slot.getStack().isItemEqual(held()) && slot.getItemStackLimit(held()) <= slot.getStack().getCount() + 1))
+                            pickupClick(sl.slotNumber * 2 + 28, 1);
                     }
                 } else if (mouseButton == 1 || mouseButton == 2) {
                     if (mouseButton == 1) {
@@ -162,11 +160,11 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                                 MainProxy.sendPacketToServer(packet);
                             }
                         }
-                    } else {
+                    } else
                         popup.show(mouseX, mouseY, sl);
-                    }
                 }
-            } else super.mouseClicked(mouseX, mouseY, mouseButton);
+            } else
+                super.mouseClicked(mouseX, mouseY, mouseButton);
         } else if (pr != -1) {
             SlotCraftingCard sl = (SlotCraftingCard) popup.additionalData;
             if (pr == 0) {
@@ -177,16 +175,15 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                         MainProxy.sendPacketToServer(packet);
                     }
                 }
-            } else if (pr == 1) {
-                windowClick(sl.slotNumber * 2 + 27, 0, ClickType.PICKUP);
-            } else if (pr == 2) {
-                windowClick(sl.slotNumber * 2 + 28, 0, ClickType.PICKUP);
-            }
+            } else if (pr == 1)
+                pickupClick(sl.slotNumber * 2 + 27, 0);
+            else if (pr == 2)
+                pickupClick(sl.slotNumber * 2 + 28, 0);
         }
     }
 
-    protected void windowClick(int id, int btn, ClickType clickType) {
-        mc.playerController.windowClick(this.inventorySlots.windowId, id, btn, clickType, this.mc.player);
+    protected void pickupClick(int id, int btn) {
+        mc.playerController.windowClick(this.inventorySlots.windowId, id, btn, ClickType.PICKUP, this.mc.player);
     }
 
     private ItemStack held() {
@@ -198,15 +195,15 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
         super.initGui();//120 155
         String select = TextUtil.translate("gui.crafting.Select");
         extentionControllerLeft.clear();
-        ConfigExtention ce = new ConfigExtention(TextUtil.translate("gui.craftingManager.satellite"), new ItemStack(LPItems.pipeSatellite), 0);
+        ConfigExtension ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.satellite"), new ItemStack(LPItems.pipeSatellite), 0);
         ce.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(0, guiLeft - 45, guiTop + 25, 40, 10, select))));
         extentionControllerLeft.addExtention(ce);
-        ce = new ConfigExtention(TextUtil.translate("gui.craftingManager.result"), new ItemStack(LogisticsBridge.pipeResult), 1);
+        ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.result"), new ItemStack(LogisticsBridge.pipeResult), 1);
         ce.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 45, guiTop + 25, 40, 10, select))));
         extentionControllerLeft.addExtention(ce);
 
         if (pipe.getBlockingMode() != BlockingMode.NULL) {
-            ce = new ConfigExtention(TextUtil.translate("gui.craftingManager.blocking"), new ItemStack(Blocks.BARRIER), 2) {
+            ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.blocking"), new ItemStack(Blocks.BARRIER), 2) {
 
                 @Override
                 public String getString() {
@@ -229,20 +226,22 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
                 openSubGuiForSatelliteSelection(0);
-                return;
+                break;
             case 2:
                 openSubGuiForSatelliteSelection(1);
-                return;
-
+                break;
             case 4:
-                BlockingMode m = BlockingMode.VALUES[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.VALUES.length];
-                if (m == BlockingMode.NULL) m = BlockingMode.OFF;
+                BlockingMode m = BlockingMode.values[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.values.length];
+                if (m == BlockingMode.NULL)
+                    m = BlockingMode.OFF;
                 pipe.setPipeID(2, Integer.toString(m.ordinal()), null);
-                return;
+                break;
+            default:
+                break;
         }
     }
 
@@ -259,12 +258,12 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                 uuid -> pipe.setPipeID(id, uuid, null)));
     }
 
-    public class ConfigExtention extends GuiExtention {
+    public class ConfigExtension extends GuiExtention {
         private final String name;
         private final ItemStack stack;
         private final int id;
 
-        public ConfigExtention(String name, ItemStack stack, int id) {
+        public ConfigExtension(String name, ItemStack stack, int id) {
             this.name = name;
             this.stack = stack;
             this.id = id;
@@ -285,7 +284,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
             String pid = getString();
             if (!isFullyExtended()) {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240 / 1.0F);
                 GL11.glEnable(GL11.GL_LIGHTING);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 RenderHelper.enableGUIStandardItemLighting();

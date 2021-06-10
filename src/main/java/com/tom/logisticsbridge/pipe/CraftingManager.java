@@ -46,14 +46,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
-    public static TextureType TEXTURE = Textures.empty;
-    public String satelliteId, resultId;
+    public static TextureType texture = Textures.empty;
+    private String satelliteId;
+    private String resultId;
     private final List<List<Pair<UUID, ItemIdentifierStack>>> buffered = new ArrayList<>();
-    private UUID satelliteUUID, resultUUID;
+    private UUID satelliteUUID;
+    private UUID resultUUID;
     private BlockingMode blockingMode = BlockingMode.OFF;
     private int sendCooldown = 0;
 
@@ -72,7 +75,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
     @Override
     public TextureType getCenterTexture() {
-        return TEXTURE;
+        return texture;
     }
 
     @Override
@@ -83,71 +86,58 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     @SuppressWarnings("deprecation")
     @Override
     public void InventoryChanged(IInventory inventory) {
-        ChassisModule _module = (ChassisModule) getLogisticsModule();
+        ChassisModule module = (ChassisModule) getLogisticsModule();
         boolean reInitGui = false;
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (stack.isEmpty()) {
-                if (_module.hasModule(i)) {
-                    _module.removeModule(i);
+                if (module.hasModule(i)) {
+                    module.removeModule(i);
                     reInitGui = true;
                 }
                 continue;
             }
 
             if (stack.getItem() instanceof ItemModule) {
-                LogisticsModule current = _module.getModule(i);
-                LogisticsModule next = getModuleForItem(stack, _module.getModule(i), this, this);
+                LogisticsModule next = getModuleForItem(stack, module.getModule(i), this, this);
                 next.registerPosition(ModulePositionType.SLOT, i);
                 next.registerCCEventQueuer(this);
-                if (current != next) {
-                    _module.installModule(i, next);
-                    if (!MainProxy.isClient()) {
+                if (module.getModule(i) != next) {
+                    module.installModule(i, next);
+                    if (!MainProxy.isClient())
                         ItemModuleInformationManager.readInformation(stack, next);
-                    }
                 }
                 inventory.setInventorySlotContents(i, stack);
             }
         }
-        if (reInitGui) {
-            if (MainProxy.isClient(getWorld())) {
-                if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiChassisPipe) {
-                    FMLClientHandler.instance().getClient().currentScreen.initGui();
-                }
-            }
-        }
-        if (!MainProxy.isClient(getWorld())) {
+
+        if (MainProxy.isClient(getWorld())) {
+            if (reInitGui && FMLClientHandler.instance().getClient().currentScreen instanceof GuiChassisPipe)
+                FMLClientHandler.instance().getClient().currentScreen.initGui();
+        } else
             sendSignData();
-        }
     }
 
     private void sendSignData() {
-        if (readingNBT) return;
+        if (readingNBT)
+            return;
         for (int i = 0; i < 6; i++) {
             if (signItem[i] != null) {
                 ModernPacket packet = signItem[i].getPacket();
-                if (packet != null) {
+                if (packet != null)
                     MainProxy.sendPacketToAllWatchingChunk(container, packet);
-                }
             }
         }
     }
 
     public LogisticsModule getModuleForItem(ItemStack itemStack, LogisticsModule currentModule, IWorldProvider world, IPipeServiceProvider service) {
-        if (itemStack == null) {
+        if (itemStack == null && !isCraftingModule(itemStack))
             return null;
-        }
-        if (!isCraftingModule(itemStack)) {
-            return null;
-        }
-        if (currentModule != null) {
-            if (ModuleCrafterExt.class.equals(currentModule.getClass())) {
-                return currentModule;
-            }
-        }
-        ModuleCrafterExt newmodule = new ModuleCrafterExt();
-        newmodule.registerHandler(world, service);
-        return newmodule;
+        if (currentModule != null && ModuleCrafterExt.class.equals(currentModule.getClass()))
+            return currentModule;
+        ModuleCrafterExt nm = new ModuleCrafterExt();
+        nm.registerHandler(world, service);
+        return nm;
     }
 
     @Override
@@ -156,20 +146,16 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     @Override
-    public void startWatching() {
-    }
+    public void startWatching() { }
 
     @Override
-    public void stopWatching() {
-    }
+    public void stopWatching() { }
 
     @Override
-    public void playerStartWatching(EntityPlayer player, int mode) {
-    }
+    public void playerStartWatching(EntityPlayer player, int mode) { }
 
     @Override
-    public void playerStopWatching(EntityPlayer player, int mode) {
-    }
+    public void playerStopWatching(EntityPlayer player, int mode) { }
 
     @Override
     public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
@@ -219,12 +205,12 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
     private boolean tryInsertingModule(EntityPlayer entityplayer) {
         if (!isCraftingModule(entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND))) return false;
-        IInventory _moduleInventory = getModuleInventory();
-        for (int i = 0; i < _moduleInventory.getSizeInventory(); i++) {
-            ItemStack item = _moduleInventory.getStackInSlot(i);
+        IInventory mi = getModuleInventory();
+        for (int i = 0; i < mi.getSizeInventory(); i++) {
+            ItemStack item = mi.getStackInSlot(i);
             if (item.isEmpty()) {
-                _moduleInventory.setInventorySlotContents(i, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).splitStack(1));
-                InventoryChanged(_moduleInventory);
+                mi.setInventorySlotContents(i, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).splitStack(1));
+                InventoryChanged(mi);
                 return true;
             }
         }
@@ -247,7 +233,11 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
     @Override
     public String getPipeID(int id) {
-        return id == 0 ? satelliteId : id == 1 ? resultId : Integer.toString(blockingMode.ordinal());
+        if (id == 0)
+            return satelliteId;
+        if (id == 1)
+            return resultId;
+        return Integer.toString(blockingMode.ordinal());
     }
 
     @Override
@@ -264,7 +254,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         if (id == 0) satelliteId = pipeID;
         else if (id == 1) resultId = pipeID;
         else if (id == 2)
-            blockingMode = BlockingMode.VALUES[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.VALUES.length];
+            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
     }
 
     @Override
@@ -286,18 +276,18 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                 resultId = Integer.toString(nbttagcompound.getInteger("resultid"));
                 satelliteId = Integer.toString(nbttagcompound.getInteger("satelliteid"));
             }
-            blockingMode = BlockingMode.VALUES[Math.abs(nbttagcompound.getByte("blockingMode")) % BlockingMode.VALUES.length];
+            blockingMode = BlockingMode.values[Math.abs(nbttagcompound.getByte("blockingMode")) % BlockingMode.values.length];
         } finally {
             readingNBT = false;
         }
     }
 
     @Override
-    public void collectSpecificInterests(Collection<ItemIdentifier> itemidCollection) {
+    public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> c) {
         for (int i = 0; i < getChassisSize(); i++) {
             LogisticsModule module = getSubModule(i);
             if (module != null) {
-                module.collectSpecificInterests(itemidCollection);
+                module.collectSpecificInterests(c);
             }
         }
     }
@@ -535,7 +525,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
     @SideOnly(Side.CLIENT)
     public IInventory getClientModuleInventory() {
-        if (clientInv == null) clientInv = new InventoryBasic(null, false, 27);
+        if (clientInv == null) clientInv = new InventoryBasic("", false, 27);
         return clientInv;
     }
 
@@ -547,7 +537,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         REDSTONE_LOW,
         REDSTONE_HIGH,
         ;
-        public static final BlockingMode[] VALUES = values();
+        public static final BlockingMode[] values = values();
     }
 
 	/*public class Origin implements IAdditionalTargetInformation {

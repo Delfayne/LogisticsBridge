@@ -11,6 +11,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public class BlockBridgeRS extends BlockNode {
 
     public BlockBridgeRS() {
@@ -22,18 +24,17 @@ public class BlockBridgeRS extends BlockNode {
         return true;
     }
 
+    @Nonnull
     @Override
     public String getUnlocalizedName() {
         return "tile.lb.bridge.rs";
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-                                    EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!worldIn.isRemote) {
-            TileEntityBridgeRS b = (TileEntityBridgeRS) worldIn.getTileEntity(pos);
-            b.blockClicked(playerIn);
-        }
+    public boolean onBlockActivated(World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn,
+                                    @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!world.isRemote)
+            ((TileEntityBridgeRS) world.getTileEntity(pos)).blockClicked(playerIn);
         return true;
     }
 }

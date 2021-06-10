@@ -35,7 +35,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     private static final String NBT_UUID = "BridgeUuid";
     private static final String NAME = "tile.lb.bridge.rs.name";
     private long lastInjectTime;
-    private Req reqapi;
+    private Req req;
     private final IStackList<ItemStack> list = API.instance().createItemStackList();
     private boolean firstTick = true;
     private final DynamicInventory patterns = new DynamicInventory();
@@ -52,6 +52,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     private final List<ICraftingPattern> craftingPatterns = new ArrayList<>();
     private final Deque<ItemStack> requestList = new ArrayDeque<>();
     private final InvWrapper craftingItemsWrapper = new InvWrapper(craftingItems) {
+        @Nonnull
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             lastInjectTime = world.getTotalWorldTime();
@@ -68,7 +69,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
             return super.getSlots() + 16;
         }
     };
-    @Nullable
+
     private UUID uuid = null;
     private boolean disableLP;
     private boolean bridgeMode;
@@ -93,8 +94,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     }
 
     @Override
-    public void addFluidStorages(List<IStorage<FluidStack>> storages) {
-    }
+    public void addFluidStorages(List<IStorage<FluidStack>> storages) { }
 
     @Override
     public Collection<ItemStack> getStacks() {
@@ -146,11 +146,12 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public long countItem(ItemStack stack, boolean requestable) {
-        if (disableLP && !bridgeMode || network == null) return 0;
+        if (disableLP && !bridgeMode || network == null)
+            return 0;
         ItemStack is = network.getItemStorageCache().getList().get(stack);
         int inRS = is == null ? 0 : is.getCount();
         int inBuf = craftingItems.stream().filter(s -> itemsEquals(s, stack)).mapToInt(ItemStack::getCount).sum();
-        return inRS + inBuf;
+        return ((long) inRS) + ((long) inBuf);
     }
 
     @Override
@@ -186,14 +187,14 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public ItemStack extractStack(ItemStack stack, int count, boolean simulate) {
-        if (network == null) return ItemStack.EMPTY;
-        ItemStack ex = network.extractItem(stack, count, simulate ? Action.SIMULATE : Action.PERFORM);
-        return ex;
+        if (network == null)
+            return ItemStack.EMPTY;
+        return network.extractItem(stack, count, simulate ? Action.SIMULATE : Action.PERFORM);
     }
 
     @Override
-    public void setReqAPI(Req reqapi) {
-        this.reqapi = reqapi;
+    public void setReqAPI(Req req) {
+        this.req = req;
     }
 
     @Override
@@ -201,16 +202,16 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
         super.update();
         if (!world.isRemote) {
             long wt = world.getTotalWorldTime();
-            if (reqapi != null && wt % 20 == 0 && network != null) {
+            if (req != null && wt % 20 == 0 && network != null) {
                 List<ItemStack> stack = new ArrayList<>(list.getStacks());
-                List<ItemStack> pi = reqapi.getProvidedItems();
+                List<ItemStack> pi = req.getProvidedItems();
                 list.clear();
                 List<ItemStack> crafts = patterns.stream().collect(Collectors.toList());
                 patterns.clear();
                 craftingPatterns.clear();
-                List<ItemStack> ci = reqapi.getCraftedItems();
+                List<ItemStack> ci = req.getCraftedItems();
                 TileEntityWrapper wr = new TileEntityWrapper(world, pos);
-                pi.stream().forEach(i -> {
+                pi.forEach(i -> {
                     ItemStack r = i.copy();
                     r.setCount(1);
                     list.add(LogisticsBridge.fakeStack(r, i.getCount()));
@@ -231,9 +232,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
                         stack.stream().anyMatch(s -> {
                             ItemStack st = list.get(s);
                             return st == null || st.isEmpty() || st.getCount() != s.getCount();
-                        }) || patterns.stream().anyMatch(p -> {
-                    return !crafts.stream().anyMatch(i -> ItemStack.areItemStackTagsEqual(i, p));
-                })) {
+                        }) || patterns.stream().anyMatch(p -> crafts.stream().noneMatch(i -> ItemStack.areItemStackTagsEqual(i, p)))) {
                     network.getItemStorageCache().invalidate();
                     network.getCraftingManager().rebuild();
                 }
@@ -241,15 +240,13 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
             }
             if (lastInjectTime + 200 < wt && !craftingItems.isEmpty()) {
                 lastInjectTime = wt - 20;
-                for (int i = 0; i < craftingItems.getSizeInventory(); i++) {
+                for (int i = 0; i < craftingItems.getSizeInventory(); i++)
                     craftingItems.setInventorySlotContents(i, insertItem(0, craftingItems.getStackInSlot(i), false));
-                }
                 craftingItems.removeEmpties();
             }
-            if (wt % 5 == 0 && !requestList.isEmpty() && reqapi != null) {
+            if (wt % 5 == 0 && !requestList.isEmpty() && req != null) {
                 ItemStack toReq = requestList.pop();
-                OpResult opres = reqapi.performRequest(toReq, true);
-                boolean pushed = opres.missing.isEmpty();
+                boolean pushed = req.performRequest(toReq, true).missing.isEmpty();
                 if (!pushed) {
                     requestList.add(toReq);
                 }
@@ -262,18 +259,22 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
         return 1;
     }
 
+    @Nonnull
     @Override
     public ItemStack getStackInSlot(int slot) {
         return ItemStack.EMPTY;
     }
 
+    @Nonnull
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        if (network == null) return stack;
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        if (network == null)
+            return stack;
         ItemStack is = simulate ? network.insertItem(stack, stack.getCount(), Action.SIMULATE) : network.insertItemTracked(stack, stack.getCount());
         return is == null ? ItemStack.EMPTY : is;
     }
 
+    @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         return ItemStack.EMPTY;
@@ -328,7 +329,6 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     public UUID getUuid() {
         if (this.uuid == null) {
             this.uuid = UUID.randomUUID();
-
             markDirty();
         }
 
@@ -339,15 +339,13 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     public void read(NBTTagCompound tag) {
         super.read(tag);
 
-        if (tag.hasUniqueId(NBT_UUID)) {
+        if (tag.hasUniqueId(NBT_UUID))
             uuid = tag.getUniqueId(NBT_UUID);
-        }
 
-        NBTTagList list = tag.getTagList("reqList", 10);
+        NBTTagList l = tag.getTagList("reqList", 10);
         requestList.clear();
-        for (int i = 0; i < list.tagCount(); i++) {
-            requestList.add(new ItemStack(list.getCompoundTagAt(i)));
-        }
+        for (int i = 0; i < l.tagCount(); i++)
+            requestList.add(new ItemStack(l.getCompoundTagAt(i)));
 
         bridgeMode = tag.getBoolean("bridgeMode");
 
@@ -358,13 +356,12 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     public NBTTagCompound write(NBTTagCompound tag) {
         super.write(tag);
 
-        if (uuid != null) {
+        if (uuid != null)
             tag.setUniqueId(NBT_UUID, uuid);
-        }
 
-        NBTTagList list = new NBTTagList();
-        requestList.stream().map(s -> s.writeToNBT(new NBTTagCompound())).forEach(list::appendTag);
-        tag.setTag("reqList", list);
+        NBTTagList l = new NBTTagList();
+        requestList.stream().map(s -> s.writeToNBT(new NBTTagCompound())).forEach(l::appendTag);
+        tag.setTag("reqList", l);
 
         craftingItems.removeEmpties();
         tag.setTag("intInventory", LogisticsBridge.saveAllItems(craftingItems));
@@ -376,10 +373,11 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public NonNullList<ItemStack> getInputs(ItemStack res, NonNullList<ItemStack> def) {
-        if (reqapi == null) return def;
+        if (req == null)
+            return def;
         try {
             disableLP = true;
-            OpResult r = reqapi.simulateRequest(res, 0b0001, true);
+            OpResult r = req.simulateRequest(res, 0b0001, true);
             NonNullList<ItemStack> ret = NonNullList.create();
             ret.addAll(r.missing);
             ret.add(LogisticsBridge.fakeStack(res, 1));
@@ -391,31 +389,30 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public NonNullList<ItemStack> getOutputs(ItemStack res, NonNullList<ItemStack> def) {
-        if (reqapi == null) return def;
+        if (req == null)
+            return def;
         try {
             disableLP = true;
-            OpResult r = reqapi.simulateRequest(res, 0b0110, true);
+            OpResult r = req.simulateRequest(res, 0b0110, true);
             NonNullList<ItemStack> ret = NonNullList.create();
-            if (def != null || bridgeMode) ret.add(res.copy());
-            if (!bridgeMode) {
+            if (def != null || bridgeMode)
+                ret.add(res.copy());
+            if (!bridgeMode)
                 r.extra.forEach(i -> {
                     boolean added = false;
-                    for (ItemStack e : ret) {
+                    for (ItemStack e : ret)
                         if (itemsEquals(e, i)) {
                             e.grow(i.getCount());
                             added = true;
                             break;
                         }
-                    }
-                    if (!added) ret.add(i);
+                    if (!added)
+                        ret.add(i);
                 });
-            }
             if (def == null && !bridgeMode) {
-                for (ItemStack e : ret) {
-                    if (itemsEquals(e, res)) {
+                for (ItemStack e : ret)
+                    if (itemsEquals(e, res))
                         res.grow(e.getCount());
-                    }
-                }
                 return null;
             }
             return ret;
@@ -441,10 +438,12 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
     }
 
     public boolean pushPattern(ItemStack stack, boolean simulate) {
-        if (reqapi == null || !stack.hasTagCompound()) return false;
+        if (req == null || !stack.hasTagCompound()) return false;
         ItemStack res = new ItemStack(stack.getTagCompound());
-        if (res.isEmpty()) return false;
-        if (!simulate) requestList.add(res);
+        if (res.isEmpty())
+            return false;
+        if (!simulate)
+            requestList.add(res);
         return true;
     }
 

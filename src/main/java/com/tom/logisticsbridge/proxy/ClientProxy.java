@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientProxy extends CommonProxy {
-    public static Field GuiMEMonitorable_Repo, ItemRepo_myPartitionList;
+    public static Field GuiMEMonitorable_Repo;
+    public static Field ItemRepo_myPartitionList;
     private List<Item> renderers = new ArrayList<>();
 
     private static void addRenderToRegistry(Item item, int meta, String name) {
@@ -66,8 +67,7 @@ public class ClientProxy extends CommonProxy {
                 }
                 Field ItemVariantsComponent_resources = ItemVariantsComponent.class.getDeclaredField("resources");
                 ItemVariantsComponent_resources.setAccessible(true);
-                HashSet<ResourceLocation> resources = (HashSet<ResourceLocation>) ItemVariantsComponent_resources.get(partReg);
-                resources.addAll(AE2Plugin.SATELLITE_BUS.getItemModels());
+                ((HashSet<ResourceLocation>) ItemVariantsComponent_resources.get(partReg)).addAll(AE2Plugin.SATELLITE_BUS.getItemModels());
             } catch (Exception e) {
                 throw new RuntimeException("Error registering part model", e);
             }

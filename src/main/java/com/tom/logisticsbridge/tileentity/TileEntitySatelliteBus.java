@@ -42,16 +42,16 @@ public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> imple
         return getNode().getName(id);
     }
 
-    public void openGui(EntityPlayer playerIn, EnumHand hand) {
-        if (playerIn.getHeldItem(hand).getItem() == LogisticsBridge.packageItem) {
-            ItemStack is = playerIn.getHeldItem(hand);
+    public void openGui(EntityPlayer player, EnumHand hand) {
+        if (player.getHeldItem(hand).getItem() == LogisticsBridge.packageItem) {
+            ItemStack is = player.getHeldItem(hand);
             if (!is.hasTagCompound()) is.setTagCompound(new NBTTagCompound());
             is.getTagCompound().setString("__pkgDest", getNode().satelliteId);
-            playerIn.inventoryContainer.detectAndSendChanges();
+            player.inventoryContainer.detectAndSendChanges();
         } else {
-            playerIn.openGui(LogisticsBridge.modInstance, 5, world, pos.getX(), pos.getY(), pos.getZ());
+            player.openGui(LogisticsBridge.modInstance, 5, world, pos.getX(), pos.getY(), pos.getZ());
             ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(getNode().satelliteId).setId(0).setPosX(pos.getX()).setPosY(pos.getY()).setPosZ(pos.getZ());
-            MainProxy.sendPacketToPlayer(packet, playerIn);
+            MainProxy.sendPacketToPlayer(packet, player);
         }
     }
 

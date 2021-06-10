@@ -19,8 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CraftingManagerPipeSign implements IPipeSign {
 
-    public CoreRoutedPipe pipe;
-    public EnumFacing dir;
+    private CoreRoutedPipe pipe;
 
     @Override
     public boolean isAllowedFor(CoreRoutedPipe pipe) {
@@ -33,12 +32,10 @@ public class CraftingManagerPipeSign implements IPipeSign {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
-    }
+    public void readFromNBT(NBTTagCompound tag) { }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
-    }
+    public void writeToNBT(NBTTagCompound tag) { }
 
     @Override
     public ModernPacket getPacket() {
@@ -47,18 +44,15 @@ public class CraftingManagerPipeSign implements IPipeSign {
     }
 
     @Override
-    public void updateServerSide() {
-    }
+    public void updateServerSide() { }
 
     @Override
     public void init(CoreRoutedPipe pipe, EnumFacing dir) {
         this.pipe = pipe;
-        this.dir = dir;
     }
 
     @Override
-    public void activate(EntityPlayer player) {
-    }
+    public void activate(EntityPlayer player) { }
 
     @Override
     @SideOnly(Side.CLIENT)

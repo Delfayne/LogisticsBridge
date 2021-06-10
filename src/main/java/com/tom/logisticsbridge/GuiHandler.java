@@ -30,12 +30,10 @@ public class GuiHandler implements IGuiHandler {
     private static CoreUnroutedPipe getPipe(World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
         LogisticsTileGenericPipe pipe = null;
-        if (tile instanceof LogisticsTileGenericPipe) {
+        if (tile instanceof LogisticsTileGenericPipe)
             pipe = (LogisticsTileGenericPipe) tile;
-        }
-        if (pipe != null) {
+        if (pipe != null)
             return pipe.pipe;
-        }
         return null;
     }
 
@@ -46,36 +44,32 @@ public class GuiHandler implements IGuiHandler {
             final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
             if (te instanceof IPartHost) {
                 final IPart part = ((IPartHost) te).getPart(side);
-                if (part instanceof PartSatelliteBus) {
+                if (part instanceof PartSatelliteBus)
                     return new DummyContainer(player.inventory, null);
-                }
             }
             return null;
         }
         if (id == 5) {
             final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-            if (te != null && te instanceof IIdPipe) {
+            if (te != null && te instanceof IIdPipe)
                 return new DummyContainer(player.inventory, null);
-            }
             return null;
         }
         switch (GuiIDs.values[id]) {
             case RESULT_PIPE: {
                 CoreUnroutedPipe pipe = getPipe(world, x, y, z);
-                if (pipe != null && pipe instanceof IIdPipe) {
+                if (pipe != null && pipe instanceof IIdPipe)
                     return new DummyContainer(player.inventory, null);
-                }
             }
             break;
             case CRAFTING_MANAGER: {
                 CoreUnroutedPipe pipe = getPipe(world, x, y, z);
-                if (pipe != null && pipe instanceof CraftingManager) {
-                    return new ContainerCraftingManager(player, (CraftingManager) pipe, true);
-                } else {
+                if (pipe != null && pipe instanceof CraftingManager)
+                    return new ContainerCraftingManager(player, (CraftingManager) pipe);
+                else {
                     TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
-                    if (tile instanceof ICraftingManager) {
+                    if (tile instanceof ICraftingManager)
                         return new ContainerCraftingManagerU(player, (ICraftingManager) tile);
-                    }
                 }
             }
             break;
@@ -96,20 +90,18 @@ public class GuiHandler implements IGuiHandler {
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         if (ID >= 100 && ID < 120) {
             AEPartLocation side = AEPartLocation.fromOrdinal(ID - 100);
-            final TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
-            if (TE instanceof IPartHost) {
-                final IPart part = ((IPartHost) TE).getPart(side);
-                if (part instanceof PartSatelliteBus) {
+            final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+            if (te instanceof IPartHost) {
+                final IPart part = ((IPartHost) te).getPart(side);
+                if (part instanceof PartSatelliteBus)
                     return new GuiResultPipe((SatellitePipe) part);
-                }
             }
             return null;
         }
         if (ID == 5) {
-            final TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
-            if (TE != null && TE instanceof SatellitePipe) {
-                return new GuiResultPipe((SatellitePipe) TE);
-            }
+            final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+            if (te != null && te instanceof SatellitePipe)
+                return new GuiResultPipe((SatellitePipe) te);
             return null;
         }
         switch (GuiIDs.values[ID]) {
@@ -122,13 +114,12 @@ public class GuiHandler implements IGuiHandler {
             break;
             case CRAFTING_MANAGER: {
                 CoreUnroutedPipe pipe = getPipe(world, x, y, z);
-                if (pipe != null && pipe instanceof CraftingManager) {
+                if (pipe != null && pipe instanceof CraftingManager)
                     return new GuiCraftingManager(player, (CraftingManager) pipe);
-                } else {
+                else {
                     TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
-                    if (tile instanceof ICraftingManager) {
+                    if (tile instanceof ICraftingManager)
                         return new GuiCraftingManagerU(player, (ICraftingManager) tile);
-                    }
                 }
             }
             break;

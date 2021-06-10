@@ -8,11 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class ContainerPackage extends Container implements Consumer<String> {
 
-    public static final int phantomSlotChange = 4;
+    public static final int PHANTOM_SLOT_CHANGE = 4;
     public String id;
     public Runnable update;
     private final EnumHand hand;
@@ -30,61 +31,57 @@ public class ContainerPackage extends Container implements Consumer<String> {
     }
 
     @Override
-    public void onContainerClosed(EntityPlayer playerIn) {
-        super.onContainerClosed(playerIn);
-        ItemStack is = playerIn.getHeldItem(hand);
-        if (is.getItem() == LogisticsBridge.packageItem && (!is.hasTagCompound() || (is.hasTagCompound() && !is.getTagCompound().getBoolean("__actStack")))) {
+    public void onContainerClosed(@Nonnull EntityPlayer player) {
+        super.onContainerClosed(player);
+        ItemStack is = player.getHeldItem(hand);
+        if (is.getItem() == LogisticsBridge.packageItem && (!is.hasTagCompound() || !is.getTagCompound().getBoolean("__actStack"))) {
             is.setTagCompound(inv.getStackInSlot(0).writeToNBT(new NBTTagCompound()));
-            if (id != null) is.getTagCompound().setString("__pkgDest", id);
+            if (id != null)
+                is.getTagCompound().setString("__pkgDest", id);
             is.getTagCompound().setBoolean("__actStack", false);
         }
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer playerIn) {
+    public boolean canInteractWith(EntityPlayer player) {
         return true;
     }
 
     protected void addPlayerSlotsExceptHeldItem(InventoryPlayer playerInventory, int x, int y) {
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 9; ++j) {
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 9; ++j)
                 addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, x + j * 18, y + i * 18));
-            }
-        }
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < 9; ++i)
             if (playerInventory.currentItem == i)
                 addSlotToContainer(new SlotLocked(playerInventory, i, x + i * 18, y + 58));
             else
                 addSlotToContainer(new Slot(playerInventory, i, x + i * 18, y + 58));
-        }
     }
 
     @Override
-    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer playerIn) {
+    public ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType ct, @Nonnull EntityPlayer player) {
         Slot slot = slotId > -1 && slotId < inventorySlots.size() ? inventorySlots.get(slotId) : null;
         if (slot instanceof SlotPhantom) {
-            ItemStack s = playerIn.inventory.getItemStack().copy();
-            if (!s.isEmpty()) {
+            ItemStack s = player.inventory.getItemStack().copy();
+            if (!s.isEmpty())
                 slot.putStack(dragType == 1 ? s.splitStack(1) : s);
-            } else if (dragType != 1)
+            else if (dragType != 1)
                 slot.putStack(ItemStack.EMPTY);
-            else if (dragType == 1) {
-                if (!slot.getStack().isEmpty()) {
+            else if (!slot.getStack().isEmpty()) {
                     int c = 1;
-                    if (clickTypeIn == ClickType.PICKUP_ALL)
+                    if (ct == ClickType.PICKUP_ALL)
                         c = -1;
-                    else if (clickTypeIn == ClickType.QUICK_CRAFT)
-                        c = -phantomSlotChange;
-                    else if (clickTypeIn == ClickType.CLONE)
-                        c = phantomSlotChange;
+                    else if (ct == ClickType.QUICK_CRAFT)
+                        c = -PHANTOM_SLOT_CHANGE;
+                    else if (ct == ClickType.CLONE)
+                        c = PHANTOM_SLOT_CHANGE;
                     if (slot.getStack().getMaxStackSize() >= slot.getStack().getCount() + c && slot.getStack().getCount() + c > 0) {
                         slot.getStack().grow(c);
                     }
                 }
-            }
-            return playerIn.inventory.getItemStack();
+            return player.inventory.getItemStack();
         } else
-            return super.slotClick(slotId, dragType, clickTypeIn, playerIn);
+            return super.slotClick(slotId, dragType, ct, player);
     }
 
     @Override
@@ -99,12 +96,12 @@ public class ContainerPackage extends Container implements Consumer<String> {
         }
 
         @Override
-        public boolean canTakeStack(EntityPlayer playerIn) {
+        public boolean canTakeStack(@Nonnull EntityPlayer player) {
             return false;
         }
 
         @Override
-        public boolean isItemValid(ItemStack stack) {
+        public boolean isItemValid(@Nonnull ItemStack stack) {
             return false;
         }
     }
@@ -127,12 +124,12 @@ public class ContainerPackage extends Container implements Consumer<String> {
         }
 
         @Override
-        public boolean canTakeStack(EntityPlayer par1EntityPlayer) {
+        public boolean canTakeStack(@Nonnull EntityPlayer player) {
             return false;
         }
 
         @Override
-        public boolean isItemValid(ItemStack stack) {
+        public boolean isItemValid(@Nonnull ItemStack stack) {
             return true;
         }
     }

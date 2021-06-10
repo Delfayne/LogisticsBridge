@@ -89,8 +89,16 @@ public class GuiPackage extends GuiContainer implements Runnable {
         if (!textField.mouseClicked(mouseX, mouseY, mouseButton)) {
             Slot slot = this.getSlotUnderMouse();
             if (slot instanceof SlotPhantom) {
-                SlotPhantom s = (SlotPhantom) slot;
-                this.handleMouseClick(s, s.slotNumber, mouseButton, isCtrlKeyDown() ? isShiftKeyDown() ? ClickType.QUICK_CRAFT : ClickType.CLONE : isShiftKeyDown() ? ClickType.PICKUP_ALL : ClickType.PICKUP);
+                if (isCtrlKeyDown()) {
+                    if (isShiftKeyDown())
+                        this.handleMouseClick(slot, slot.slotNumber, mouseButton, ClickType.QUICK_CRAFT);
+                    else
+                        this.handleMouseClick(slot, slot.slotNumber, mouseButton, ClickType.CLONE);
+                } else
+                    if (isShiftKeyDown())
+                        this.handleMouseClick(slot, slot.slotNumber, mouseButton, ClickType.PICKUP_ALL);
+                    else
+                        this.handleMouseClick(slot, slot.slotNumber, mouseButton, ClickType.PICKUP);
             } else
                 super.mouseClicked(mouseX, mouseY, mouseButton);
         }

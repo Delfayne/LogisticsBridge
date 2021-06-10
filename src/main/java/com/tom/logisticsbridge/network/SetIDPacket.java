@@ -62,21 +62,19 @@ public class SetIDPacket extends CoordinatesPacket {
 
     @Override
     public void processPacket(EntityPlayer player) {
-        if (side != 0) {
+        if (side != 0)
             LogisticsBridge.processResIDMod(player, this);
-        } else {
+        else
             try {
                 final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
-                if (pipe.pipe instanceof IIdPipe) {
+                if (pipe.pipe instanceof IIdPipe)
                     ((IIdPipe) pipe.pipe).setPipeID(id, pid, player);
-                }
             } catch (TargetNotFoundException e) {
                 IIdPipe pp = getTileAs(player.world, IIdPipe.class);
-                if (pp == null) return;
+                if (pp == null)
+                    return;
                 pp.setPipeID(id, pid, player);
-                return;
             }
-        }
     }
 
     /**

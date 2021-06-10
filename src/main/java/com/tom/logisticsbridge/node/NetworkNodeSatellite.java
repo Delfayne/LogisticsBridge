@@ -22,7 +22,7 @@ import java.util.ListIterator;
 
 public class NetworkNodeSatellite extends NetworkNode implements IIdPipe {
     public static final String ID = "lb.satellite";
-    public String satelliteId = "";
+    public String satelliteId;
     private final List<ItemStack> itemsToInsert = new ArrayList<>();
 
     public NetworkNodeSatellite(World world, BlockPos pos) {
@@ -108,10 +108,6 @@ public class NetworkNodeSatellite extends NetworkNode implements IIdPipe {
     public void push(ItemStack is) {
         if (!is.isEmpty())
             itemsToInsert.add(is);
-    }
-
-    public boolean canAccept() {
-        return itemsToInsert.size() < 10;
     }
 
     @Override

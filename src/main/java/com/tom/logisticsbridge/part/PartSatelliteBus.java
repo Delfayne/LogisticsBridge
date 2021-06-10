@@ -39,6 +39,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -54,7 +55,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
 
     @PartModels
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_has_channel"));
-    public String satelliteId = "";
+    public String satelliteId;
     private final List<IAEItemStack> itemsToInsert = new ArrayList<>();
 
     @Reflected
@@ -62,21 +63,22 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
         super(is);
     }
 
+    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(final IGridNode node) {
+    public TickingRequest getTickingRequest(@Nonnull final IGridNode node) {
         return new TickingRequest(TickRates.ExportBus.getMin(), TickRates.ExportBus.getMax(), this.isSleeping(), false);
     }
 
+    @Nonnull
     @Override
-    public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         return this.doBusWork();
     }
 
     @Override
     protected TickRateModulation doBusWork() {
-        if (!this.getProxy().isActive() || !this.canDoBusWork()) {
+        if (!this.getProxy().isActive() || !this.canDoBusWork())
             return TickRateModulation.IDLE;
-        }
         if (!itemsToInsert.isEmpty()) {
             ListIterator<IAEItemStack> itr = itemsToInsert.listIterator();
             boolean didSomething = false;
@@ -87,9 +89,12 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
                     continue;
                 }
                 IAEItemStack result = injectCraftedItems(stack, Actionable.MODULATE);
-                if (!stack.equals(result)) didSomething = true;
-                if (result != null) itr.set(result);
-                else itr.remove();
+                if (!stack.equals(result))
+                    didSomething = true;
+                if (result != null)
+                    itr.set(result);
+                else
+                    itr.remove();
             }
             return didSomething ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         }
@@ -130,15 +135,17 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
         return items;
     }
 
+    @Nonnull
     @Override
     public IPartModel getStaticModels() {
-        if (this.isActive() && this.isPowered()) {
-            return MODELS_HAS_CHANNEL;
-        } else if (this.isPowered()) {
-            return MODELS_ON;
-        } else {
-            return MODELS_OFF;
+        if (this.isPowered()) {
+            if (this.isActive())
+                return MODELS_HAS_CHANNEL;
+            else
+                return MODELS_ON;
         }
+
+        return MODELS_OFF;
     }
 
     @Override
@@ -146,7 +153,8 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
         if (Platform.isServer()) {
             if (player.getHeldItem(hand).getItem() == LogisticsBridge.packageItem) {
                 ItemStack is = player.getHeldItem(hand);
-                if (!is.hasTagCompound()) is.setTagCompound(new NBTTagCompound());
+                if (!is.hasTagCompound())
+                    is.setTagCompound(new NBTTagCompound());
                 is.getTagCompound().setString("__pkgDest", satelliteId);
                 player.inventoryContainer.detectAndSendChanges();
             } else {
@@ -157,6 +165,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
                 MainProxy.sendPacketToPlayer(packet, player);
             }
         }
+
         return true;
     }
 
@@ -201,29 +210,30 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
         satelliteId = extra.getString("satName");
         NBTTagList lst = extra.getTagList("itemsToInsert", 10);
         itemsToInsert.clear();
-        IItemStorageChannel ITEMS = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
+        IItemStorageChannel items = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
         for (int i = 0; i < lst.tagCount(); i++) {
             NBTTagCompound tag = lst.getCompoundTagAt(i);
-            itemsToInsert.add(ITEMS.createFromNBT(tag));
+            itemsToInsert.add(items.createFromNBT(tag));
         }
     }
 
     public boolean push(IInventory table) {
         if (itemsToInsert.size() > 9) return false;
-        IItemStorageChannel ITEMS = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
+        IItemStorageChannel items = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
         for (int i = 0; i < table.getSizeInventory(); i++) {
             ItemStack is = table.removeStackFromSlot(i);
             if (!is.isEmpty())
-                itemsToInsert.add(ITEMS.createStack(is));
+                itemsToInsert.add(items.createStack(is));
         }
         return true;
     }
 
     public boolean push(ItemStack is) {
-        if (itemsToInsert.size() > 9) return false;
-        IItemStorageChannel ITEMS = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
+        if (itemsToInsert.size() > 9)
+            return false;
+        IItemStorageChannel items = AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class);
         if (!is.isEmpty())
-            itemsToInsert.add(ITEMS.createStack(is));
+            itemsToInsert.add(items.createStack(is));
         return true;
     }
 

@@ -8,10 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PopupMenu {
-    public int x, y;
-    public Object additionalData;
-    public List<String> options = new ArrayList<>();
-    public boolean visible;
+    private int x;
+    private int y;
+    Object additionalData;
+    public final List<String> options = new ArrayList<>();
+    private boolean visible;
 
     public void show(int x, int y, Object additionalData) {
         this.visible = true;

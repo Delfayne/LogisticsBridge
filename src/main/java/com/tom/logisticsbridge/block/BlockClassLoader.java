@@ -16,7 +16,7 @@ public class BlockClassLoader extends LaunchClassLoader {
         this.parent = parent;
     }
 
-    public static Class<BlockBridgeAE> loadBridgeAE() throws NotFoundException, CannotCompileException {
+    public static Class<?> loadBridgeAE() throws NotFoundException, CannotCompileException {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
         CtClass clazz = ClassPool.getDefault().get(BBAE);
 
@@ -25,7 +25,7 @@ public class BlockClassLoader extends LaunchClassLoader {
         return clazz.toClass();
     }
 
-    public static Class<BlockCraftingManager> loadBlockCraftingManager() throws NotFoundException, CannotCompileException {
+    public static Class<?> loadBlockCraftingManager() throws NotFoundException, CannotCompileException {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
         CtClass clazz = ClassPool.getDefault().get(BCM);
 

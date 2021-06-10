@@ -16,6 +16,6 @@ public interface IBridge {
 
     ItemStack extractStack(ItemStack stack, int count, boolean simulate);
 
-    void setReqAPI(Req reqapi);
+    void setReqAPI(Req req);
 
 }

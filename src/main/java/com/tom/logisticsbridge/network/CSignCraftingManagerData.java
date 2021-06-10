@@ -17,12 +17,10 @@ public class CSignCraftingManagerData extends InventoryModuleCoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         CoreUnroutedPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE).pipe;
-        if (pipe == null || !(pipe instanceof CraftingManager)) {
+        if (pipe == null || !(pipe instanceof CraftingManager))
             return;
-        }
-        for (int i = 0; i < getStackList().size(); i++) {
+        for (int i = 0; i < getStackList().size(); i++)
             ((CraftingManager) pipe).getClientModuleInventory().setInventorySlotContents(i, getStackList().get(i));
-        }
     }
 
     @Override

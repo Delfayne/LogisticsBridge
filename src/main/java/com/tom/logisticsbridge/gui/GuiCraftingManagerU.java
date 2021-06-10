@@ -90,19 +90,20 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
     protected void actionPerformed(GuiButton button) throws IOException {
         switch (button.id) {
             case 0:
-                openSubGuiForSatelliteSelection(0);
-                return;
-
+                openSubGuiForSatelliteSelection();
+                break;
             case 1:
-                BlockingMode m = BlockingMode.VALUES[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.VALUES.length];
+                BlockingMode m = BlockingMode.values[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.values.length];
                 if (m == BlockingMode.NULL) m = BlockingMode.OFF;
                 pipe.setPipeID(1, Integer.toString(m.ordinal()), null);
-                return;
+                break;
+            default:
+                break;
         }
     }
 
-    private void openSubGuiForSatelliteSelection(int id) {
-        this.setSubGui(new GuiSelectIDPopup(pipe.getPosition(), id, 0, uuid -> pipe.setPipeID(id, uuid, null)));
+    private void openSubGuiForSatelliteSelection() {
+        this.setSubGui(new GuiSelectIDPopup(pipe.getPosition(), 0, 0, uuid -> pipe.setPipeID(0, uuid, null)));
     }
 
     public RenderItem renderItem() {
@@ -137,9 +138,15 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
         @Override
         public void renderForground(int left, int top) {
             String pid = getString();
-            if (!isFullyExtended()) {
+            if (isFullyExtended()) {
+                mc.fontRenderer.drawString(name, left + 9, top + 8, 0x404040);
+                if (pid == null || pid.isEmpty())
+                    mc.fontRenderer.drawString(TextUtil.translate("gui.craftingManager.noConnection"), left + 40, top + 22, 0x404040);
+                else
+                    mc.fontRenderer.drawString(pid, left + textOff() - mc.fontRenderer.getStringWidth(pid) / 2, top + 22, 0x404040);
+            } else {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
                 GL11.glEnable(GL11.GL_LIGHTING);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 RenderHelper.enableGUIStandardItemLighting();
@@ -148,13 +155,6 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
                 GL11.glDisable(GL11.GL_LIGHTING);
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
                 renderItem().zLevel = 0.0F;
-            } else {
-                mc.fontRenderer.drawString(name, left + 9, top + 8, 0x404040);
-                if (pid == null || pid.isEmpty()) {
-                    mc.fontRenderer.drawString(TextUtil.translate("gui.craftingManager.noConnection"), left + 40, top + 22, 0x404040);
-                } else {
-                    mc.fontRenderer.drawString("" + pid, left + textOff() - mc.fontRenderer.getStringWidth("" + pid) / 2, top + 22, 0x404040);
-                }
             }
         }
 

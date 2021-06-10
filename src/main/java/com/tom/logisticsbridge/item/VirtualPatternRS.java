@@ -90,7 +90,7 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
     }
 
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
     }
 
@@ -109,13 +109,13 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
             this.container = container;
             this.stack = is;
             final NBTTagCompound tag = is.getTagCompound();
-            if (tag == null) {
+
+            if (tag == null)
                 throw new IllegalArgumentException("No pattern here!");
-            }
-            if (tag.hasKey("out", NBT.TAG_COMPOUND)) {
+
+            if (tag.hasKey("out", NBT.TAG_COMPOUND))
                 result = new ItemStack(tag.getCompoundTag("out"));
-            } else {
-            }
+
             in = NonNullList.create();
             out = NonNullList.create();
             out.add(result);
@@ -125,18 +125,16 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
                 NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
                 final ItemStack gs = new ItemStack(ingredient);
 
-                if (!ingredient.hasNoTags() && gs.isEmpty()) {
+                if (!ingredient.hasNoTags() && gs.isEmpty())
                     throw new IllegalArgumentException("No pattern here!");
-                }
 
                 in.add(gs);
             }
             if (tag.hasKey("dynamic", NBT.TAG_COMPOUND)) {
                 dynamic = IDynamicPatternDetailsRS.load(tag.getCompoundTag("dynamic"));
                 dynamic.getOutputs(result, null);
-            } else {
+            } else
                 dynamic = null;
-            }
         }
 
         @Override
@@ -217,23 +215,17 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
 
         @Override
         public int getChainHashCode() {
-            int result = 0;
+            int res = 31;
 
-            result = 31 * result + 1;
-            result = 31 * result;
+            for (ItemStack input : in)
+                res = 31 * res + API.instance().getItemStackHashCode(input);
 
-            for (ItemStack input : in) {
-                result = 31 * result + API.instance().getItemStackHashCode(input);
-            }
+            for (ItemStack output : out)
+                res = 31 * res + API.instance().getItemStackHashCode(output);
 
+            res = 31 * res + 69;
 
-            for (ItemStack output : this.out) {
-                result = 31 * result + API.instance().getItemStackHashCode(output);
-            }
-
-            result = 31 * result + 69;
-
-            return result;
+            return res;
         }
 
     }

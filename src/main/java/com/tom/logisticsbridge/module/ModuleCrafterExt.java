@@ -188,7 +188,6 @@ public class ModuleCrafterExt extends ModuleCrafter {
         if (resultR == null) return;
         CoreRoutedPipe coreRoutedPipe = resultR.getPipe();
         if (!(coreRoutedPipe instanceof ResultPipe)) return;
-        ResultPipe res = (ResultPipe) coreRoutedPipe;
 
         IResource requestedItem = tree.getRequestType();
 
@@ -202,19 +201,14 @@ public class ModuleCrafterExt extends ModuleCrafter {
             }
         }
         int remaining = 0;
-        for (LogisticsItemOrder extra : _service.getItemOrderManager()) {
-            if (extra.getType() == ResourceType.EXTRA) {
-                if (extra.getResource().getItem().equals(requestedItem.getAsItem())) {
-                    remaining += extra.getResource().stack.getStackSize();
-                }
-            }
-        }
+        for (LogisticsItemOrder extra : _service.getItemOrderManager())
+            if (extra.getType() == ResourceType.EXTRA && extra.getResource().getItem().equals(requestedItem.getAsItem()))
+                remaining += extra.getResource().stack.getStackSize();
         final ItemIdentifierStack craftedItem = getCraftedItem();
         if (craftedItem == null) return;
         remaining -= root.getAllPromissesFor(this, craftedItem.getItem());
-        if (remaining < 1) {
+        if (remaining < 1)
             return;
-        }
         if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
             DictResource dict = new DictResource(craftedItem, null).loadFromBitSet(outputFuzzy().copyValue());
             LogisticsExtraDictPromise promise = new LogisticsExtraDictPromise(dict,
@@ -233,29 +227,28 @@ public class ModuleCrafterExt extends ModuleCrafter {
         if (!(_service instanceof CraftingManager)) return null;
         CraftingManager mngr = (CraftingManager) _service;
         ItemIdentifierStack result = getCraftedItem();
-        if (result == null) return null;
+        if (result == null)
+            return null;
         int multiply = (int) Math.ceil(promise.numberOfItems / (float) result.getStackSize());
         if (mngr.isBuffered()) {
             List<Pair<UUID, ItemIdentifierStack>> rec = new ArrayList<>();
             UUID defSat = mngr.getSatelliteUUID();
-            if (defSat == null) return null;
+            if (defSat == null)
+                return null;
             UUID[] target = new UUID[9];
             for (int i = 0; i < 9; i++) {
                 target[i] = defSat;
             }
 
             boolean hasSatellite = isSatelliteConnected();
-            if (!hasSatellite) {
+            if (!hasSatellite)
                 return null;
-            }
             if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-                for (int i = 6; i < 9; i++) {
+                for (int i = 6; i < 9; i++)
                     target[i] = satelliteUUID.getValue();
-                }
             } else {
-                for (int i = 0; i < 9; i++) {
+                for (int i = 0; i < 9; i++)
                     target[i] = advancedSatelliteUUIDList.get(i);
-                }
             }
 
             for (int i = 0; i < target.length; i++) {
@@ -267,7 +260,8 @@ public class ModuleCrafterExt extends ModuleCrafter {
                 mngr.addBuffered(rec);
         }
         IRouter resultR = getResultRouterByID(mngr.getResultUUID());
-        if (resultR == null) return null;
+        if (resultR == null)
+            return null;
         CoreRoutedPipe coreRoutedPipe = resultR.getPipe();
         if (!(coreRoutedPipe instanceof ResultPipe)) return null;
         ResultPipe res = (ResultPipe) coreRoutedPipe;
@@ -294,37 +288,28 @@ public class ModuleCrafterExt extends ModuleCrafter {
     @Override
     public void enabledUpdateEntity() {
         super.enabledUpdateEntity();
-        if (!_service.isNthTick(6)) {
+        if (!_service.isNthTick(6))
             return;
-        }
-
-        if (!(_service instanceof CraftingManager)) return;
-        CraftingManager mngr = (CraftingManager) _service;
-
-        if ((!_service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA))) {
-            if (getUpgradeManager().getCrafterCleanup() > 0) {
-                IRouter resultR = getResultRouterByID(mngr.getResultUUID());
-                if (resultR == null) return;
-                CoreRoutedPipe coreRoutedPipe = resultR.getPipe();
-                if (!(coreRoutedPipe instanceof ResultPipe)) return;
-                ResultPipe res = (ResultPipe) coreRoutedPipe;
-                res.extractCleanup(cleanupInventory, cleanupModeIsExclude.getValue(), getUpgradeManager().getCrafterCleanup() * 3);
-            }
-            return;
+        if (_service instanceof CraftingManager && !_service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA) && getUpgradeManager().getCrafterCleanup() > 0) {
+            IRouter resultR = getResultRouterByID(((CraftingManager) _service).getResultUUID());
+            if (resultR == null) return;
+            CoreRoutedPipe coreRoutedPipe = resultR.getPipe();
+            if (!(coreRoutedPipe instanceof ResultPipe)) return;
+            ResultPipe res = (ResultPipe) coreRoutedPipe;
+            res.extractCleanup(cleanupInventory, cleanupModeIsExclude.getValue(), getUpgradeManager().getCrafterCleanup() * 3);
         }
     }
 
     @Override
     public void guiClosedByPlayer(EntityPlayer player) {
         super.guiClosedByPlayer(player);
-        if (MainProxy.isClient(_world.getWorld())) return;
-        if (!(_service instanceof CraftingManager)) return;
-        CraftingManager mngr = (CraftingManager) _service;
-        ChassisModule m = mngr.getModules();
-        for (int i = 0; i < 27; i++) {
-            if (m.getModule(i) == this) {
-                mngr.save(i);
-                break;
+        if (!MainProxy.isClient(_world.getWorld()) && _service instanceof CraftingManager) {
+            ChassisModule m = ((CraftingManager) _service).getModules();
+            for (int i = 0; i < 27; i++) {
+                if (m.getModule(i) == this) {
+                    ((CraftingManager) _service).save(i);
+                    break;
+                }
             }
         }
     }

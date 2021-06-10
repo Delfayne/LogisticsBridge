@@ -129,14 +129,12 @@ public class LogisticsBridge {
             ClassLoader loader = thread.getContextClassLoader();
             ClassLoader newLoader = new BlockClassLoader(loader);
             thread.setContextClassLoader(newLoader);
-            LogisticsBridge.log.warn("XPEHb - " + LogisticsBridge.class.getClassLoader());
             Class<AE2Plugin> clazz = (Class<AE2Plugin>) newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
             clazz.getMethod("preInit", ClassLoader.class).invoke(null, newLoader);
             thread.setContextClassLoader(loader);
         }
-        if (rsLoaded) {
+        if (rsLoaded)
             RSPlugin.preInit();
-        }
         registerItem(logisticsFakeItem, true);
         registerItem(packageItem, true);
 
@@ -166,12 +164,10 @@ public class LogisticsBridge {
     public static void init(FMLInitializationEvent evt) {
         log.info("Start Initialization");
         long tM = System.currentTimeMillis();
-        if (evt.getSide() == Side.SERVER) {
+        if (evt.getSide() == Side.SERVER)
             registerTextures(null);
-        }
-        if (aeLoaded) {
+        if (aeLoaded)
             AE2Plugin.patchSorter();
-        }
         NetworkRegistry.INSTANCE.registerGuiHandler(modInstance, new GuiHandler());
         proxy.init();
         loadRecipes();
@@ -199,13 +195,10 @@ public class LogisticsBridge {
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgr);
         ResourceLocation group = new ResourceLocation(ID, "recipes");
 
-        if (aeLoaded) {
+        if (aeLoaded)
             AE2Plugin.loadRecipes(group);
-        }
-
-        if (rsLoaded) {
+        if (rsLoaded)
             RSPlugin.loadRecipes(group);
-        }
 
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeBridge), " p ", "fbf", "dad",
                 'p', getIngredientForProgrammer(bridgePrg),
@@ -254,8 +247,8 @@ public class LogisticsBridge {
 
     public static void registerTextures(Object object) {
         BridgePipe.TEXTURE = registerTexture(object, "pipes/lb/bridge");
-        ResultPipe.TEXTURE = registerTexture(object, "pipes/lb/result");
-        CraftingManager.TEXTURE = registerTexture(object, "pipes/lb/crafting_manager");
+        ResultPipe.texture = registerTexture(object, "pipes/lb/result");
+        CraftingManager.texture = registerTexture(object, "pipes/lb/crafting_manager");
     }
 
     private static TextureType registerTexture(Object par1IIconRegister, String fileName) {
@@ -271,13 +264,11 @@ public class LogisticsBridge {
     }
 
     public static void registerItem(Item item, boolean registerRenderer) {
-        if (item.getRegistryName() == null) item.setRegistryName(item.getUnlocalizedName().substring(5));
+        if (item.getRegistryName() == null)
+            item.setRegistryName(item.getUnlocalizedName().substring(5));
         ForgeRegistries.ITEMS.register(item);
-        if (registerRenderer) proxy.addRenderer(item);
-    }
-
-    public static void registerBlock(Block block) {
-        registerBlock(block, ItemBlock::new);
+        if (registerRenderer)
+            proxy.addRenderer(item);
     }
 
     public static <T extends Block> void registerBlock(T block, Function<T, Item> itemBlock) {
@@ -297,20 +288,24 @@ public class LogisticsBridge {
 
     public static ItemStack fakeStack(ItemStack stack, int count) {
         ItemStack is = new ItemStack(logisticsFakeItem, count);
-        if (stack != null && !stack.isEmpty()) is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
+        if (stack != null && !stack.isEmpty())
+            is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
         return is;
     }
 
     public static ItemStack fakeStack(NBTTagCompound stack, int count) {
         ItemStack is = new ItemStack(logisticsFakeItem, count);
-        if (stack != null && !stack.hasNoTags()) is.setTagCompound(stack);
+        if (stack != null && !stack.hasNoTags())
+            is.setTagCompound(stack);
         return is;
     }
 
     public static ItemStack packageStack(ItemStack stack, int count, String id, boolean actStack) {
         ItemStack is = new ItemStack(packageItem, count);
-        if (stack != null && !stack.isEmpty()) is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
-        if (!is.hasTagCompound()) is.setTagCompound(new NBTTagCompound());
+        if (stack != null && !stack.isEmpty())
+            is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
+        if (!is.hasTagCompound())
+            is.setTagCompound(new NBTTagCompound());
         is.getTagCompound().setString("__pkgDest", id);
         is.getTagCompound().setBoolean("__actStack", actStack);
         return is;
@@ -338,7 +333,7 @@ public class LogisticsBridge {
             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
             int j = nbttagcompound.getByte("Slot") & 255;
 
-            if (j >= 0 && j < invSize) {
+            if (j < invSize) {
                 inv.setInventorySlotContents(j, new ItemStack(nbttagcompound));
             }
         }
@@ -382,10 +377,8 @@ public class LogisticsBridge {
     public void openGui(PlayerContainerEvent.Open event) {
         if (event.getContainer() instanceof DummyContainer && !(event.getContainer() instanceof ContainerCraftingManager)) {
             DummyContainer dc = (DummyContainer) event.getContainer();
-            dc.inventorySlots.stream().filter(s -> s instanceof ModuleSlot).findFirst().
-                    map(s -> ((ModuleSlot) s).get_pipe()).filter(p -> p instanceof CraftingManager).ifPresent(cmgr -> {
-                ((CraftingManager) cmgr).openGui(event.getEntityPlayer());
-            });
+            dc.inventorySlots.stream().filter(ModuleSlot.class::isInstance).findFirst().
+                    map(s -> ((ModuleSlot) s).get_pipe()).filter(CraftingManager.class::isInstance).ifPresent(cmgr -> ((CraftingManager) cmgr).openGui(event.getEntityPlayer()));
         }
     }
 

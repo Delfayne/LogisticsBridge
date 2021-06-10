@@ -15,7 +15,8 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class RequestIDListPacket extends CoordinatesPacket {
-    public int side, id;
+    public int side;
+    private int id;
 
     public RequestIDListPacket(int id) {
         super(id);
@@ -24,24 +25,22 @@ public class RequestIDListPacket extends CoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         IIdPipe rPipe;
-        if (side != 0) {
+        if (side != 0)
             rPipe = LogisticsBridge.processReqIDList(player, this);
-        } else {
+        else
             try {
                 CoreUnroutedPipe cpipe = getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE).pipe;
-                if (!(cpipe instanceof IIdPipe)) {
+                if (!(cpipe instanceof IIdPipe))
                     throw new TargetNotFoundException(null, this);
-                }
                 rPipe = (IIdPipe) cpipe;
             } catch (Exception e) {
                 IIdPipe pp = getTileAs(player.world, IIdPipe.class);
-                if (pp == null) return;
+                if (pp == null)
+                    return;
                 rPipe = pp;
             }
-        }
-        if (rPipe == null) {
+        if (rPipe == null)
             return;
-        }
 
         MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideIDListPacket.class).setList(rPipe.list(id)), player);
     }

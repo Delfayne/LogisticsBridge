@@ -41,7 +41,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
@@ -88,7 +87,6 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
                         m.invoke(rtn);
                     } catch (Exception e2) {
                         e2.printStackTrace();
-                        return;
                     }
                 };
             }
@@ -120,7 +118,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     private final BPModule itemSinkModule;
     private IBridge bridge;
     private EnumFacing dir;
-    private final Req reqapi = new Req();
+    private final Req req = new Req();
 
     public BridgePipe(Item item) {
         super(item);
@@ -177,43 +175,34 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 		/*System.out.println("BridgePipe.canProvide()");
 		System.out.println(tree);
 		System.out.println(root);*/
-        if (!isEnabled() || bridge == null || canCraft(tree.getRequestType())) {
+        if (!isEnabled() || bridge == null || canCraft(tree.getRequestType()))
             return;
-        }
         if (tree.getRequestType() instanceof ItemResource) {
             ItemIdentifier item = ((ItemResource) tree.getRequestType()).getItem();
-            for (IFilter filter : filters) {
-                if (filter.isBlocked() == filter.isFilteredItem(item.getUndamaged()) || filter.blockProvider()) {
+            for (IFilter filter : filters)
+                if (filter.isBlocked() == filter.isFilteredItem(item.getUndamaged()) || filter.blockProvider())
                     return;
-                }
-            }
 
             // Check the transaction and see if we have helped already
             int canProvide = getAvailableItemCount(item);
             canProvide -= root.getAllPromissesFor(this, item);
-            if (canProvide < 1) {
+            if (canProvide < 1)
                 return;
-            }
-            LogisticsPromise promise = new LogisticsPromise(item, Math.min(canProvide, tree.getMissingAmount()), this, ResourceType.PROVIDER);
-            tree.addPromise(promise);
+            tree.addPromise(new LogisticsPromise(item, Math.min(canProvide, tree.getMissingAmount()), this, ResourceType.PROVIDER));
         } else if (tree.getRequestType() instanceof DictResource) {
             DictResource dict = (DictResource) tree.getRequestType();
             HashMap<ItemIdentifier, Integer> available = new HashMap<>();
             getAllItems(available, filters);
             for (Entry<ItemIdentifier, Integer> item : available.entrySet()) {
-                if (!dict.matches(item.getKey(), IResource.MatchSettings.NORMAL)) {
+                if (!dict.matches(item.getKey(), IResource.MatchSettings.NORMAL))
                     continue;
-                }
                 int canProvide = getAvailableItemCount(item.getKey());
                 canProvide -= root.getAllPromissesFor(this, item.getKey());
-                if (canProvide < 1) {
+                if (canProvide < 1)
                     continue;
-                }
-                LogisticsPromise promise = new LogisticsPromise(item.getKey(), Math.min(canProvide, tree.getMissingAmount()), this, ResourceType.PROVIDER);
-                tree.addPromise(promise);
-                if (tree.getMissingAmount() <= 0) {
+                tree.addPromise(new LogisticsPromise(item.getKey(), Math.min(canProvide, tree.getMissingAmount()), this, ResourceType.PROVIDER));
+                if (tree.getMissingAmount() <= 0)
                     break;
-                }
             }
         }
     }
@@ -249,7 +238,8 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
             NeighborTileEntity<TileEntity> ate = null;
             for (EnumFacing f : EnumFacing.HORIZONTALS) {
                 NeighborTileEntity<TileEntity> n = w.getNeighbor(f);
-                if (n != null && n.getTileEntity() instanceof IBridge) ate = n;
+                if (n != null && n.getTileEntity() instanceof IBridge)
+                    ate = n;
             }
             if (ate == null) {
                 dir = null;
@@ -257,45 +247,40 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
             } else {
                 dir = ate.getDirection();
                 bridge = (IBridge) ate.getTileEntity();
-                bridge.setReqAPI(reqapi);
+                bridge.setReqAPI(req);
             }
         }
 
-        if (!_orderItemManager.hasOrders(ResourceType.PROVIDER, ResourceType.CRAFTING) || getWorld().getTotalWorldTime() % 6 != 0) {
+        if (!_orderItemManager.hasOrders(ResourceType.PROVIDER, ResourceType.CRAFTING) || getWorld().getTotalWorldTime() % 6 != 0)
             return;
-        }
 
-        int itemsleft = itemsToExtract();
-        int stacksleft = stacksToExtract();
+        int il = itemsToExtract();
+        int sl = stacksToExtract();
         LogisticsItemOrder firstOrder = null;
         LogisticsItemOrder order = null;
-        while (itemsleft > 0 && stacksleft > 0 && _orderItemManager.hasOrders(ResourceType.CRAFTING) && (firstOrder == null || firstOrder != order)) {
-            if (firstOrder == null) {
+        while (il > 0 && sl > 0 && _orderItemManager.hasOrders(ResourceType.CRAFTING) && (firstOrder == null || firstOrder != order)) {
+            if (firstOrder == null)
                 firstOrder = order;
-            }
             order = _orderItemManager.peekAtTopRequest(ResourceType.CRAFTING);
             if (order == null) break;
-            int sent = sendStack(order.getResource().stack, itemsleft, order.getRouter().getSimpleID(), order.getInformation(), false);
+            int sent = sendStack(order.getResource().stack, il, order.getRouter().getSimpleID(), order.getInformation(), false);
             spawnParticle(Particles.VioletParticle, 2);
-            if (sent < 0) {
+            if (sent < 0)
                 continue;
-            }
-            stacksleft -= 1;
-            itemsleft -= sent;
+            sl -= 1;
+            il -= sent;
         }
-        while (itemsleft > 0 && stacksleft > 0 && _orderItemManager.hasOrders(ResourceType.PROVIDER) && (firstOrder == null || firstOrder != order)) {
-            if (firstOrder == null) {
+        while (il > 0 && sl > 0 && _orderItemManager.hasOrders(ResourceType.PROVIDER) && (firstOrder == null || firstOrder != order)) {
+            if (firstOrder == null)
                 firstOrder = order;
-            }
             order = _orderItemManager.peekAtTopRequest(ResourceType.PROVIDER);
             if (order == null) break;
-            int sent = sendStack(order.getResource().stack, itemsleft, order.getRouter().getSimpleID(), order.getInformation(), true);
-            if (sent < 0) {
+            int sent = sendStack(order.getResource().stack, il, order.getRouter().getSimpleID(), order.getInformation(), true);
+            if (sent < 0)
                 break;
-            }
             spawnParticle(Particles.VioletParticle, 3);
-            stacksleft -= 1;
-            itemsleft -= sent;
+            sl -= 1;
+            il -= sent;
         }
     }
 
@@ -335,19 +320,16 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
         SinkReply reply = LogisticsManager.canSink(stack.makeNormalStack(), dRtr, null, true, stack.getItem(), null, true, false);
         boolean defersend = false;
-        if (reply != null) {// some pipes are not aware of the space in the adjacent inventory, so they return null
-            if (reply.maxNumberOfItems < wanted) {
-                wanted = reply.maxNumberOfItems;
-                if (wanted <= 0) {
-                    _orderItemManager.deferSend();
-                    return 0;
-                }
-                defersend = true;
+        if (reply != null && reply.maxNumberOfItems < wanted) {// some pipes are not aware of the space in the adjacent inventory, so they return null
+            wanted = reply.maxNumberOfItems;
+            if (wanted <= 0) {
+                _orderItemManager.deferSend();
+                return 0;
             }
+            defersend = true;
         }
-        if (!canUseEnergy(wanted * neededEnergy())) {
+        if (!canUseEnergy(wanted * neededEnergy()))
             return -1;
-        }
         ItemStack removed = this.getMultipleItems(item, wanted);
         if (removed == null || removed.getCount() == 0) {
             if (setFailed) _orderItemManager.sendFailed();
@@ -386,18 +368,15 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         //System.out.println("BridgePipe.getAllItems()");
         HashMap<ItemIdentifier, Integer> addedItems = new HashMap<>();
         getItemsAndCount().entrySet().stream().filter(i -> {
-            for (IFilter filter : filters) {
-                if (filter.isBlocked() == filter.isFilteredItem(i.getKey().getUndamaged()) || filter.blockProvider()) {
+            for (IFilter filter : filters)
+                if (filter.isBlocked() == filter.isFilteredItem(i.getKey().getUndamaged()) || filter.blockProvider())
                     return false;
-                }
-            }
             return true;
         }).forEach(next -> addedItems.merge(next.getKey(), next.getValue(), (a, b) -> a + b));
         for (Entry<ItemIdentifier, Integer> item : addedItems.entrySet()) {
             int remaining = item.getValue() - _orderItemManager.totalItemsCountInOrders(item.getKey());
-            if (remaining < 1) {
+            if (remaining < 1)
                 continue;
-            }
 
             items.put(item.getKey(), remaining);
         }
@@ -434,18 +413,18 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     }
 
     public int itemCount(ItemIdentifier item) {
-        if (bridge == null) return 0;
+        if (bridge == null)
+            return 0;
         return (int) bridge.countItem(item.makeNormalStack(1), true);
     }
 
     public Map<ItemIdentifier, Integer> getItemsAndCount() {
-        if (bridge == null) {
+        if (bridge == null)
             return Collections.emptyMap();
-        }
-        List<ItemStack> prov = reqapi.getProvidedItems();
-        return bridge.getItems().stream().filter(st -> !prov.stream().anyMatch(s -> s.isItemEqual(st.obj) && ItemStack.areItemStackTagsEqual(s, st.obj))).
+        List<ItemStack> prov = req.getProvidedItems();
+        return bridge.getItems().stream().filter(st -> prov.stream().noneMatch(s -> s.isItemEqual(st.obj) && ItemStack.areItemStackTagsEqual(s, st.obj))).
                 map(s -> new BridgeStack<>(ItemIdentifier.get(s.obj), s.size + s.requestableSize, s.craftable, 0)).
-                collect(Collectors.toMap(s -> s.obj, s -> (int) s.size, (a, b) -> a + b, HashMap::new));
+                collect(Collectors.toMap(s -> s.obj, s -> (int) s.size, Integer::sum, HashMap::new));
     }
 
     public ItemStack getMultipleItems(ItemIdentifier item, int count) {
@@ -468,8 +447,8 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     public ICraftingTemplate addCrafting(IResource type) {
         if (bridge == null) return null;
         ItemStack item = type.getAsItem().makeNormalStack(1);
-        List<ItemStack> cr = reqapi.getCraftedItems();
-        if (!bridge.getItems().stream().anyMatch(b -> b.craftable && item.isItemEqual(b.obj) && !cr.stream().anyMatch(i -> item.isItemEqual(i))))
+        List<ItemStack> cr = req.getCraftedItems();
+        if (bridge.getItems().stream().noneMatch(b -> b.craftable && item.isItemEqual(b.obj) && cr.stream().noneMatch(item::isItemEqual)))
             return null;
 		/*Map<ItemStack, int[]> res = bridge.craftStack(type.getAsItem().makeNormalStack(1), type.getRequestedAmount(), true);
 		if(res == null)return null;*/
@@ -481,13 +460,12 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     public boolean canCraft(IResource toCraft) {
         if (!isEnabled()) return false;
         ItemStack item = toCraft.getAsItem().makeNormalStack(1);
-        List<ItemStack> cr = reqapi.getCraftedItems();
+        List<ItemStack> cr = req.getCraftedItems();
         return bridge.getItems().stream().anyMatch(b -> b.craftable && item.isItemEqual(b.obj) && !cr.stream().anyMatch(i -> item.isItemEqual(i)));
     }
 
     @Override
-    public void listenedChanged() {
-    }
+    public void listenedChanged() { }
 
     @Override
     public int getTodo() {
@@ -495,18 +473,15 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     }
 
     @Override
-    public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    }
+    public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) { }
 
     @Override
-    public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    }
+    public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) { }
 
     @Override
     public List<ItemIdentifierStack> getCraftedItems() {
-        if (bridge == null) {
+        if (bridge == null)
             return Collections.emptyList();
-        }
         return bridge.getItems().stream().filter(b -> b.craftable).
                 map(s -> new ItemIdentifierStack(ItemIdentifier.get(s.obj), 1)).
                 collect(Collectors.toList());
@@ -533,18 +508,12 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
     }
 
-    public boolean disconnectPipe(TileEntity tile, EnumFacing dir) {
-        return dir.getAxis() == Axis.Y && tile instanceof IBridge;
-    }
-
     public static class OpResult {
         public List<ItemStack> used;
         public List<ItemStack> missing;
         public List<ItemStack> extra = new ArrayList<>();
-        public boolean success;
 
-        public OpResult() {
-        }
+        public OpResult() { }
 
         public OpResult(List<ItemStack> missing) {
             this.missing = missing;
@@ -563,13 +532,11 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 
         private static List<ItemStack> toList(List<IResource> resList) {
             List<ItemStack> list = new ArrayList<>(resList.size());
-            for (IResource e : resList) {
-                if (e instanceof ItemResource) {
+            for (IResource e : resList)
+                if (e instanceof ItemResource)
                     list.add(((ItemResource) e).getItem().unsafeMakeNormalStack(e.getRequestedAmount()));
-                } else if (e instanceof DictResource) {
+                else if (e instanceof DictResource)
                     list.add(((DictResource) e).getItem().unsafeMakeNormalStack(e.getRequestedAmount()));
-                }
-            }
             return list;
         }
 
@@ -579,8 +546,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
 
         @Override
-        public void handleSucessfullRequestOf(IResource item, LinkedLogisticsOrderList paticipating) {
-        }
+        public void handleSucessfullRequestOf(IResource item, LinkedLogisticsOrderList paticipating) { }
 
         @Override
         public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList paticipating) {
@@ -605,10 +571,10 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         private final Set<ItemIdentifier> craftedStacks = new HashSet<>();
 
         public List<ItemStack> getProvidedItems() {
-            if (alreadyProcessing || !isEnabled()) return Collections.emptyList();
-            if (stillNeedReplace()) {
+            if (alreadyProcessing || !isEnabled())
+                return Collections.emptyList();
+            if (stillNeedReplace())
                 return new ArrayList<>();
-            }
             try {
                 alreadyProcessing = true;
                 IRouter myRouter = getRouter();
@@ -627,10 +593,10 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
 
         public List<ItemStack> getCraftedItems() {
-            if (alreadyProcessing || !isEnabled()) return Collections.emptyList();
-            if (stillNeedReplace()) {
+            if (alreadyProcessing || !isEnabled())
+                return Collections.emptyList();
+            if (stillNeedReplace())
                 return new ArrayList<>();
-            }
             try {
                 alreadyProcessing = true;
                 IRouter myRouter = getRouter();
@@ -664,8 +630,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
                 List<ExitRoute> exits = new ArrayList<>(myRouter.getIRoutersByCost());
                 exits.removeIf(e -> e.destination == myRouter);
                 Map<ItemIdentifier, Integer> items = SimpleServiceLocator.logisticsManager.getAvailableItems(exits);
-                ItemIdentifier req = ItemIdentifier.get(wanted);
-                int count = items.getOrDefault(req, 0);
+                int count = items.getOrDefault(ItemIdentifier.get(wanted), 0);
                 if (count == 0 && craft == 0) {
                     OpResult r = new OpResult();
                     r.used = Collections.emptyList();
@@ -678,9 +643,8 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
                 ItemIdentifierStack item = ItemIdentifier.get(wanted).makeStack(craft != 0 ? wanted.getCount() : Math.min(count, wanted.getCount()));
                 ItemResource reqRes = new ItemResource(item, BridgePipe.this);
                 RequestTree tree = new RequestTree(reqRes, null, (craft & 0b0010) != 0 ? EnumSet.of(ActiveRequestType.Craft) : RequestTree.defaultRequestFlags, null);
-                if (!tree.isDone()) {
+                if (!tree.isDone())
                     recurseFailedRequestTree.accept(tree);
-                }
                 tree.sendUsedMessage(ll);
                 OpResult res = ll.asResult();
                 if ((craft & 0b0100) != 0 && isDefaultRoute) {
@@ -708,15 +672,12 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
             List<ExitRoute> exits = new ArrayList<>(myRouter.getIRoutersByCost());
             exits.removeIf(e -> e.destination == myRouter);
             Map<ItemIdentifier, Integer> items = SimpleServiceLocator.logisticsManager.getAvailableItems(exits);
-            ItemIdentifier req = ItemIdentifier.get(wanted);
-            int count = items.getOrDefault(req, 0);
-            if (count == 0 && !craft) {
+            int count = items.getOrDefault(ItemIdentifier.get(wanted), 0);
+            if (count == 0 && !craft)
                 return new OpResult(Collections.singletonList(wanted));
-            }
             int reqCount = craft ? wanted.getCount() : Math.min(count, wanted.getCount());
-            boolean success = request(ItemIdentifier.get(wanted).makeStack(reqCount), BridgePipe.this, ll, null);
+            request(ItemIdentifier.get(wanted).makeStack(reqCount), BridgePipe.this, ll, null);
             OpResult res = ll.asResult();
-            res.success = success;
             if (!craft && wanted.getCount() > count) {
                 int missingCount = wanted.getCount() - count;
                 ItemStack missingStack = wanted.copy();
@@ -756,8 +717,8 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     }
 
     public class BPModule extends LogisticsModule {
-        private SinkReply _sinkReply;
-        private SinkReply _sinkReplyDefault;
+        private SinkReply sr;
+        private SinkReply srd;
 
 
         @Nonnull
@@ -769,25 +730,25 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         @Override
         public void registerPosition(ModulePositionType slot, int positionInt) {
             super.registerPosition(slot, positionInt);
-            _sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, new ChassiTargetInformation(getPositionInt()));
-            _sinkReplyDefault = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0, new ChassiTargetInformation(getPositionInt()));
+            sr = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, new ChassiTargetInformation(getPositionInt()));
+            srd = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0, new ChassiTargetInformation(getPositionInt()));
         }
 
         @Override
-        public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority, boolean allowDefault, boolean includeInTransit,
+        public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority, boolean allowDefault, boolean includeInTransit,
                                    boolean forcePassive) {
             if (isDefaultRoute && !allowDefault) {
                 return null;
             }
-            if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal() && bestCustomPriority >= _sinkReply.customPriority)) {
+            if (bestPriority > sr.fixedPriority.ordinal() || (bestPriority == sr.fixedPriority.ordinal() && bestCustomPriority >= sr.customPriority)) {
                 return null;
             }
             if (isDefaultRoute) {
-                if (bestPriority > _sinkReplyDefault.fixedPriority.ordinal() || (bestPriority == _sinkReplyDefault.fixedPriority.ordinal() && bestCustomPriority >= _sinkReplyDefault.customPriority)) {
+                if (bestPriority > srd.fixedPriority.ordinal() || (bestPriority == srd.fixedPriority.ordinal() && bestCustomPriority >= srd.customPriority)) {
                     return null;
                 }
                 if (_service.canUseEnergy(1)) {
-                    return _sinkReplyDefault;
+                    return srd;
                 }
                 return null;
             }
@@ -800,16 +761,13 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
 
         @Override
-        public void tick() {
-        }
+        public void tick() { }
 
         @Override
-        public void readFromNBT(NBTTagCompound nbttagcompound) {
-        }
+        public void readFromNBT(NBTTagCompound nbttagcompound) { }
 
         @Override
-        public void writeToNBT(NBTTagCompound nbttagcompound) {
-        }
+        public void writeToNBT(NBTTagCompound nbttagcompound) { }
 
         @Override
         public boolean interestedInAttachedInventory() {

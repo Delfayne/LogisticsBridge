@@ -11,10 +11,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockBridgeAE extends AEBaseTileBlock {
-
     public BlockBridgeAE() {
         super(Material.IRON);
         setHardness(2f);
@@ -22,19 +22,23 @@ public class BlockBridgeAE extends AEBaseTileBlock {
         setTileEntity(TileEntityBridgeAE.class);
     }
 
+    @Nonnull
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-                                    EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!worldIn.isRemote) {
-            TileEntityBridgeAE b = (TileEntityBridgeAE) worldIn.getTileEntity(pos);
-            b.blockClicked(playerIn);
-        }
+    public String getUnlocalizedName() {
+        return "tile.lb.bridge.name";
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player,
+                                    @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!world.isRemote)
+            ((TileEntityBridgeAE) world.getTileEntity(pos)).blockClicked(player);
         return true;
     }
 
     @Nullable
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
+    public TileEntity createNewTileEntity(@Nonnull World world, int meta) {
         return new TileEntityBridgeAE();
     }
 }

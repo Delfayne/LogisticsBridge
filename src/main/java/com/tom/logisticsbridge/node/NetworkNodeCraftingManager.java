@@ -38,12 +38,11 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
     public static final String ID = "lb.craftingmngr";
     private static final String NAME = "tile.lb.crafingmanager.rs.name";
     private static final String NBT_UUID = "uuid";
-    public String supplyID = "";
+    private String supplyID;
     @Nullable
     private UUID uuid = null;
     private final List<ICraftingPattern> patterns = new ArrayList<>();
     private boolean reading;
-    @SuppressWarnings("unchecked")
     private final ItemHandlerBase patternsInventory = new ItemHandlerBase(27, new ListenerNetworkNode(this),
             s -> NetworkNodeCrafter.isValidPatternInSlot(world, s)) {
 
@@ -148,7 +147,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
         }
         if (id == 0) supplyID = pipeID;
         else if (id == 1)
-            blockingMode = BlockingMode.VALUES[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.VALUES.length];
+            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
     }
 
     @Override
@@ -172,7 +171,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
         if (compound.hasUniqueId(NBT_UUID)) {
             uuid = compound.getUniqueId(NBT_UUID);
         }
-        blockingMode = BlockingMode.VALUES[Math.abs(compound.getByte("blockingMode")) % BlockingMode.VALUES.length];
+        blockingMode = BlockingMode.values[Math.abs(compound.getByte("blockingMode")) % BlockingMode.values.length];
         super.read(compound);
     }
 
@@ -291,10 +290,10 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
                 if (supplyID.isEmpty()) return false;
                 NetworkNodeSatellite bus = find(supplyID);
                 if (bus == null) return false;
-                IItemHandler inv = bus.getHandler();
-                if (inv != null) {
-                    for (int i = 0; i < inv.getSlots(); i++) {
-                        ItemStack stackInSlot = inv.getStackInSlot(i);
+                IItemHandler invent = bus.getHandler();
+                if (invent != null) {
+                    for (int i = 0; i < invent.getSlots(); i++) {
+                        ItemStack stackInSlot = invent.getStackInSlot(i);
                         if (!stackInSlot.isEmpty()) {
                             return false;
                         }

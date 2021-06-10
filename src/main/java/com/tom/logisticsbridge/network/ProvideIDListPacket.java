@@ -24,24 +24,21 @@ public class ProvideIDListPacket extends ModernPacket {
     @Override
     public void readData(LPDataInput input) {
         super.readData(input);
-        list = input.readArrayList(input1 -> input1.readUTF());
+        list = input.readArrayList(LPDataInput::readUTF);
     }
 
     @Override
     public void writeData(LPDataOutput output) {
         super.writeData(output);
-        output.writeCollection(list, (output1, object) -> {
-            output1.writeUTF(object);
-        });
+        output.writeCollection(list, LPDataOutput::writeUTF);
     }
 
     @Override
     public void processPacket(EntityPlayer player) {
         if (Minecraft.getMinecraft().currentScreen instanceof LogisticsBaseGuiScreen) {
             SubGuiScreen subGUI = ((LogisticsBaseGuiScreen) Minecraft.getMinecraft().currentScreen).getSubGui();
-            if (subGUI instanceof GuiSelectIDPopup) {
+            if (subGUI instanceof GuiSelectIDPopup)
                 ((GuiSelectIDPopup) subGUI).handleList(list);
-            }
         }
     }
 

@@ -53,7 +53,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -164,20 +163,19 @@ public class AE2Plugin {
         IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
         if (ph == null) return null;
         IPart p = ph.getPart(side);
-        if (p instanceof IIdPipe) {
+        if (p instanceof IIdPipe)
             return (IIdPipe) p;
-        }
         return null;
     }
 
     public static void processResIDMod(EntityPlayer player, SetIDPacket pck) {
         AEPartLocation side = AEPartLocation.fromOrdinal(pck.side - 1);
         IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
-        if (ph == null) return;
+        if (ph == null)
+            return;
         IPart p = ph.getPart(side);
-        if (p instanceof IIdPipe) {
+        if (p instanceof IIdPipe)
             ((IIdPipe) p).setPipeID(pck.id, pck.pid, player);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -186,9 +184,8 @@ public class AE2Plugin {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.currentScreen instanceof GuiMEMonitorable) {
             GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
-            if (AE2Plugin.HIDE_FAKE_ITEM == null) {
+            if (AE2Plugin.HIDE_FAKE_ITEM == null)
                 AE2Plugin.HIDE_FAKE_ITEM = new HideFakeItem();
-            }
             try {
                 ItemRepo r = (ItemRepo) ClientProxy.GuiMEMonitorable_Repo.get(g);
                 IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.ItemRepo_myPartitionList.get(r);
@@ -206,8 +203,7 @@ public class AE2Plugin {
                     mlist.addNewList(AE2Plugin.HIDE_FAKE_ITEM, false);
                     r.updateView();
                 }
-            } catch (Exception e) {
-            }
+            } catch (Exception ignored) { }
         }
     }
 
@@ -219,16 +215,16 @@ public class AE2Plugin {
     }
 
     static class StackSize implements IAEItemStack {
-        private long stackSize;
+        private long ss;
 
         @Override
         public long getStackSize() {
-            return stackSize;
+            return ss;
         }
 
         @Override
         public IAEItemStack setStackSize(long stackSize) {
-            this.stackSize = stackSize;
+            this.ss = stackSize;
             return this;
         }
 
@@ -264,25 +260,22 @@ public class AE2Plugin {
 
         @Override
         public void incStackSize(long i) {
-            stackSize += i;
+            ss += i;
         }
 
         @Override
         public void decStackSize(long i) {
-            stackSize -= i;
+            ss -= i;
         }
 
         @Override
-        public void incCountRequestable(long i) {
-        }
+        public void incCountRequestable(long i) { }
 
         @Override
-        public void decCountRequestable(long i) {
-        }
+        public void decCountRequestable(long i) { }
 
         @Override
-        public void writeToNBT(NBTTagCompound i) {
-        }
+        public void writeToNBT(NBTTagCompound i) { }
 
         @Override
         public boolean fuzzyComparison(IAEItemStack other, FuzzyMode mode) {
@@ -290,8 +283,7 @@ public class AE2Plugin {
         }
 
         @Override
-        public void writeToPacket(ByteBuf data) throws IOException {
-        }
+        public void writeToPacket(ByteBuf data) { }
 
         @Override
         public IAEItemStack empty() {
@@ -329,12 +321,11 @@ public class AE2Plugin {
         }
 
         @Override
-        public void add(IAEItemStack option) {
-        }
+        public void add(IAEItemStack option) { }
 
         @Override
         public IAEItemStack copy() {
-            return new StackSize().setStackSize(stackSize);
+            return new StackSize().setStackSize(ss);
         }
 
         @Override

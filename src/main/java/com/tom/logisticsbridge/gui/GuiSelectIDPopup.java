@@ -19,14 +19,12 @@ import java.util.function.Consumer;
 public class GuiSelectIDPopup extends SubGuiScreen {
     private final Consumer<String> handleResult;
     private final TextListDisplay textList;
-    String GUI_LANG_KEY = "gui.popup.selectsatellite.";
+    public static final String GUI_LANG_KEY = "gui.popup.selectsatellite.";
     private List<String> pipeList = Collections.emptyList();
-    private final BlockPos position;
 
     public GuiSelectIDPopup(BlockPos pos, int id, int side, Consumer<String> handleResult) {
         super(150, 170, 0, 0);
         this.handleResult = handleResult;
-        this.position = pos;
         this.textList = new TextListDisplay(this, 6, 16, 6, 30, 12, new TextListDisplay.List() {
 
             @Override
@@ -44,11 +42,11 @@ public class GuiSelectIDPopup extends SubGuiScreen {
                 return 0xFFFFFF;
             }
         });
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestIDListPacket.class).setId(id).setSide(side).setBlockPos(this.position));
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestIDListPacket.class).setId(id).setSide(side).setBlockPos(pos));
     }
 
     protected void drawTitle() {
-        mc.fontRenderer.drawStringWithShadow(TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
+        mc.fontRenderer.drawStringWithShadow(TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6f, 0xFFFFFF);
     }
 
     @Override
@@ -79,14 +77,12 @@ public class GuiSelectIDPopup extends SubGuiScreen {
     @Override
     public void handleMouseInputSub() throws IOException {
         int wheel = org.lwjgl.input.Mouse.getDWheel() / 120;
-        if (wheel == 0) {
+        if (wheel == 0)
             super.handleMouseInputSub();
-        }
-        if (wheel < 0) {
+        if (wheel < 0)
             textList.scrollUp();
-        } else if (wheel > 0) {
+        else if (wheel > 0)
             textList.scrollDown();
-        }
     }
 
     @Override
@@ -97,18 +93,17 @@ public class GuiSelectIDPopup extends SubGuiScreen {
                 handleResult.accept(pipeList.get(selected));
                 exitGui();
             }
-        } else if (guibutton.id == 1) { // Exit
+        } else if (guibutton.id == 1) // Exit
             exitGui();
-        } else if (guibutton.id == 2) { // UnSet
+        else if (guibutton.id == 2) { // UnSet
             handleResult.accept(null);
             exitGui();
-        } else if (guibutton.id == 4) {
+        } else if (guibutton.id == 4)
             textList.scrollDown();
-        } else if (guibutton.id == 5) {
+        else if (guibutton.id == 5)
             textList.scrollUp();
-        } else {
+        else
             super.actionPerformed(guibutton);
-        }
     }
 
     public void handleList(List<String> list) {

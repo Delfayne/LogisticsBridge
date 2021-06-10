@@ -58,12 +58,13 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
     }
 
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
     }
 
     public static class VirtualPatternHandler implements ICraftingPatternDetails, Comparable<VirtualPatternHandler> {
-        private final ItemStack patternItem, result;
+        private final ItemStack patternItem;
+        private final ItemStack result;
         private final IAEItemStack[] condensedInputs;
         private final IAEItemStack[] condensedOutputs;
         private final IAEItemStack[] inputs;
@@ -129,9 +130,8 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
 
         public VirtualPatternHandler(ItemStack is) {
             final NBTTagCompound tag = is.getTagCompound();
-            if (tag == null) {
+            if (tag == null)
                 throw new IllegalArgumentException("No pattern here!");
-            }
 
             this.patternItem = is;
             this.pattern = AEItemStack.fromItemStack(is);
@@ -139,13 +139,13 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
             final List<IAEItemStack> in = new ArrayList<>();
             final List<IAEItemStack> out = new ArrayList<>();
 
-            IItemStorageChannel ITEMS = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+            IItemStorageChannel items = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
 
             final NBTTagList inTag = tag.getTagList("in", 10);
 
             if (tag.hasKey("out", NBT.TAG_COMPOUND)) {
                 result = new ItemStack(tag.getCompoundTag("out"));
-                out.add(ITEMS.createStack(result));
+                out.add(items.createStack(result));
             } else {
                 final NBTTagList outTag = tag.getTagList("out", 10);
 
@@ -153,13 +153,11 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
                     NBTTagCompound resultItemTag = outTag.getCompoundTagAt(x);
                     final ItemStack gs = new ItemStack(resultItemTag);
 
-                    if (!resultItemTag.hasNoTags() && gs.isEmpty()) {
-                        throw new IllegalArgumentException("No pattern here!");
-                    }
-
-                    if (!gs.isEmpty()) {
-                        out.add(ITEMS.createStack(gs));
-                    }
+                    if (gs.isEmpty()) {
+                        if (!resultItemTag.hasNoTags())
+                            throw new IllegalArgumentException("No pattern here!");
+                    } else
+                        out.add(items.createStack(gs));
                 }
                 result = out.get(0).asItemStackRepresentation();
             }
@@ -168,11 +166,10 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
                 NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
                 final ItemStack gs = new ItemStack(ingredient);
 
-                if (!ingredient.hasNoTags() && gs.isEmpty()) {
+                if (!ingredient.hasNoTags() && gs.isEmpty())
                     throw new IllegalArgumentException("No pattern here!");
-                }
 
-                in.add(ITEMS.createStack(gs));
+                in.add(items.createStack(gs));
             }
 
             this.outputs = out.toArray(new IAEItemStack[out.size()]);
@@ -181,38 +178,31 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
             final Map<IAEItemStack, IAEItemStack> tmpOutputs = new HashMap<>();
 
             for (final IAEItemStack io : this.outputs) {
-                if (io == null) {
+                if (io == null)
                     continue;
-                }
 
                 final IAEItemStack g = tmpOutputs.get(io);
-
-                if (g == null) {
+                if (g == null)
                     tmpOutputs.put(io, io.copy());
-                } else {
+                else
                     g.add(io);
-                }
             }
 
             final Map<IAEItemStack, IAEItemStack> tmpInputs = new HashMap<>();
 
             for (final IAEItemStack io : this.inputs) {
-                if (io == null) {
+                if (io == null)
                     continue;
-                }
 
                 final IAEItemStack g = tmpInputs.get(io);
-
-                if (g == null) {
+                if (g == null)
                     tmpInputs.put(io, io.copy());
-                } else {
+                else
                     g.add(io);
-                }
             }
 
-            if (tmpOutputs.isEmpty()) {
+            if (tmpOutputs.isEmpty())
                 throw new IllegalStateException("No pattern here!");
-            }
 
             this.condensedInputs = new IAEItemStack[tmpInputs.size()];
             int offset = 0;
@@ -229,12 +219,12 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
                 this.condensedOutputs[offset] = io;
                 offset++;
             }
+
             if (tag.hasKey("dynamic", NBT.TAG_COMPOUND)) {
                 dynamic = IDynamicPatternDetailsAE.load(tag.getCompoundTag("dynamic"));
                 dynamic.getOutputs(result, null, false);
-            } else {
+            } else
                 dynamic = null;
-            }
         }
 
         @Override

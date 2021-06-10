@@ -55,6 +55,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,12 +74,12 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         OVERFLOW = new IAEItemStack[]{ITEMS.createStack(is)};
     }
 
-    private final IAEItemStack FAKE_ITEM = ITEMS.createStack(new ItemStack(LogisticsBridge.logisticsFakeItem, 1));
+    private final IAEItemStack fakeItem = ITEMS.createStack(new ItemStack(LogisticsBridge.logisticsFakeItem, 1));
     boolean readingFromNBT;
     private final Optional<IActionHost> machine = Optional.of(this);
     private final Set<ICraftingLink> links = new HashSet<>();
     private final Set<ICraftingPatternDetails> craftings = new HashSet<>();
-    private Req reqapi;
+    private Req req;
     private final MEMonitorIInventory meInv = new MEMonitorIInventory(new IMEAdaptor(this, this));
     @SuppressWarnings("rawtypes")
     private final List<IMEInventoryHandler> cellArray = Collections.singletonList(this);
@@ -93,7 +94,6 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     private boolean disableLP;
     private boolean bridgeMode;
     private final TileProfiler profiler = new TileProfiler("AE Bridge");
-    private boolean updatingAECache;
 
     public TileEntityBridgeAE() {
         getProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
@@ -108,16 +108,14 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                 if (wt % 40 == 0 && this.getProxy().getNode() != null) {
                     profiler.startSection("Net update (every 40 ticks)");
                     profiler.startSection("Tick AE Inv");
-                    updatingAECache = true;
                     boolean changed = meInv.onTick() == TickRateModulation.URGENT;
-                    updatingAECache = false;
                     if (changed) {
                         profiler.endStartSection("Refresh AE item list");
                         this.getProxy().getNode().getGrid().postEvent(new MENetworkCellArrayUpdate());
                     }
-                    if (reqapi != null) {
+                    if (req != null) {
                         profiler.endStartSection("Detect crafting changes");
-                        changed = reqapi.detectChanged();
+                        changed = req.detectChanged();
                         if (changed) {
                             profiler.endStartSection("Refresh AE");
                             this.getProxy().getNode().getGrid().postEvent(new MENetworkCraftingPatternChange(this, this.getProxy().getNode()));
@@ -125,7 +123,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                     }
                     profiler.endStartSection("Updating queued crafting");
                     synchronized (toCraft) {
-                        toCraft.entrySet().forEach(s -> craftStack(s.getKey(), s.getValue(), false));
+                        toCraft.forEach((key, value) -> craftStack(key, value, false));
                         toCraft.clear();
                     }
                     dynInv.removeEmpties();
@@ -142,11 +140,10 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                     profiler.startSection("Emitting fake items");
                     try {
                         ICraftingGrid cg = this.getProxy().getGrid().getCache(ICraftingGrid.class);
-                        if (cg.isRequesting(FAKE_ITEM)) {
+                        if (cg.isRequesting(fakeItem)) {
                             insertItem(0, LogisticsBridge.fakeStack(1), false);
                         }
-                    } catch (GridAccessException e) {
-                    }
+                    } catch (GridAccessException ignored) { }
                     profiler.endSection();
                 }
                 profiler.finishProfiling();
@@ -200,8 +197,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                 buffered += is.getCount();
             }
         }
-        for (int i = 0; i < insertingStacks.size(); i++) {
-            ItemStack is = insertingStacks.get(i);
+        for (ItemStack is : insertingStacks) {
             if (ItemStack.areItemsEqual(stack, is) && ItemStack.areItemStackTagsEqual(stack, is)) {
                 buffered += is.getCount();
             }
@@ -210,9 +206,13 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         IMEInventoryHandler<IAEItemStack> i = g.getInventory(ITEMS);
         IItemList<IAEItemStack> items = i.getAvailableItems(ITEMS.createList());
         IAEItemStack is = items.findPrecise(ITEMS.createStack(stack));
-        long inAE = is == null ? 0 : requestable ? is.getStackSize() + is.getCountRequestable() : is.getStackSize();
+        if (is == null) {
+            profiler.endSection();
+            return buffered;
+        }
+        long result = requestable ? is.getStackSize() + is.getCountRequestable() : is.getStackSize() + buffered;
         profiler.endSection();
-        return inAE + buffered;
+        return result;
     }
 
     @Override
@@ -234,12 +234,11 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
 
     @Override
     public void craftStack(ItemStack stack, int count, boolean simulate) {
-        if (this.getProxy().getNode() == null) return;
-        ICraftingGrid g = this.getProxy().getNode().getGrid().getCache(ICraftingGrid.class);
-        IAEItemStack aestack = ITEMS.createStack(stack);
-        aestack.setStackSize(count);
-        g.beginCraftingJob(world, this.getProxy().getNode().getGrid(), this, aestack, this);
-        return;
+        if (this.getProxy().getNode() == null)
+            return;
+        IAEItemStack st = ITEMS.createStack(stack);
+        st.setStackSize(count);
+        ((ICraftingGrid) this.getProxy().getNode().getGrid().getCache(ICraftingGrid.class)).beginCraftingJob(world, this.getProxy().getNode().getGrid(), this, st, this);
     }
 
     @Override
@@ -253,7 +252,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     }
 
     @Override
-    public <T> Optional<T> context(Class<T> key) {
+    public <T> Optional<T> context(@Nonnull Class<T> key) {
         return Optional.empty();
     }
 
@@ -278,7 +277,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     }
 
     @Override
-    public void calculationComplete(ICraftingJob job) {
+    public void calculationComplete(@Nonnull ICraftingJob job) {
         if (this.getProxy().getNode() == null) return;
         if (job.isSimulation()) return;
         ICraftingGrid g = this.getProxy().getNode().getGrid().getCache(ICraftingGrid.class);
@@ -301,10 +300,8 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         if (mode == Actionable.MODULATE) {
             lastInjectTime = world.getTotalWorldTime();
             dynInv.insert(items.createItemStack());
-            return null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -312,18 +309,19 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         links.remove(link);
     }
 
+    @Nonnull
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         NBTTagList lst = new NBTTagList();
         compound.setTag("links", lst);
-        links.stream().filter(e -> e != null).map(l -> {
+        links.stream().filter(Objects::nonNull).map(l -> {
             NBTTagCompound t = new NBTTagCompound();
             l.writeToNBT(t);
             return t;
         }).forEach(lst::appendTag);
         NBTTagList lst2 = new NBTTagList();
         compound.setTag("toCraft", lst2);
-        toCraft.entrySet().stream().filter(e -> e != null).map(l -> {
+        toCraft.entrySet().stream().filter(Objects::nonNull).map(l -> {
             NBTTagCompound t = new NBTTagCompound();
             l.getKey().writeToNBT(t);
             t.setInteger("Count", l.getValue());
@@ -336,7 +334,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(@Nonnull NBTTagCompound compound) {
         try {
             readingFromNBT = true;
             super.readFromNBT(compound);
@@ -369,12 +367,12 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     @Override
     public IAEItemStack extractItems(IAEItemStack request, Actionable type, IActionSource src) {
         if (request.createItemStack().getItem() == LogisticsBridge.logisticsFakeItem) {
-            IAEItemStack req = fakeItems.findPrecise(request);
-            if (req == null) return null;
-            long min = Math.min(req.getStackSize(), request.getStackSize());
-            IAEItemStack ret = req.copy();
+            IAEItemStack stack = fakeItems.findPrecise(request);
+            if (stack == null) return null;
+            long min = Math.min(stack.getStackSize(), request.getStackSize());
+            IAEItemStack ret = stack.copy();
             ret.setStackSize(min);
-            if (type == Actionable.MODULATE) req.decStackSize(min);
+            if (type == Actionable.MODULATE) stack.decStackSize(min);
             return ret;
         }
 
@@ -383,7 +381,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
 
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-        if (reqapi == null) return out;
+        if (req == null) return out;
 		/*if(!updatingAECache) {
 			updatingAECache = true;
 			meInv.getAvailableItems(out);
@@ -396,14 +394,13 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         try {
             if (Loader.instance().getLoaderState() == LoaderState.SERVER_STOPPING) return out;
             profiler.startSection("List LP");
-            List<ItemStack> pi = reqapi.getProvidedItems();
-            List<ItemStack> ci = reqapi.getCraftedItems();
+            List<ItemStack> pi = req.getProvidedItems();
+            List<ItemStack> ci = req.getCraftedItems();
             profiler.endStartSection("Wrap AE");
-            pi.stream().map(ITEMS::createStack).map(s -> {
+            pi.stream().map(ITEMS::createStack).filter(Objects::nonNull).peek(s -> {
                 s.setCraftable(true);
                 s.setCountRequestable(s.getStackSize());
                 s.setStackSize(0);
-                return s;
             }).forEach(out::add);
             ci.stream().map(ITEMS::createStack).forEach(out::addCrafting);
             TileEntityWrapper wr = new TileEntityWrapper(this);
@@ -462,13 +459,15 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         return wrapper.getSlots() + 1;
     }
 
+    @Nonnull
     @Override
     public ItemStack getStackInSlot(int slot) {
         return wrapper.getStackInSlot(slot);
     }
 
+    @Nonnull
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         if (this.getProxy().getNode() == null || stack.isEmpty()) return stack;
         IStorageGrid g = this.getProxy().getNode().getGrid().getCache(IStorageGrid.class);
         IMEInventoryHandler<IAEItemStack> i = g.getInventory(ITEMS);
@@ -493,19 +492,18 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     }
 
     @Override
-    public void saveChanges(ICellInventory<?> arg0) {
-    }
+    public void saveChanges(ICellInventory<?> arg0) { }
 
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-        if (reqapi == null) return false;
+        if (req == null) return false;
         insertingStacks.clear();
         for (int i = 0; i < table.getSizeInventory(); i++) {
             if (table.getStackInSlot(i).getItem() != LogisticsBridge.logisticsFakeItem)
                 insertingStacks.add(table.getStackInSlot(i));
         }
-        OpResult opres = reqapi.performRequest(patternDetails.getOutputs()[0].createItemStack(), true);
-        boolean pushed = opres.missing.isEmpty();
+        OpResult or = req.performRequest(patternDetails.getOutputs()[0].createItemStack(), true);
+        boolean pushed = or.missing.isEmpty();
         insertingStacks.clear();
         if (pushed) {
             lastInjectTime = world.getTotalWorldTime();
@@ -515,7 +513,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                     dynInv.insert(stack.copy());
             }
         } else {
-            lastPush = opres;
+            lastPush = or;
             lastPushTime = System.currentTimeMillis();
         }
         return pushed;
@@ -529,16 +527,16 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     @Override
     public void provideCrafting(ICraftingProviderHelper craftingTracker) {
         craftings.forEach(c -> craftingTracker.addCraftingOption(this, c));
-        craftingTracker.setEmitable(FAKE_ITEM);
+        craftingTracker.setEmitable(fakeItem);
     }
 
     @Override
     public IAEItemStack[] getInputs(ItemStack res, IAEItemStack[] def, boolean condensed) {
-        if (reqapi == null) return def;
+        if (req == null) return def;
         try {
             disableLP = true;
-            boolean craftable = reqapi.getCraftedItems().stream().anyMatch(s -> res.isItemEqual(s));
-            OpResult r = reqapi.simulateRequest(res, 0b0001, true);
+            boolean craftable = req.getCraftedItems().stream().anyMatch(s -> res.isItemEqual(s));
+            OpResult r = req.simulateRequest(res, 0b0001, true);
             IAEItemStack[] inputs = Stream.concat(r.missing.stream(), Stream.of(LogisticsBridge.fakeStack(craftable ? null : res, 1))).map(ITEMS::createStack).toArray(IAEItemStack[]::new);
             if (inputs.length > 9) {
                 return OVERFLOW;
@@ -551,11 +549,11 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
 
     @Override
     public IAEItemStack[] getOutputs(ItemStack res, IAEItemStack[] def, boolean condensed) {
-        if (reqapi == null || !reqapi.isDefaultRoute() || Loader.instance().getLoaderState() == LoaderState.SERVER_STOPPING)
+        if (req == null || !req.isDefaultRoute() || Loader.instance().getLoaderState() == LoaderState.SERVER_STOPPING)
             return def;
         try {
             disableLP = true;
-            OpResult r = reqapi.simulateRequest(res, 0b0110, true);
+            OpResult r = req.simulateRequest(res, 0b0110, true);
             List<IAEItemStack> ret = new ArrayList<>();
             IAEItemStack resAE = ITEMS.createStack(res);
 			/*if(def != null)
@@ -581,7 +579,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
                         res.setCount(((int) e.getStackSize()) + res.getCount());
                     }
                 }
-                return null;
+                return new IAEItemStack[] {};
             }
             return ret.toArray(new IAEItemStack[ret.size()]);
         } finally {
@@ -594,14 +592,14 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         return new DimensionalCoord(this);
     }
 
+    @Nonnull
     @Override
     public IItemHandler getInternalInventory() {
         return readingFromNBT ? EmptyHandler.INSTANCE : this;
     }
 
     @Override
-    public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removed, ItemStack added) {
-    }
+    public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removed, ItemStack added) { }
 
     public String infoString() {
         StringBuilder b = new StringBuilder();
@@ -655,7 +653,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
     }
 
     @Override
-    public void setReqAPI(Req reqapi) {
-        this.reqapi = reqapi;
+    public void setReqAPI(Req req) {
+        this.req = req;
     }
 }

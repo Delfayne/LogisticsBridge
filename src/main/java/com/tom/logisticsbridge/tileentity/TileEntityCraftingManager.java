@@ -185,7 +185,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
         }
         if (id == 0) supplyID = pipeID;
         else if (id == 1)
-            blockingMode = BlockingMode.VALUES[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.VALUES.length];
+            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
     }
 
     @Override
@@ -198,7 +198,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         supplyID = compound.getString("supplyName");
-        blockingMode = BlockingMode.VALUES[Math.abs(compound.getByte("blockingMode")) % BlockingMode.VALUES.length];
+        blockingMode = BlockingMode.values[Math.abs(compound.getByte("blockingMode")) % BlockingMode.values.length];
         super.readFromNBT(compound);
         updateCraftingList();
     }
