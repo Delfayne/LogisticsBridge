@@ -220,7 +220,7 @@ public class AE2Plugin {
 	public static PartType 			SATELLITE_BUS;
 	public static ItemStackSrc 		SATELLITE_BUS_SRC;
 	public final IAppEngApi 		api;
-	
+
 	public AE2Plugin(IAppEngApi api) {
 		this.api = api;
 		INSTANCE = this;
