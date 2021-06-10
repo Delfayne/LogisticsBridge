@@ -213,13 +213,14 @@ public class AE2Plugin {
 			return ItemStack.EMPTY;
 		}
 	}
-	public static AE2Plugin INSTANCE;
-	public final IAppEngApi api;
-	public static VirtualPatternAE virtualPattern;
-	public static HideFakeItem HIDE_FAKE_ITEM;
-	public static Field MergedPriorityList_negative;
-	public static PartType SATELLITE_BUS;
-	public static ItemStackSrc SATELLITE_BUS_SRC;
+	public static AE2Plugin 		INSTANCE;
+	public static VirtualPatternAE 	virtualPattern;
+	public static HideFakeItem 		HIDE_FAKE_ITEM;
+	public static Field 			MergedPriorityList_negative;
+	public static PartType 			SATELLITE_BUS;
+	public static ItemStackSrc 		SATELLITE_BUS_SRC;
+	public final IAppEngApi 		api;
+	
 	public AE2Plugin(IAppEngApi api) {
 		this.api = api;
 		INSTANCE = this;
