@@ -8,6 +8,9 @@ import java.net.URL;
 
 public class BlockClassLoader extends LaunchClassLoader {
     private ClassLoader parent;
+    private static final String BBAE   = "com.tom.logisticsbridge.block.BlockBridgeAE";
+    private static final String BCM    = "com.tom.logisticsbridge.block.BlockCraftingManager";
+
     public BlockClassLoader(ClassLoader parent) {
         super(new URL[]{});
         this.parent = parent;
@@ -15,25 +18,30 @@ public class BlockClassLoader extends LaunchClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        LogisticsBridge.log.warn(name);
         try {
-            if (name.equals("com.tom.logisticsbridge.block.BlockBridgeAE"))
-                return loadBridgeAE();
-            else if (name.equals("com.tom.logisticsbridge.block.BlockCraftingManager"))
-                return loadBlockCraftingManager();
-        } catch (Exception e) {
-            e.printStackTrace();
+            return parent.loadClass(name);
+        } catch (ClassNotFoundException ignored) {
+            try {
+                if (name.equals(BBAE))
+                    return loadBridgeAE();
+                else if (name.equals(BCM))
+                    return loadBlockCraftingManager();
+            } catch (NotFoundException | CannotCompileException e) {
+                e.printStackTrace();
+                throw new ClassNotFoundException(e.toString());
+            }
         }
-        return parent.loadClass(name);
+
+        throw new ClassNotFoundException(name);
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         LogisticsBridge.log.warn(name);
         try {
-            if (name.equals("com.tom.logisticsbridge.block.BlockBridgeAE"))
+            if (name.equals(BBAE))
                 return loadBridgeAE();
-            else if (name.equals("com.tom.logisticsbridge.block.BlockCraftingManager"))
+            else if (name.equals(BCM))
                 return loadBlockCraftingManager();
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,7 +51,7 @@ public class BlockClassLoader extends LaunchClassLoader {
 
     public static Class<BlockBridgeAE> loadBridgeAE() throws NotFoundException, CannotCompileException {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
-        CtClass clazz = ClassPool.getDefault().get("com.tom.logisticsbridge.block.BlockBridgeAE");
+        CtClass clazz = ClassPool.getDefault().get(BBAE);
 
         clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
 
@@ -52,7 +60,7 @@ public class BlockClassLoader extends LaunchClassLoader {
 
     public static Class<BlockCraftingManager> loadBlockCraftingManager() throws NotFoundException, CannotCompileException {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
-        CtClass clazz = ClassPool.getDefault().get("com.tom.logisticsbridge.block.BlockCraftingManager");
+        CtClass clazz = ClassPool.getDefault().get(BCM);
 
         clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
 

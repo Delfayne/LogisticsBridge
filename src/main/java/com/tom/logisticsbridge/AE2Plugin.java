@@ -230,12 +230,10 @@ public class AE2Plugin {
 	}
 	public static void preInit(ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		virtualPattern = new VirtualPatternAE();
-//		LogisticsBridge.bridgeAE = new BlockBridgeAE().setUnlocalizedName("lb.bridge");
 		LogisticsBridge.bridgeAE = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockBridgeAE").newInstance())
 				.setUnlocalizedName("lb.bridge");
 		LogisticsBridge.craftingManager = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockCraftingManager").newInstance())
-				.setUnlocalizedName("lb.crafting_managerAE");;
-//		LogisticsBridge.craftingManager = new BlockCraftingManager().setUnlocalizedName("lb.crafting_managerAE");
+				.setUnlocalizedName("lb.crafting_managerAE");
 		AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
 		AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
 		LogisticsBridge.registerItem(virtualPattern, true);
