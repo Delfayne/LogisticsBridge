@@ -1,11 +1,14 @@
 package com.tom.logisticsbridge.item;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
+import appeng.api.AEApi;
+import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.util.item.AEItemStack;
+import com.tom.logisticsbridge.AE2Plugin;
+import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.api.IDynamicPatternDetailsAE;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.inventory.InventoryCrafting;
@@ -14,337 +17,306 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants.NBT;
 
-import com.tom.logisticsbridge.AE2Plugin;
-import com.tom.logisticsbridge.LogisticsBridge;
-import com.tom.logisticsbridge.api.IDynamicPatternDetailsAE;
-
-import appeng.api.AEApi;
-import appeng.api.implementations.ICraftingPatternItem;
-import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.util.item.AEItemStack;
+import java.util.*;
 
 public class VirtualPatternAE extends Item implements ICraftingPatternItem {
-	private static final WeakHashMap<Integer, ICraftingPatternDetails> CACHE = new WeakHashMap<>();
-	static {
-		IDynamicPatternDetailsAE.FACTORIES.put("te", IDynamicPatternDetailsAE.TileEntityWrapper::create);
-	}
+    private static final WeakHashMap<Integer, ICraftingPatternDetails> CACHE = new WeakHashMap<>();
 
-	public VirtualPatternAE() {
-		setUnlocalizedName("lb.virtPattern");
-	}
+    static {
+        IDynamicPatternDetailsAE.FACTORIES.put("te", IDynamicPatternDetailsAE.TileEntityWrapper::create);
+    }
 
-	@Override
-	public ICraftingPatternDetails getPatternForItem(ItemStack is, World w) {
-		return getPatternForItem(is);
-	}
+    public VirtualPatternAE() {
+        setUnlocalizedName("lb.virtPattern");
+    }
 
-	private static ICraftingPatternDetails getPatternForItem(ItemStack is) {
-		try {
-			return new VirtualPatternHandler(is);
-		} catch ( final Throwable t ) {
-			return null;
-		}
-	}
+    private static ICraftingPatternDetails getPatternForItem(ItemStack is) {
+        try {
+            return new VirtualPatternHandler(is);
+        } catch (final Throwable t) {
+            return null;
+        }
+    }
 
-	public static ICraftingPatternDetails create(ItemStack input, ItemStack output){
-		return new VirtualPatternHandler(input, output);
-	}
+    public static ICraftingPatternDetails create(ItemStack input, ItemStack output) {
+        return new VirtualPatternHandler(input, output);
+    }
 
-	public static ICraftingPatternDetails create(IAEItemStack output, IDynamicPatternDetailsAE handler){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + output.hashCode();
-		result = prime * result + handler.hashCode();
-		return CACHE.computeIfAbsent(result, h -> new VirtualPatternHandler(output.asItemStackRepresentation(), handler));
-	}
+    public static ICraftingPatternDetails create(IAEItemStack output, IDynamicPatternDetailsAE handler) {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + output.hashCode();
+        result = prime * result + handler.hashCode();
+        return CACHE.computeIfAbsent(result, h -> new VirtualPatternHandler(output.asItemStackRepresentation(), handler));
+    }
 
-	@Override
-	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
-	}
+    @Override
+    public ICraftingPatternDetails getPatternForItem(ItemStack is, World w) {
+        return getPatternForItem(is);
+    }
 
-	public static class VirtualPatternHandler implements ICraftingPatternDetails, Comparable<VirtualPatternHandler> {
-		private final ItemStack patternItem, result;
-		private final IAEItemStack[] condensedInputs;
-		private final IAEItemStack[] condensedOutputs;
-		private final IAEItemStack[] inputs;
-		private final IAEItemStack[] outputs;
-		private final IAEItemStack pattern;
-		private final IDynamicPatternDetailsAE dynamic;
-		private int priority = 0;
+    @Override
+    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
+    }
 
-		public VirtualPatternHandler(ItemStack output, IDynamicPatternDetailsAE handler) {
-			this.result = output;
-			ItemStack is = new ItemStack(AE2Plugin.virtualPattern);
-			ItemStack input = new ItemStack(LogisticsBridge.logisticsFakeItem);
-			is.setTagCompound(new NBTTagCompound());
-			NBTTagCompound tag = is.getTagCompound();
-			NBTTagList l = new NBTTagList();
-			tag.setTag("in", l);
-			NBTTagCompound t = new NBTTagCompound();
-			input.writeToNBT(t);
-			l.appendTag(t);
+    public static class VirtualPatternHandler implements ICraftingPatternDetails, Comparable<VirtualPatternHandler> {
+        private final ItemStack patternItem, result;
+        private final IAEItemStack[] condensedInputs;
+        private final IAEItemStack[] condensedOutputs;
+        private final IAEItemStack[] inputs;
+        private final IAEItemStack[] outputs;
+        private final IAEItemStack pattern;
+        private final IDynamicPatternDetailsAE dynamic;
+        private int priority = 0;
 
-			l = new NBTTagList();
-			tag.setTag("out", l);
-			t = new NBTTagCompound();
-			output.writeToNBT(t);
-			l.appendTag(t);
+        public VirtualPatternHandler(ItemStack output, IDynamicPatternDetailsAE handler) {
+            this.result = output;
+            ItemStack is = new ItemStack(AE2Plugin.virtualPattern);
+            ItemStack input = new ItemStack(LogisticsBridge.logisticsFakeItem);
+            is.setTagCompound(new NBTTagCompound());
+            NBTTagCompound tag = is.getTagCompound();
+            NBTTagList l = new NBTTagList();
+            tag.setTag("in", l);
+            NBTTagCompound t = new NBTTagCompound();
+            input.writeToNBT(t);
+            l.appendTag(t);
 
-			tag.setTag("dynamic", IDynamicPatternDetailsAE.save(handler));
+            l = new NBTTagList();
+            tag.setTag("out", l);
+            t = new NBTTagCompound();
+            output.writeToNBT(t);
+            l.appendTag(t);
 
-			this.patternItem = is;
-			this.pattern = AEItemStack.fromItemStack( is );
+            tag.setTag("dynamic", IDynamicPatternDetailsAE.save(handler));
 
-			this.condensedOutputs = this.outputs = new IAEItemStack[] { AEItemStack.fromItemStack( output ) };
-			this.condensedInputs = this.inputs = new IAEItemStack[] { AEItemStack.fromItemStack( input ) };
+            this.patternItem = is;
+            this.pattern = AEItemStack.fromItemStack(is);
 
-			this.dynamic = handler;
-		}
+            this.condensedOutputs = this.outputs = new IAEItemStack[]{AEItemStack.fromItemStack(output)};
+            this.condensedInputs = this.inputs = new IAEItemStack[]{AEItemStack.fromItemStack(input)};
 
-		public VirtualPatternHandler(ItemStack input, ItemStack output) {
-			this.result = output;
-			ItemStack is = new ItemStack(AE2Plugin.virtualPattern);
-			is.setTagCompound(new NBTTagCompound());
-			NBTTagCompound tag = is.getTagCompound();
-			NBTTagList l = new NBTTagList();
-			tag.setTag("in", l);
-			NBTTagCompound t = new NBTTagCompound();
-			input.writeToNBT(t);
-			l.appendTag(t);
+            this.dynamic = handler;
+        }
 
-			l = new NBTTagList();
-			tag.setTag("out", l);
-			t = new NBTTagCompound();
-			output.writeToNBT(t);
-			l.appendTag(t);
+        public VirtualPatternHandler(ItemStack input, ItemStack output) {
+            this.result = output;
+            ItemStack is = new ItemStack(AE2Plugin.virtualPattern);
+            is.setTagCompound(new NBTTagCompound());
+            NBTTagCompound tag = is.getTagCompound();
+            NBTTagList l = new NBTTagList();
+            tag.setTag("in", l);
+            NBTTagCompound t = new NBTTagCompound();
+            input.writeToNBT(t);
+            l.appendTag(t);
 
-			this.patternItem = is;
-			this.pattern = AEItemStack.fromItemStack( is );
+            l = new NBTTagList();
+            tag.setTag("out", l);
+            t = new NBTTagCompound();
+            output.writeToNBT(t);
+            l.appendTag(t);
 
-			this.condensedOutputs = this.outputs = new IAEItemStack[] { AEItemStack.fromItemStack( output ) };
-			this.condensedInputs = this.inputs = new IAEItemStack[] { AEItemStack.fromItemStack( input ) };
+            this.patternItem = is;
+            this.pattern = AEItemStack.fromItemStack(is);
 
-			this.dynamic = null;
-		}
+            this.condensedOutputs = this.outputs = new IAEItemStack[]{AEItemStack.fromItemStack(output)};
+            this.condensedInputs = this.inputs = new IAEItemStack[]{AEItemStack.fromItemStack(input)};
 
-		public VirtualPatternHandler(ItemStack is) {
-			final NBTTagCompound tag = is.getTagCompound();
-			if( tag == null )
-			{
-				throw new IllegalArgumentException( "No pattern here!" );
-			}
+            this.dynamic = null;
+        }
 
-			this.patternItem = is;
-			this.pattern = AEItemStack.fromItemStack( is );
+        public VirtualPatternHandler(ItemStack is) {
+            final NBTTagCompound tag = is.getTagCompound();
+            if (tag == null) {
+                throw new IllegalArgumentException("No pattern here!");
+            }
 
-			final List<IAEItemStack> in = new ArrayList<>();
-			final List<IAEItemStack> out = new ArrayList<>();
+            this.patternItem = is;
+            this.pattern = AEItemStack.fromItemStack(is);
 
-			IItemStorageChannel ITEMS = AEApi.instance().storage().getStorageChannel( IItemStorageChannel.class );
+            final List<IAEItemStack> in = new ArrayList<>();
+            final List<IAEItemStack> out = new ArrayList<>();
 
-			final NBTTagList inTag = tag.getTagList( "in", 10 );
+            IItemStorageChannel ITEMS = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
 
-			if(tag.hasKey("out", NBT.TAG_COMPOUND)){
-				result = new ItemStack(tag.getCompoundTag("out"));
-				out.add(ITEMS.createStack(result));
-			}else{
-				final NBTTagList outTag = tag.getTagList( "out", 10 );
+            final NBTTagList inTag = tag.getTagList("in", 10);
 
-				for( int x = 0; x < outTag.tagCount(); x++ )
-				{
-					NBTTagCompound resultItemTag = outTag.getCompoundTagAt( x );
-					final ItemStack gs = new ItemStack( resultItemTag );
+            if (tag.hasKey("out", NBT.TAG_COMPOUND)) {
+                result = new ItemStack(tag.getCompoundTag("out"));
+                out.add(ITEMS.createStack(result));
+            } else {
+                final NBTTagList outTag = tag.getTagList("out", 10);
 
-					if( !resultItemTag.hasNoTags() && gs.isEmpty() )
-					{
-						throw new IllegalArgumentException( "No pattern here!" );
-					}
+                for (int x = 0; x < outTag.tagCount(); x++) {
+                    NBTTagCompound resultItemTag = outTag.getCompoundTagAt(x);
+                    final ItemStack gs = new ItemStack(resultItemTag);
 
-					if( !gs.isEmpty() )
-					{
-						out.add( ITEMS.createStack( gs ) );
-					}
-				}
-				result = out.get(0).asItemStackRepresentation();
-			}
+                    if (!resultItemTag.hasNoTags() && gs.isEmpty()) {
+                        throw new IllegalArgumentException("No pattern here!");
+                    }
 
-			for( int x = 0; x < inTag.tagCount(); x++ )
-			{
-				NBTTagCompound ingredient = inTag.getCompoundTagAt( x );
-				final ItemStack gs = new ItemStack( ingredient );
+                    if (!gs.isEmpty()) {
+                        out.add(ITEMS.createStack(gs));
+                    }
+                }
+                result = out.get(0).asItemStackRepresentation();
+            }
 
-				if( !ingredient.hasNoTags() && gs.isEmpty() )
-				{
-					throw new IllegalArgumentException( "No pattern here!" );
-				}
+            for (int x = 0; x < inTag.tagCount(); x++) {
+                NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
+                final ItemStack gs = new ItemStack(ingredient);
 
-				in.add( ITEMS.createStack( gs ) );
-			}
+                if (!ingredient.hasNoTags() && gs.isEmpty()) {
+                    throw new IllegalArgumentException("No pattern here!");
+                }
 
-			this.outputs = out.toArray( new IAEItemStack[out.size()] );
-			this.inputs = in.toArray( new IAEItemStack[in.size()] );
+                in.add(ITEMS.createStack(gs));
+            }
 
-			final Map<IAEItemStack, IAEItemStack> tmpOutputs = new HashMap<>();
+            this.outputs = out.toArray(new IAEItemStack[out.size()]);
+            this.inputs = in.toArray(new IAEItemStack[in.size()]);
 
-			for( final IAEItemStack io : this.outputs )
-			{
-				if( io == null )
-				{
-					continue;
-				}
+            final Map<IAEItemStack, IAEItemStack> tmpOutputs = new HashMap<>();
 
-				final IAEItemStack g = tmpOutputs.get( io );
+            for (final IAEItemStack io : this.outputs) {
+                if (io == null) {
+                    continue;
+                }
 
-				if( g == null )
-				{
-					tmpOutputs.put( io, io.copy() );
-				}
-				else
-				{
-					g.add( io );
-				}
-			}
+                final IAEItemStack g = tmpOutputs.get(io);
 
-			final Map<IAEItemStack, IAEItemStack> tmpInputs = new HashMap<>();
+                if (g == null) {
+                    tmpOutputs.put(io, io.copy());
+                } else {
+                    g.add(io);
+                }
+            }
 
-			for( final IAEItemStack io : this.inputs )
-			{
-				if( io == null )
-				{
-					continue;
-				}
+            final Map<IAEItemStack, IAEItemStack> tmpInputs = new HashMap<>();
 
-				final IAEItemStack g = tmpInputs.get( io );
+            for (final IAEItemStack io : this.inputs) {
+                if (io == null) {
+                    continue;
+                }
 
-				if( g == null )
-				{
-					tmpInputs.put( io, io.copy() );
-				}
-				else
-				{
-					g.add( io );
-				}
-			}
+                final IAEItemStack g = tmpInputs.get(io);
 
-			if( tmpOutputs.isEmpty() )
-			{
-				throw new IllegalStateException( "No pattern here!" );
-			}
+                if (g == null) {
+                    tmpInputs.put(io, io.copy());
+                } else {
+                    g.add(io);
+                }
+            }
 
-			this.condensedInputs = new IAEItemStack[tmpInputs.size()];
-			int offset = 0;
+            if (tmpOutputs.isEmpty()) {
+                throw new IllegalStateException("No pattern here!");
+            }
 
-			for( final IAEItemStack io : tmpInputs.values() )
-			{
-				this.condensedInputs[offset] = io;
-				offset++;
-			}
+            this.condensedInputs = new IAEItemStack[tmpInputs.size()];
+            int offset = 0;
 
-			offset = 0;
-			this.condensedOutputs = new IAEItemStack[tmpOutputs.size()];
+            for (final IAEItemStack io : tmpInputs.values()) {
+                this.condensedInputs[offset] = io;
+                offset++;
+            }
 
-			for( final IAEItemStack io : tmpOutputs.values() )
-			{
-				this.condensedOutputs[offset] = io;
-				offset++;
-			}
-			if(tag.hasKey("dynamic", NBT.TAG_COMPOUND)){
-				dynamic = IDynamicPatternDetailsAE.load(tag.getCompoundTag("dynamic"));
-				dynamic.getOutputs(result, null, false);
-			}else{
-				dynamic = null;
-			}
-		}
+            offset = 0;
+            this.condensedOutputs = new IAEItemStack[tmpOutputs.size()];
 
-		@Override
-		public ItemStack getPattern() {
-			return patternItem;
-		}
+            for (final IAEItemStack io : tmpOutputs.values()) {
+                this.condensedOutputs[offset] = io;
+                offset++;
+            }
+            if (tag.hasKey("dynamic", NBT.TAG_COMPOUND)) {
+                dynamic = IDynamicPatternDetailsAE.load(tag.getCompoundTag("dynamic"));
+                dynamic.getOutputs(result, null, false);
+            } else {
+                dynamic = null;
+            }
+        }
 
-		@Override
-		public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
-			throw new IllegalStateException( "Only crafting recipes supported." );
-		}
+        @Override
+        public ItemStack getPattern() {
+            return patternItem;
+        }
 
-		@Override
-		public boolean isCraftable() {
-			return false;
-		}
+        @Override
+        public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
+            throw new IllegalStateException("Only crafting recipes supported.");
+        }
 
-		@Override
-		public IAEItemStack[] getInputs() {
-			return dynamic != null ? dynamic.getInputs(result, inputs, false) : inputs;
-		}
+        @Override
+        public boolean isCraftable() {
+            return false;
+        }
 
-		@Override
-		public IAEItemStack[] getCondensedInputs() {
-			return dynamic != null ? dynamic.getInputs(result, condensedInputs, true) : condensedInputs;
-		}
+        @Override
+        public IAEItemStack[] getInputs() {
+            return dynamic != null ? dynamic.getInputs(result, inputs, false) : inputs;
+        }
 
-		@Override
-		public IAEItemStack[] getCondensedOutputs() {
-			return dynamic != null ? dynamic.getOutputs(result, condensedOutputs, true) : condensedOutputs;
-		}
+        @Override
+        public IAEItemStack[] getCondensedInputs() {
+            return dynamic != null ? dynamic.getInputs(result, condensedInputs, true) : condensedInputs;
+        }
 
-		@Override
-		public IAEItemStack[] getOutputs() {
-			return dynamic != null ? dynamic.getOutputs(result, outputs, true) : outputs;
-		}
+        @Override
+        public IAEItemStack[] getCondensedOutputs() {
+            return dynamic != null ? dynamic.getOutputs(result, condensedOutputs, true) : condensedOutputs;
+        }
 
-		@Override
-		public boolean canSubstitute() {
-			return false;
-		}
+        @Override
+        public IAEItemStack[] getOutputs() {
+            return dynamic != null ? dynamic.getOutputs(result, outputs, true) : outputs;
+        }
 
-		@Override
-		public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
-			throw new IllegalStateException( "Only crafting recipes supported." );
-		}
+        @Override
+        public boolean canSubstitute() {
+            return false;
+        }
 
-		@Override
-		public int getPriority() {
-			return this.priority;
-		}
+        @Override
+        public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
+            throw new IllegalStateException("Only crafting recipes supported.");
+        }
 
-		@Override
-		public void setPriority( final int priority ) {
-			this.priority = priority;
-		}
-		@Override
-		public boolean equals( final Object obj ) {
-			if( obj == null )
-			{
-				return false;
-			}
-			if( this.getClass() != obj.getClass() )
-			{
-				return false;
-			}
+        @Override
+        public int getPriority() {
+            return this.priority;
+        }
 
-			final VirtualPatternHandler other = (VirtualPatternHandler) obj;
+        @Override
+        public void setPriority(final int priority) {
+            this.priority = priority;
+        }
 
-			if( this.pattern != null && other.pattern != null )
-			{
-				return this.pattern.equals( other.pattern );
-			}
-			return false;
-		}
-		@Override
-		public int compareTo( final VirtualPatternHandler o )
-		{
-			return Integer.compare( o.priority, this.priority );
-		}
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
 
-		@Override
-		public int hashCode()
-		{
-			return this.pattern.hashCode();
-		}
-	}
+            final VirtualPatternHandler other = (VirtualPatternHandler) obj;
+
+            if (this.pattern != null && other.pattern != null) {
+                return this.pattern.equals(other.pattern);
+            }
+            return false;
+        }
+
+        @Override
+        public int compareTo(final VirtualPatternHandler o) {
+            return Integer.compare(o.priority, this.priority);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.pattern.hashCode();
+        }
+    }
 }

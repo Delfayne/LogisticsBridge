@@ -63,303 +63,308 @@ import java.util.Set;
 
 @AEPlugin
 public class AE2Plugin {
-	static class StackSize implements IAEItemStack {
-		private long stackSize;
-		@Override
-		public long getStackSize() {
-			return stackSize;
-		}
+    public static AE2Plugin INSTANCE;
+    public static VirtualPatternAE virtualPattern;
+    public static HideFakeItem HIDE_FAKE_ITEM;
+    public static Field MergedPriorityList_negative;
+    public static PartType SATELLITE_BUS;
+    public static ItemStackSrc SATELLITE_BUS_SRC;
+    public final IAppEngApi api;
+    public AE2Plugin(IAppEngApi api) {
+        this.api = api;
+        INSTANCE = this;
+    }
 
-		@Override
-		public IAEItemStack setStackSize(long stackSize) {
-			this.stackSize = stackSize;
-			return this;
-		}
+    public static void registerBlock(Block block) {
+        block.setCreativeTab(CreativeTab.instance);
+        LogisticsBridge.registerBlock(block, AEBaseItemBlock::new);
+    }
 
-		@Override
-		public long getCountRequestable() {
-			return 0;
-		}
+    public static void preInit(ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        virtualPattern = new VirtualPatternAE();
+        LogisticsBridge.bridgeAE = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockBridgeAE").newInstance())
+                .setUnlocalizedName("lb.bridge");
+        LogisticsBridge.craftingManager = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockCraftingManager").newInstance())
+                .setUnlocalizedName("lb.crafting_managerAE");
+        AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
+        AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
+        LogisticsBridge.registerItem(virtualPattern, true);
+        try {
+            AE2Plugin.MergedPriorityList_negative = MergedPriorityList.class.getDeclaredField("negative");
+            AE2Plugin.MergedPriorityList_negative.setAccessible(true);
+        } catch (NoSuchFieldException | SecurityException e) {
+            e.printStackTrace();
+        }
+        AE2Plugin.SATELLITE_BUS = EnumHelper.addEnum(PartType.class, "SATELLITE_BUS", new Class[]{int.class, String.class, Set.class, Set.class, Class.class},
+                1024, "satellite_bus", EnumSet.of(AEFeature.CRAFTING_CPU), EnumSet.noneOf(IntegrationType.class), PartSatelliteBus.class);
+        Api.INSTANCE.getPartModels().registerModels(AE2Plugin.SATELLITE_BUS.getModels());
+        AE2Plugin.SATELLITE_BUS_SRC = ItemPart.instance.createPart(AE2Plugin.SATELLITE_BUS);
 
-		@Override
-		public IAEItemStack setCountRequestable(long countRequestable) {
-			return this;
-		}
+        GameRegistry.registerTileEntity(TileEntityBridgeAE.class, new ResourceLocation(LogisticsBridge.ID, "bridge"));
+        AEBaseTile.registerTileItem(TileEntityBridgeAE.class, new BlockStackSrc(LogisticsBridge.bridgeAE, 0, ActivityState.Enabled));
+        GameRegistry.registerTileEntity(TileEntityCraftingManager.class, new ResourceLocation(LogisticsBridge.ID, "craftingManagerAE"));
+        AEBaseTile.registerTileItem(TileEntityCraftingManager.class, new BlockStackSrc(LogisticsBridge.craftingManager, 0, ActivityState.Enabled));
+    }
 
-		@Override
-		public boolean isCraftable() {
-			return false;
-		}
+    @SuppressWarnings("unchecked")
+    public static void patchSorter() {
+        try {
+            Field sorterBySize = ItemSorters.class.getDeclaredField("CONFIG_BASED_SORT_BY_SIZE");
+            sorterBySize.setAccessible(true);
+            Field mod = Field.class.getDeclaredField("modifiers");
+            mod.setAccessible(true);
+            mod.set(sorterBySize, sorterBySize.getModifiers() & ~Modifier.FINAL);
+            Comparator<IAEItemStack> old = (Comparator<IAEItemStack>) sorterBySize.get(null);
+            IAEItemStack s1 = new AE2Plugin.StackSize().setStackSize(1);
+            IAEItemStack s2 = new AE2Plugin.StackSize().setStackSize(2);
+            sorterBySize.set(null, new Comparator<IAEItemStack>() {
 
-		@Override
-		public IAEItemStack setCraftable(boolean isCraftable) {
-			return this;
-		}
+                @Override
+                public int compare(IAEItemStack o1, IAEItemStack o2) {
+                    final int cmp = Long.compare(o2.getStackSize() + o2.getCountRequestable(), o1.getStackSize() + o1.getCountRequestable());
+                    return applyDirection(cmp);
+                }
 
-		@Override
-		public IAEItemStack reset() {
-			return this;
-		}
+                private int applyDirection(int cmp) {
+                    int dir = old.compare(s1, s2);
+                    return dir * cmp;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-		@Override
-		public boolean isMeaningful() {
-			return false;
-		}
+    public static void loadRecipes(ResourceLocation group) {
+        IMaterials mat = AE2Plugin.INSTANCE.api.definitions().materials();
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.bridgeAE), "iei", "bIb", "ici",
+                'i', "ingotIron",
+                'b', LPItems.pipeBasic,
+                'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
+                'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
+                'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
+                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/bridge")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1), " c ", "ifi", " p ",
+                'p', Blocks.PISTON,
+                'f', mat.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
+                'i', "ingotIron",
+                'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
+                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/satellite_bus")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.craftingManager), "IlI", "cec", "ili",
+                'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
+                'l', mat.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
+                'i', "ingotIron",
+                'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
+                'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
+                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/crafting_manager_ae")));
+    }
 
-		@Override
-		public void incStackSize(long i) {
-			stackSize += i;
-		}
+    public static IIdPipe processReqIDList(EntityPlayer player, RequestIDListPacket pck) {
+        AEPartLocation side = AEPartLocation.fromOrdinal(pck.side - 1);
+        IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
+        if (ph == null) return null;
+        IPart p = ph.getPart(side);
+        if (p instanceof IIdPipe) {
+            return (IIdPipe) p;
+        }
+        return null;
+    }
 
-		@Override
-		public void decStackSize(long i) {
-			stackSize -= i;
-		}
+    public static void processResIDMod(EntityPlayer player, SetIDPacket pck) {
+        AEPartLocation side = AEPartLocation.fromOrdinal(pck.side - 1);
+        IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
+        if (ph == null) return;
+        IPart p = ph.getPart(side);
+        if (p instanceof IIdPipe) {
+            ((IIdPipe) p).setPipeID(pck.id, pck.pid, player);
+        }
+    }
 
-		@Override
-		public void incCountRequestable(long i) {
-		}
+    @SuppressWarnings("unchecked")
+    @SideOnly(Side.CLIENT)
+    public static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event) {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.currentScreen instanceof GuiMEMonitorable) {
+            GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
+            if (AE2Plugin.HIDE_FAKE_ITEM == null) {
+                AE2Plugin.HIDE_FAKE_ITEM = new HideFakeItem();
+            }
+            try {
+                ItemRepo r = (ItemRepo) ClientProxy.GuiMEMonitorable_Repo.get(g);
+                IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.ItemRepo_myPartitionList.get(r);
+                if (pl instanceof MergedPriorityList) {
+                    MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
+                    Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Plugin.MergedPriorityList_negative.get(ml);
+                    if (!negative.contains(AE2Plugin.HIDE_FAKE_ITEM)) {
+                        negative.add(AE2Plugin.HIDE_FAKE_ITEM);
+                        r.updateView();
+                    }
+                } else {
+                    MergedPriorityList<IAEItemStack> mlist = new MergedPriorityList<>();
+                    ClientProxy.ItemRepo_myPartitionList.set(r, mlist);
+                    if (pl != null) mlist.addNewList(pl, true);
+                    mlist.addNewList(AE2Plugin.HIDE_FAKE_ITEM, false);
+                    r.updateView();
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
 
-		@Override
-		public void decCountRequestable(long i) {
-		}
+    @SideOnly(Side.CLIENT)
+    public static void loadModels() {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.getRenderItem().getItemModelMesher().register(ItemPart.instance, 1024, AE2Plugin.SATELLITE_BUS.getItemModels().get(0));
+        ModelLoader.setCustomModelResourceLocation(ItemPart.instance, 1024, AE2Plugin.SATELLITE_BUS.getItemModels().get(0));
+    }
 
-		@Override
-		public void writeToNBT(NBTTagCompound i) {
-		}
+    static class StackSize implements IAEItemStack {
+        private long stackSize;
 
-		@Override
-		public boolean fuzzyComparison(IAEItemStack other, FuzzyMode mode) {
-			return false;
-		}
+        @Override
+        public long getStackSize() {
+            return stackSize;
+        }
 
-		@Override
-		public void writeToPacket(ByteBuf data) throws IOException {
-		}
+        @Override
+        public IAEItemStack setStackSize(long stackSize) {
+            this.stackSize = stackSize;
+            return this;
+        }
 
-		@Override
-		public IAEItemStack empty() {
-			return this;
-		}
+        @Override
+        public long getCountRequestable() {
+            return 0;
+        }
 
-		@Override
-		public boolean isItem() {
-			return false;
-		}
+        @Override
+        public IAEItemStack setCountRequestable(long countRequestable) {
+            return this;
+        }
 
-		@Override
-		public boolean isFluid() {
-			return false;
-		}
+        @Override
+        public boolean isCraftable() {
+            return false;
+        }
 
-		@Override
-		public IStorageChannel<IAEItemStack> getChannel() {
-			return null;
-		}
+        @Override
+        public IAEItemStack setCraftable(boolean isCraftable) {
+            return this;
+        }
 
-		@Override
-		public ItemStack asItemStackRepresentation() {
-			return ItemStack.EMPTY;
-		}
+        @Override
+        public IAEItemStack reset() {
+            return this;
+        }
 
-		@Override
-		public ItemStack createItemStack() {
-			return ItemStack.EMPTY;
-		}
+        @Override
+        public boolean isMeaningful() {
+            return false;
+        }
 
-		@Override
-		public boolean hasTagCompound() {
-			return false;
-		}
+        @Override
+        public void incStackSize(long i) {
+            stackSize += i;
+        }
 
-		@Override
-		public void add(IAEItemStack option) {
-		}
+        @Override
+        public void decStackSize(long i) {
+            stackSize -= i;
+        }
 
-		@Override
-		public IAEItemStack copy() {
-			return new StackSize().setStackSize(stackSize);
-		}
+        @Override
+        public void incCountRequestable(long i) {
+        }
 
-		@Override
-		public Item getItem() {
-			return Items.AIR;
-		}
+        @Override
+        public void decCountRequestable(long i) {
+        }
 
-		@Override
-		public int getItemDamage() {
-			return 0;
-		}
+        @Override
+        public void writeToNBT(NBTTagCompound i) {
+        }
 
-		@Override
-		public boolean sameOre(IAEItemStack is) {
-			return false;
-		}
+        @Override
+        public boolean fuzzyComparison(IAEItemStack other, FuzzyMode mode) {
+            return false;
+        }
 
-		@Override
-		public boolean isSameType(IAEItemStack otherStack) {
-			return false;
-		}
+        @Override
+        public void writeToPacket(ByteBuf data) throws IOException {
+        }
 
-		@Override
-		public boolean isSameType(ItemStack stored) {
-			return false;
-		}
+        @Override
+        public IAEItemStack empty() {
+            return this;
+        }
 
-		@Override
-		public ItemStack getDefinition() {
-			return ItemStack.EMPTY;
-		}
-	}
-	public static AE2Plugin 		INSTANCE;
-	public static VirtualPatternAE 	virtualPattern;
-	public static HideFakeItem 		HIDE_FAKE_ITEM;
-	public static Field 			MergedPriorityList_negative;
-	public static PartType 			SATELLITE_BUS;
-	public static ItemStackSrc 		SATELLITE_BUS_SRC;
-	public final IAppEngApi 		api;
+        @Override
+        public boolean isItem() {
+            return false;
+        }
 
-	public AE2Plugin(IAppEngApi api) {
-		this.api = api;
-		INSTANCE = this;
-	}
-	public static void registerBlock(Block block){
-		block.setCreativeTab(CreativeTab.instance);
-		LogisticsBridge.registerBlock(block, AEBaseItemBlock::new);
-	}
-	public static void preInit(ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		virtualPattern = new VirtualPatternAE();
-		LogisticsBridge.bridgeAE = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockBridgeAE").newInstance())
-				.setUnlocalizedName("lb.bridge");
-		LogisticsBridge.craftingManager = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockCraftingManager").newInstance())
-				.setUnlocalizedName("lb.crafting_managerAE");
-		AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
-		AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
-		LogisticsBridge.registerItem(virtualPattern, true);
-		try {
-			AE2Plugin.MergedPriorityList_negative = MergedPriorityList.class.getDeclaredField("negative");
-			AE2Plugin.MergedPriorityList_negative.setAccessible(true);
-		} catch (NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
-		AE2Plugin.SATELLITE_BUS = EnumHelper.addEnum(PartType.class, "SATELLITE_BUS", new Class[]{int.class, String.class, Set.class, Set.class, Class.class},
-				1024, "satellite_bus", EnumSet.of( AEFeature.CRAFTING_CPU ), EnumSet.noneOf( IntegrationType.class ), PartSatelliteBus.class);
-		Api.INSTANCE.getPartModels().registerModels(AE2Plugin.SATELLITE_BUS.getModels());
-		AE2Plugin.SATELLITE_BUS_SRC = ItemPart.instance.createPart(AE2Plugin.SATELLITE_BUS);
+        @Override
+        public boolean isFluid() {
+            return false;
+        }
 
-		GameRegistry.registerTileEntity(TileEntityBridgeAE.class, new ResourceLocation(LogisticsBridge.ID, "bridge"));
-		AEBaseTile.registerTileItem(TileEntityBridgeAE.class, new BlockStackSrc(LogisticsBridge.bridgeAE, 0, ActivityState.Enabled));
-		GameRegistry.registerTileEntity(TileEntityCraftingManager.class, new ResourceLocation(LogisticsBridge.ID, "craftingManagerAE"));
-		AEBaseTile.registerTileItem(TileEntityCraftingManager.class, new BlockStackSrc(LogisticsBridge.craftingManager, 0, ActivityState.Enabled));
-	}
-	@SuppressWarnings("unchecked")
-	public static void patchSorter(){
-		try {
-			Field sorterBySize = ItemSorters.class.getDeclaredField("CONFIG_BASED_SORT_BY_SIZE");
-			sorterBySize.setAccessible(true);
-			Field mod = Field.class.getDeclaredField("modifiers");
-			mod.setAccessible(true);
-			mod.set(sorterBySize, sorterBySize.getModifiers() & ~Modifier.FINAL);
-			Comparator<IAEItemStack> old = (Comparator<IAEItemStack>) sorterBySize.get(null);
-			IAEItemStack s1 = new AE2Plugin.StackSize().setStackSize(1);
-			IAEItemStack s2 = new AE2Plugin.StackSize().setStackSize(2);
-			sorterBySize.set(null, new Comparator<IAEItemStack>() {
+        @Override
+        public IStorageChannel<IAEItemStack> getChannel() {
+            return null;
+        }
 
-				@Override
-				public int compare(IAEItemStack o1, IAEItemStack o2) {
-					final int cmp = Long.compare( o2.getStackSize() + o2.getCountRequestable(), o1.getStackSize() + o1.getCountRequestable() );
-					return applyDirection( cmp );
-				}
+        @Override
+        public ItemStack asItemStackRepresentation() {
+            return ItemStack.EMPTY;
+        }
 
-				private int applyDirection( int cmp ) {
-					int dir = old.compare(s1, s2);
-					return dir*cmp;
-				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	public static void loadRecipes(ResourceLocation group){
-		IMaterials mat = AE2Plugin.INSTANCE.api.definitions().materials();
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.bridgeAE), "iei", "bIb", "ici",
-				'i', "ingotIron",
-				'b', LPItems.pipeBasic,
-				'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
-				'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
-				'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-				setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/bridge")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1), " c ", "ifi", " p ",
-				'p', Blocks.PISTON,
-				'f', mat.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
-				'i', "ingotIron",
-				'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-				setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/satellite_bus")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.craftingManager), "IlI", "cec", "ili",
-				'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
-				'l', mat.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
-				'i', "ingotIron",
-				'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
-				'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-				setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/crafting_manager_ae")));
-	}
+        @Override
+        public ItemStack createItemStack() {
+            return ItemStack.EMPTY;
+        }
 
-	public static IIdPipe processReqIDList(EntityPlayer player, RequestIDListPacket pck) {
-		AEPartLocation side = AEPartLocation.fromOrdinal(pck.side - 1);
-		IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
-		if(ph == null)return null;
-		IPart p = ph.getPart(side);
-		if(p instanceof IIdPipe){
-			return (IIdPipe) p;
-		}
-		return null;
-	}
+        @Override
+        public boolean hasTagCompound() {
+            return false;
+        }
 
-	public static void processResIDMod(EntityPlayer player, SetIDPacket pck){
-		AEPartLocation side = AEPartLocation.fromOrdinal(pck.side - 1);
-		IPartHost ph = pck.getTileAs(player.world, IPartHost.class);
-		if(ph == null)return;
-		IPart p = ph.getPart(side);
-		if(p instanceof IIdPipe){
-			((IIdPipe) p).setPipeID(pck.id, pck.pid, player);
-		}
-	}
+        @Override
+        public void add(IAEItemStack option) {
+        }
 
-	@SuppressWarnings("unchecked")
-	@SideOnly(Side.CLIENT)
-	public static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event){
-		Minecraft mc = Minecraft.getMinecraft();
-		if(mc.currentScreen instanceof GuiMEMonitorable){
-			GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
-			if (AE2Plugin.HIDE_FAKE_ITEM == null) {
-				AE2Plugin.HIDE_FAKE_ITEM = new HideFakeItem();
-			}
-			try {
-				ItemRepo r = (ItemRepo) ClientProxy.GuiMEMonitorable_Repo.get(g);
-				IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.ItemRepo_myPartitionList.get(r);
-				if(pl instanceof MergedPriorityList){
-					MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
-					Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Plugin.MergedPriorityList_negative.get(ml);
-					if(!negative.contains(AE2Plugin.HIDE_FAKE_ITEM)){
-						negative.add(AE2Plugin.HIDE_FAKE_ITEM);
-						r.updateView();
-					}
-				}else{
-					MergedPriorityList<IAEItemStack> mlist = new MergedPriorityList<>();
-					ClientProxy.ItemRepo_myPartitionList.set(r, mlist);
-					if(pl != null)mlist.addNewList(pl, true);
-					mlist.addNewList(AE2Plugin.HIDE_FAKE_ITEM, false);
-					r.updateView();
-				}
-			} catch (Exception e) {
-			}
-		}
-	}
+        @Override
+        public IAEItemStack copy() {
+            return new StackSize().setStackSize(stackSize);
+        }
 
-	@SideOnly(Side.CLIENT)
-	public static void loadModels(){
-		Minecraft mc = Minecraft.getMinecraft();
-		mc.getRenderItem().getItemModelMesher().register(ItemPart.instance, 1024, AE2Plugin.SATELLITE_BUS.getItemModels().get(0));
-		ModelLoader.setCustomModelResourceLocation(ItemPart.instance, 1024, AE2Plugin.SATELLITE_BUS.getItemModels().get(0));
-	}
+        @Override
+        public Item getItem() {
+            return Items.AIR;
+        }
+
+        @Override
+        public int getItemDamage() {
+            return 0;
+        }
+
+        @Override
+        public boolean sameOre(IAEItemStack is) {
+            return false;
+        }
+
+        @Override
+        public boolean isSameType(IAEItemStack otherStack) {
+            return false;
+        }
+
+        @Override
+        public boolean isSameType(ItemStack stored) {
+            return false;
+        }
+
+        @Override
+        public ItemStack getDefinition() {
+            return ItemStack.EMPTY;
+        }
+    }
 }

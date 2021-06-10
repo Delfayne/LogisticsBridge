@@ -1,5 +1,7 @@
 package com.tom.logisticsbridge.block;
 
+import appeng.block.AEBaseTileBlock;
+import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,36 +11,32 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
-
-import appeng.block.AEBaseTileBlock;
-
 import javax.annotation.Nullable;
 
 public class BlockCraftingManager extends AEBaseTileBlock {
 
-	public BlockCraftingManager() {
-		super(Material.IRON);
-		setHardness(2f);
-		setResistance(4f);
-		setTileEntity(TileEntityCraftingManager.class);
-	}
+    public BlockCraftingManager() {
+        super(Material.IRON);
+        setHardness(2f);
+        setResistance(4f);
+        setTileEntity(TileEntityCraftingManager.class);
+    }
 
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ))return true;
-		if(!worldIn.isRemote){
-			TileEntity te = worldIn.getTileEntity(pos);
-			if(te instanceof TileEntityCraftingManager){
-				((TileEntityCraftingManager)te).openGui(playerIn);
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ)) return true;
+        if (!worldIn.isRemote) {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityCraftingManager) {
+                ((TileEntityCraftingManager) te).openGui(playerIn);
+            }
+        }
+        return true;
+    }
 
-	@Nullable
-	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
-		return new TileEntityCraftingManager();
-	}
+    @Nullable
+    @Override
+    public TileEntity createNewTileEntity(World worldIn, int meta) {
+        return new TileEntityCraftingManager();
+    }
 }

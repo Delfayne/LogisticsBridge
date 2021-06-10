@@ -21,7 +21,7 @@ public class SyncResultNamePacket extends SyncSatelliteNamePacket {
             return;
         }
 
-        if(pipe.pipe instanceof SatellitePipe){
+        if (pipe.pipe instanceof SatellitePipe) {
             ((SatellitePipe) pipe.pipe).setSatellitePipeName(getString());
         }
     }

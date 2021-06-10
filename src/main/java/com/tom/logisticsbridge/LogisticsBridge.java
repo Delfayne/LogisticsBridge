@@ -71,335 +71,335 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Mod(modid = LogisticsBridge.ID, name = LogisticsBridge.NAME, version = LogisticsBridge.VERSION,
-dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
+        dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
 public class LogisticsBridge {
-	public static final String ID = "logisticsbridge";
-	public static final String NAME = "Logistics Bridge";
-	public static final String VERSION = "1.3.14";
-	public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.3.39,)";
-	public static final String UPDATE = "https://github.com/tom5454/LogisticsBridge/blob/master/version-check.json";
-	public static final Logger log = LogManager.getLogger(NAME);
-	public static Method registerTexture, registerPipe;
+    public static final String ID = "logisticsbridge";
+    public static final String NAME = "Logistics Bridge";
+    public static final String VERSION = "1.3.14";
+    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.3.39,)";
+    public static final String UPDATE = "https://github.com/tom5454/LogisticsBridge/blob/master/version-check.json";
+    public static final Logger log = LogManager.getLogger(NAME);
+    private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
+    private static final String SERVER_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ServerProxy";
+    public static Method registerTexture, registerPipe;
+    @SidedProxy(clientSide = CLIENT_PROXY_CLASS, serverSide = SERVER_PROXY_CLASS)
+    public static CommonProxy proxy;
 
-	private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
-	private static final String SERVER_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ServerProxy";
+    public static Block bridgeAE, bridgeRS;
+    public static Block craftingManager;
+    public static Item logisticsFakeItem;
+    public static Item packageItem;
+    public static boolean aeLoaded, rsLoaded;
 
-	@SidedProxy(clientSide = CLIENT_PROXY_CLASS, serverSide = SERVER_PROXY_CLASS)
-	public static CommonProxy proxy;
+    @ObjectHolder("logisticspipes:pipe_lb.bridgepipe")
+    public static Item pipeBridge;
 
-	public static Block bridgeAE, bridgeRS;
-	public static Block craftingManager;
-	public static Item logisticsFakeItem;
-	public static Item packageItem;
-	public static boolean aeLoaded, rsLoaded;
+    @ObjectHolder("logisticspipes:pipe_lb.resultpipe")
+    public static Item pipeResult;
 
-	@ObjectHolder("logisticspipes:pipe_lb.bridgepipe")
-	public static Item pipeBridge;
+    @ObjectHolder("logisticspipes:pipe_lb.craftingmanager")
+    public static Item pipeCraftingManager;
 
-	@ObjectHolder("logisticspipes:pipe_lb.resultpipe")
-	public static Item pipeResult;
+    @ObjectHolder("logisticspipes:upgrade_lb.buffer_upgrade")
+    public static Item upgradeBuffer;
 
-	@ObjectHolder("logisticspipes:pipe_lb.craftingmanager")
-	public static Item pipeCraftingManager;
+    @ObjectHolder("logisticspipes:upgrade_lb.adv_extraction_upgrade")
+    public static Item upgradeAdvExt;
 
-	@ObjectHolder("logisticspipes:upgrade_lb.buffer_upgrade")
-	public static Item upgradeBuffer;
+    @Instance(ID)
+    public static LogisticsBridge modInstance;
 
-	@ObjectHolder("logisticspipes:upgrade_lb.adv_extraction_upgrade")
-	public static Item upgradeAdvExt;
+    @EventHandler
+    public static void construction(FMLConstructionEvent evt) {
+        log.info("Logistics Bridge version: " + VERSION);
+    }
 
-	@Instance(ID)
-	public static LogisticsBridge modInstance;
+    @EventHandler
+    public static void preInit(FMLPreInitializationEvent evt) throws Exception {
+        log.info("Start Pre Initialization");
+        long tM = System.currentTimeMillis();
+        aeLoaded = Loader.isModLoaded("appliedenergistics2");
+        rsLoaded = Loader.isModLoaded("refinedstorage");
 
-	@EventHandler
-	public static void construction(FMLConstructionEvent evt) {
-		log.info("Logistics Bridge version: " + VERSION);
-	}
+        logisticsFakeItem = new FakeItem(false).setUnlocalizedName("lb.logisticsFakeItem");
+        packageItem = new FakeItem(true).setUnlocalizedName("lb.package").setCreativeTab(CreativeTabs.MISC);
 
-	@EventHandler
-	public static void preInit(FMLPreInitializationEvent evt) throws Exception {
-		log.info("Start Pre Initialization");
-		long tM = System.currentTimeMillis();
-		aeLoaded = Loader.isModLoaded("appliedenergistics2");
-		rsLoaded = Loader.isModLoaded("refinedstorage");
+        if (aeLoaded) {
+            Thread thread = Thread.currentThread();
+            ClassLoader loader = thread.getContextClassLoader();
+            ClassLoader newLoader = new BlockClassLoader(loader);
+            thread.setContextClassLoader(newLoader);
+            LogisticsBridge.log.warn("XPEHb - " + LogisticsBridge.class.getClassLoader());
+            Class<AE2Plugin> clazz = (Class<AE2Plugin>) newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
+            clazz.getMethod("preInit", ClassLoader.class).invoke(null, newLoader);
+            thread.setContextClassLoader(loader);
+        }
+        if (rsLoaded) {
+            RSPlugin.preInit();
+        }
+        registerItem(logisticsFakeItem, true);
+        registerItem(packageItem, true);
 
-		logisticsFakeItem = new FakeItem(false).setUnlocalizedName("lb.logisticsFakeItem");
-		packageItem = new FakeItem(true).setUnlocalizedName("lb.package").setCreativeTab(CreativeTabs.MISC);
+        try {
+            registerTexture = Textures.class.getDeclaredMethod("registerTexture", Object.class, String.class, int.class);
+            registerTexture.setAccessible(true);
+            registerPipe = LogisticsPipes.class.getDeclaredMethod("registerPipe", IForgeRegistry.class, String.class, Function.class);
+            registerPipe.setAccessible(true);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
+        MinecraftForge.EVENT_BUS.register(modInstance);
+        proxy.registerRenderers();
+        long time = System.currentTimeMillis() - tM;
+        log.info("Pre Initialization took in " + time + " milliseconds");
+    }
 
-		if(aeLoaded){
-			Thread thread = Thread.currentThread();
-			ClassLoader loader = thread.getContextClassLoader();
-			ClassLoader newLoader = new BlockClassLoader(loader);
-			thread.setContextClassLoader(newLoader);
-			LogisticsBridge.log.warn("XPEHb - " + LogisticsBridge.class.getClassLoader());
-			Class<AE2Plugin> clazz = (Class<AE2Plugin>) newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
-			clazz.getMethod("preInit", ClassLoader.class).invoke(null, newLoader);
-			thread.setContextClassLoader(loader);
-		}
-		if(rsLoaded){
-			RSPlugin.preInit();
-		}
-		registerItem(logisticsFakeItem, true);
-		registerItem(packageItem, true);
+    private static void registerPipe(IForgeRegistry<Item> registry, String name, Function<Item, ? extends CoreUnroutedPipe> constructor) {
+        try {
+            registerPipe.invoke(LogisticsPipes.instance, registry, name, constructor);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		try {
-			registerTexture = Textures.class.getDeclaredMethod("registerTexture", Object.class, String.class, int.class);
-			registerTexture.setAccessible(true);
-			registerPipe = LogisticsPipes.class.getDeclaredMethod("registerPipe", IForgeRegistry.class, String.class, Function.class);
-			registerPipe.setAccessible(true);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-		MinecraftForge.EVENT_BUS.register(modInstance);
-		proxy.registerRenderers();
-		long time = System.currentTimeMillis() - tM;
-		log.info("Pre Initialization took in " + time + " milliseconds");
-	}
+    @EventHandler
+    public static void init(FMLInitializationEvent evt) {
+        log.info("Start Initialization");
+        long tM = System.currentTimeMillis();
+        if (evt.getSide() == Side.SERVER) {
+            registerTextures(null);
+        }
+        if (aeLoaded) {
+            AE2Plugin.patchSorter();
+        }
+        NetworkRegistry.INSTANCE.registerGuiHandler(modInstance, new GuiHandler());
+        proxy.init();
+        loadRecipes();
+        long time = System.currentTimeMillis() - tM;
+        log.info("Initialization took in " + time + " milliseconds");
+    }
 
-	@SubscribeEvent
-	public void initItems(RegistryEvent.Register<Item> event) {
-		IForgeRegistry<Item> registry = event.getRegistry();
-		registerPipe(registry, "lb.bridgepipe", BridgePipe::new);
-		registerPipe(registry, "lb.resultpipe", ResultPipe::new);
-		registerPipe(registry, "lb.craftingmanager", CraftingManager::new);
-		ItemUpgrade.registerUpgrade(registry, "lb.buffer_upgrade", BufferUpgrade::new);
-		ItemUpgrade.registerUpgrade(registry, "lb.adv_extraction_upgrade", AdvItemExtractionUpgrade::new);
-		log.info("Registered Pipes");
-	}
+    @EventHandler
+    public static void postInit(FMLPostInitializationEvent evt) {
+        log.info("Start Post Initialization");
+        long tM = System.currentTimeMillis();
+        ItemPipeSignCreator.signTypes.add(CraftingManagerPipeSign.class);
+        long time = System.currentTimeMillis() - tM;
+        log.info("Post Initialization took in " + time + " milliseconds");
+    }
 
-	@SubscribeEvent
-	public void openGui(PlayerContainerEvent.Open event){
-		if(event.getContainer() instanceof DummyContainer && !(event.getContainer() instanceof ContainerCraftingManager)){
-			DummyContainer dc = (DummyContainer) event.getContainer();
-			dc.inventorySlots.stream().filter(s -> s instanceof ModuleSlot).findFirst().
-			map(s -> ((ModuleSlot)s).get_pipe()).filter(p -> p instanceof CraftingManager).ifPresent(cmgr -> {
-				((CraftingManager)cmgr).openGui(event.getEntityPlayer());
-			});
-		}
-	}
+    private static void loadRecipes() {
+        ResourceLocation bridgePrg = pipeBridge.delegate.name();
+        ResourceLocation resultPrg = pipeResult.delegate.name();
+        ResourceLocation craftingMgrPrg = pipeCraftingManager.delegate.name();
+        ResourceLocation bufferUpgr = upgradeBuffer.delegate.name();
+        LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bridgePrg);
+        LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPrg);
+        LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPrg);
+        LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgr);
+        ResourceLocation group = new ResourceLocation(ID, "recipes");
 
-	@EventHandler
-	public void cleanup(FMLServerStoppingEvent event) {
-		ResultPipe.cleanup();
-	}
+        if (aeLoaded) {
+            AE2Plugin.loadRecipes(group);
+        }
 
-	private static void registerPipe(IForgeRegistry<Item> registry, String name, Function<Item, ? extends CoreUnroutedPipe> constructor){
-		try {
-			registerPipe.invoke(LogisticsPipes.instance, registry, name, constructor);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        if (rsLoaded) {
+            RSPlugin.loadRecipes(group);
+        }
 
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void textureLoad(TextureStitchEvent.Pre event) {
-		if (!event.getMap().getBasePath().equals("textures")) {
-			return;
-		}
-		proxy.registerTextures();
-	}
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeBridge), " p ", "fbf", "dad",
+                'p', getIngredientForProgrammer(bridgePrg),
+                'b', LPItems.pipeBasic,
+                'f', LPItems.chipFPGA,
+                'd', "gemDiamond",
+                'a', LPItems.chipAdvanced).
+                setRegistryName(new ResourceLocation(ID, "recipes/pipe_bridge")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeResult), " p ", "rar", " s ",
+                'p', getIngredientForProgrammer(resultPrg),
+                's', LPItems.pipeBasic,
+                'a', LPItems.chipFPGA,
+                'r', "dustRedstone").
+                setRegistryName(new ResourceLocation(ID, "recipes/pipe_result")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeCraftingManager), "gpg", "rsr", "gcg",
+                'p', getIngredientForProgrammer(craftingMgrPrg),
+                's', LPItems.pipeBasic,
+                'g', LPItems.chipFPGA,
+                'r', "ingotGold",
+                'c', "chest").
+                setRegistryName(new ResourceLocation(ID, "recipes/crafting_manager")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(packageItem), "pw",
+                'p', Items.PAPER,
+                'w', "plankWood").
+                setRegistryName(new ResourceLocation(ID, "recipes/package")));
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(upgradeBuffer), "rpr", "ici", "PnP",
+                'p', getIngredientForProgrammer(bufferUpgr),
+                'n', LPItems.chipAdvanced,
+                'c', LPItems.chipFPGA,
+                'r', "dustRedstone",
+                'i', "gemDiamond",
+                'P', "paper").
+                setRegistryName(new ResourceLocation(ID, "recipes/buffer_upgrade")));
+        ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, new ItemStack(upgradeAdvExt),
+                ItemUpgrade.getAndCheckUpgrade(LPItems.upgrades.get(ItemStackExtractionUpgrade.getName())),
+                "dustRedstone").
+                setRegistryName(new ResourceLocation(ID, "recipes/adv_ext_upgrade")));
+    }
 
-	@EventHandler
-	public static void init(FMLInitializationEvent evt) {
-		log.info("Start Initialization");
-		long tM = System.currentTimeMillis();
-		if (evt.getSide() == Side.SERVER) {
-			registerTextures(null);
-		}
-		if(aeLoaded){
-			AE2Plugin.patchSorter();
-		}
-		NetworkRegistry.INSTANCE.registerGuiHandler(modInstance, new GuiHandler());
-		proxy.init();
-		loadRecipes();
-		long time = System.currentTimeMillis() - tM;
-		log.info("Initialization took in " + time + " milliseconds");
-	}
+    private static Ingredient getIngredientForProgrammer(ResourceLocation rl) {
+        ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
+        programmerStack.setTagCompound(new NBTTagCompound());
+        programmerStack.getTagCompound().setString(ItemLogisticsProgrammer.RECIPE_TARGET, rl.toString());
+        return NBTIngredient.fromStacks(programmerStack);
+    }
 
-	@EventHandler
-	public static void postInit(FMLPostInitializationEvent evt) {
-		log.info("Start Post Initialization");
-		long tM = System.currentTimeMillis();
-		ItemPipeSignCreator.signTypes.add(CraftingManagerPipeSign.class);
-		long time = System.currentTimeMillis() - tM;
-		log.info("Post Initialization took in " + time + " milliseconds");
-	}
+    public static void registerTextures(Object object) {
+        BridgePipe.TEXTURE = registerTexture(object, "pipes/lb/bridge");
+        ResultPipe.TEXTURE = registerTexture(object, "pipes/lb/result");
+        CraftingManager.TEXTURE = registerTexture(object, "pipes/lb/crafting_manager");
+    }
 
-	private static void loadRecipes() {
-		ResourceLocation bridgePrg = pipeBridge.delegate.name();
-		ResourceLocation resultPrg = pipeResult.delegate.name();
-		ResourceLocation craftingMgrPrg = pipeCraftingManager.delegate.name();
-		ResourceLocation bufferUpgr = upgradeBuffer.delegate.name();
-		LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bridgePrg);
-		LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPrg);
-		LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPrg);
-		LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgr);
-		ResourceLocation group = new ResourceLocation(ID, "recipes");
+    private static TextureType registerTexture(Object par1IIconRegister, String fileName) {
+        return registerTexture(par1IIconRegister, fileName, 1);
+    }
 
-		if(aeLoaded){
-			AE2Plugin.loadRecipes(group);
-		}
+    private static TextureType registerTexture(Object reg, String fileName, int flag) {
+        try {
+            return (TextureType) registerTexture.invoke(LogisticsPipes.textures, reg, fileName, flag);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		if(rsLoaded){
-			RSPlugin.loadRecipes(group);
-		}
+    public static void registerItem(Item item, boolean registerRenderer) {
+        if (item.getRegistryName() == null) item.setRegistryName(item.getUnlocalizedName().substring(5));
+        ForgeRegistries.ITEMS.register(item);
+        if (registerRenderer) proxy.addRenderer(item);
+    }
 
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeBridge), " p ", "fbf", "dad",
-				'p', getIngredientForProgrammer(bridgePrg),
-				'b', LPItems.pipeBasic,
-				'f', LPItems.chipFPGA,
-				'd', "gemDiamond",
-				'a', LPItems.chipAdvanced).
-				setRegistryName(new ResourceLocation(ID, "recipes/pipe_bridge")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeResult), " p ", "rar", " s ",
-				'p', getIngredientForProgrammer(resultPrg),
-				's', LPItems.pipeBasic,
-				'a', LPItems.chipFPGA,
-				'r', "dustRedstone").
-				setRegistryName(new ResourceLocation(ID, "recipes/pipe_result")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeCraftingManager), "gpg", "rsr", "gcg",
-				'p', getIngredientForProgrammer(craftingMgrPrg),
-				's', LPItems.pipeBasic,
-				'g', LPItems.chipFPGA,
-				'r', "ingotGold",
-				'c', "chest").
-				setRegistryName(new ResourceLocation(ID, "recipes/crafting_manager")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(packageItem), "pw",
-				'p', Items.PAPER,
-				'w', "plankWood").
-				setRegistryName(new ResourceLocation(ID, "recipes/package")));
-		ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(upgradeBuffer), "rpr", "ici", "PnP",
-				'p', getIngredientForProgrammer(bufferUpgr),
-				'n', LPItems.chipAdvanced,
-				'c', LPItems.chipFPGA,
-				'r', "dustRedstone",
-				'i', "gemDiamond",
-				'P', "paper").
-				setRegistryName(new ResourceLocation(ID, "recipes/buffer_upgrade")));
-		ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, new ItemStack(upgradeAdvExt),
-				ItemUpgrade.getAndCheckUpgrade(LPItems.upgrades.get(ItemStackExtractionUpgrade.getName())),
-				"dustRedstone").
-				setRegistryName(new ResourceLocation(ID, "recipes/adv_ext_upgrade")));
-	}
+    public static void registerBlock(Block block) {
+        registerBlock(block, ItemBlock::new);
+    }
 
-	private static Ingredient getIngredientForProgrammer(ResourceLocation rl) {
-		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
-		programmerStack.setTagCompound(new NBTTagCompound());
-		programmerStack.getTagCompound().setString(ItemLogisticsProgrammer.RECIPE_TARGET, rl.toString());
-		return NBTIngredient.fromStacks(programmerStack);
-	}
+    public static <T extends Block> void registerBlock(T block, Function<T, Item> itemBlock) {
+        registerOnlyBlock(block);
+        registerItem(itemBlock.apply(block), true);
+    }
 
-	public static void registerTextures(Object object) {
-		BridgePipe.TEXTURE = registerTexture(object, "pipes/lb/bridge");
-		ResultPipe.TEXTURE = registerTexture(object, "pipes/lb/result");
-		CraftingManager.TEXTURE = registerTexture(object, "pipes/lb/crafting_manager");
-	}
-	private static TextureType registerTexture(Object par1IIconRegister, String fileName) {
-		return registerTexture(par1IIconRegister, fileName, 1);
-	}
+    public static void registerOnlyBlock(Block block) {
+        if (block.getRegistryName() == null)
+            block.setRegistryName(block.getUnlocalizedName().substring(5));
+        ForgeRegistries.BLOCKS.register(block);
+    }
 
-	private static TextureType registerTexture(Object reg, String fileName, int flag){
-		try {
-			return (TextureType) registerTexture.invoke(LogisticsPipes.textures, reg, fileName, flag);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static ItemStack fakeStack(int count) {
+        return new ItemStack(logisticsFakeItem, count);
+    }
 
-	public static void registerItem(Item item, boolean registerRenderer){
-		if(item.getRegistryName() == null)item.setRegistryName(item.getUnlocalizedName().substring(5));
-		ForgeRegistries.ITEMS.register(item);
-		if(registerRenderer)proxy.addRenderer(item);
-	}
+    public static ItemStack fakeStack(ItemStack stack, int count) {
+        ItemStack is = new ItemStack(logisticsFakeItem, count);
+        if (stack != null && !stack.isEmpty()) is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
+        return is;
+    }
 
-	public static void registerBlock(Block block){
-		registerBlock(block, ItemBlock::new);
-	}
+    public static ItemStack fakeStack(NBTTagCompound stack, int count) {
+        ItemStack is = new ItemStack(logisticsFakeItem, count);
+        if (stack != null && !stack.hasNoTags()) is.setTagCompound(stack);
+        return is;
+    }
 
-	public static <T extends Block> void registerBlock(T block, Function<T, Item> itemBlock){
-		registerOnlyBlock(block);
-		registerItem(itemBlock.apply(block), true);
-	}
+    public static ItemStack packageStack(ItemStack stack, int count, String id, boolean actStack) {
+        ItemStack is = new ItemStack(packageItem, count);
+        if (stack != null && !stack.isEmpty()) is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
+        if (!is.hasTagCompound()) is.setTagCompound(new NBTTagCompound());
+        is.getTagCompound().setString("__pkgDest", id);
+        is.getTagCompound().setBoolean("__actStack", actStack);
+        return is;
+    }
 
-	public static void registerOnlyBlock(Block block){
-		if(block.getRegistryName() == null)
-			block.setRegistryName(block.getUnlocalizedName().substring(5));
-		ForgeRegistries.BLOCKS.register(block);
-	}
+    public static NBTTagList saveAllItems(IInventory inv) {
+        NBTTagList nbttaglist = new NBTTagList();
+        for (int i = 0; i < inv.getSizeInventory(); ++i) {
+            ItemStack itemstack = inv.getStackInSlot(i);
 
-	public static ItemStack fakeStack(int count){
-		return new ItemStack(logisticsFakeItem, count);
-	}
+            if (!itemstack.isEmpty()) {
+                NBTTagCompound nbttagcompound = new NBTTagCompound();
+                nbttagcompound.setByte("Slot", (byte) i);
+                itemstack.writeToNBT(nbttagcompound);
+                nbttaglist.appendTag(nbttagcompound);
+            }
+        }
+        return nbttaglist;
+    }
 
-	public static ItemStack fakeStack(ItemStack stack, int count){
-		ItemStack is = new ItemStack(logisticsFakeItem, count);
-		if(stack != null && !stack.isEmpty())is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
-		return is;
-	}
+    public static void loadAllItems(NBTTagList nbttaglist, IInventory inv) {
+        inv.clear();
+        int invSize = inv instanceof DynamicInventory ? Integer.MAX_VALUE : inv.getSizeInventory();
+        for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+            int j = nbttagcompound.getByte("Slot") & 255;
 
-	public static ItemStack fakeStack(NBTTagCompound stack, int count){
-		ItemStack is = new ItemStack(logisticsFakeItem, count);
-		if(stack != null && !stack.hasNoTags())is.setTagCompound(stack);
-		return is;
-	}
+            if (j >= 0 && j < invSize) {
+                inv.setInventorySlotContents(j, new ItemStack(nbttagcompound));
+            }
+        }
+    }
 
-	public static ItemStack packageStack(ItemStack stack, int count, String id, boolean actStack){
-		ItemStack is = new ItemStack(packageItem, count);
-		if(stack != null && !stack.isEmpty())is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
-		if(!is.hasTagCompound())is.setTagCompound(new NBTTagCompound());
-		is.getTagCompound().setString("__pkgDest", id);
-		is.getTagCompound().setBoolean("__actStack", actStack);
-		return is;
-	}
-	public static NBTTagList saveAllItems(IInventory inv) {
-		NBTTagList nbttaglist = new NBTTagList();
-		for (int i = 0;i < inv.getSizeInventory();++i) {
-			ItemStack itemstack = inv.getStackInSlot(i);
+    @SuppressWarnings("unchecked")
+    public static void processResIDMod(EntityPlayer player, SetIDPacket pck) {
+        if (pck.side == -1) {
+            if (player.openContainer instanceof Consumer) {
+                ((Consumer<String>) player.openContainer).accept(pck.pid);
+            }
+        } else if (aeLoaded) {
+            AE2Plugin.processResIDMod(player, pck);
+        }
+    }
 
-			if (!itemstack.isEmpty()) {
-				NBTTagCompound nbttagcompound = new NBTTagCompound();
-				nbttagcompound.setByte("Slot", (byte) i);
-				itemstack.writeToNBT(nbttagcompound);
-				nbttaglist.appendTag(nbttagcompound);
-			}
-		}
-		return nbttaglist;
-	}
+    public static IIdPipe processReqIDList(EntityPlayer player, RequestIDListPacket pck) {
+        if (aeLoaded) {
+            return AE2Plugin.processReqIDList(player, pck);
+        }
+        return null;
+    }
 
-	public static void loadAllItems(NBTTagList nbttaglist, IInventory inv) {
-		inv.clear();
-		int invSize = inv instanceof DynamicInventory ? Integer.MAX_VALUE : inv.getSizeInventory();
-		for (int i = 0;i < nbttaglist.tagCount();++i) {
-			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-			int j = nbttagcompound.getByte("Slot") & 255;
+    @SuppressWarnings("unchecked")
+    public static <T> Stream<T> concatStreams(Stream<T>... streams) {
+        return Arrays.stream(streams).flatMap(UnaryOperator.identity());
+    }
 
-			if (j >= 0 && j < invSize) {
-				inv.setInventorySlotContents(j, new ItemStack(nbttagcompound));
-			}
-		}
-	}
+    @SubscribeEvent
+    public void initItems(RegistryEvent.Register<Item> event) {
+        IForgeRegistry<Item> registry = event.getRegistry();
+        registerPipe(registry, "lb.bridgepipe", BridgePipe::new);
+        registerPipe(registry, "lb.resultpipe", ResultPipe::new);
+        registerPipe(registry, "lb.craftingmanager", CraftingManager::new);
+        ItemUpgrade.registerUpgrade(registry, "lb.buffer_upgrade", BufferUpgrade::new);
+        ItemUpgrade.registerUpgrade(registry, "lb.adv_extraction_upgrade", AdvItemExtractionUpgrade::new);
+        log.info("Registered Pipes");
+    }
 
-	@SuppressWarnings("unchecked")
-	public static void processResIDMod(EntityPlayer player, SetIDPacket pck){
-		if(pck.side == -1){
-			if(player.openContainer instanceof Consumer){
-				((Consumer<String>)player.openContainer).accept(pck.pid);
-			}
-		}else if(aeLoaded){
-			AE2Plugin.processResIDMod(player, pck);
-		}
-	}
+    @SubscribeEvent
+    public void openGui(PlayerContainerEvent.Open event) {
+        if (event.getContainer() instanceof DummyContainer && !(event.getContainer() instanceof ContainerCraftingManager)) {
+            DummyContainer dc = (DummyContainer) event.getContainer();
+            dc.inventorySlots.stream().filter(s -> s instanceof ModuleSlot).findFirst().
+                    map(s -> ((ModuleSlot) s).get_pipe()).filter(p -> p instanceof CraftingManager).ifPresent(cmgr -> {
+                ((CraftingManager) cmgr).openGui(event.getEntityPlayer());
+            });
+        }
+    }
 
-	public static IIdPipe processReqIDList(EntityPlayer player, RequestIDListPacket pck) {
-		if(aeLoaded){
-			return AE2Plugin.processReqIDList(player, pck);
-		}
-		return null;
-	}
+    @EventHandler
+    public void cleanup(FMLServerStoppingEvent event) {
+        ResultPipe.cleanup();
+    }
 
-	@SuppressWarnings("unchecked")
-	public static <T> Stream<T> concatStreams(Stream<T>... streams){
-		return Arrays.stream(streams).flatMap(UnaryOperator.identity());
-	}
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void textureLoad(TextureStitchEvent.Pre event) {
+        if (!event.getMap().getBasePath().equals("textures")) {
+            return;
+        }
+        proxy.registerTextures();
+    }
 }

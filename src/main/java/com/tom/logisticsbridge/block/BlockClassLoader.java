@@ -7,13 +7,31 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import java.net.URL;
 
 public class BlockClassLoader extends LaunchClassLoader {
-    private ClassLoader parent;
-    private static final String BBAE   = "com.tom.logisticsbridge.block.BlockBridgeAE";
-    private static final String BCM    = "com.tom.logisticsbridge.block.BlockCraftingManager";
+    private static final String BBAE = "com.tom.logisticsbridge.block.BlockBridgeAE";
+    private static final String BCM = "com.tom.logisticsbridge.block.BlockCraftingManager";
+    private final ClassLoader parent;
 
     public BlockClassLoader(ClassLoader parent) {
         super(new URL[]{});
         this.parent = parent;
+    }
+
+    public static Class<BlockBridgeAE> loadBridgeAE() throws NotFoundException, CannotCompileException {
+        ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
+        CtClass clazz = ClassPool.getDefault().get(BBAE);
+
+        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+
+        return clazz.toClass();
+    }
+
+    public static Class<BlockCraftingManager> loadBlockCraftingManager() throws NotFoundException, CannotCompileException {
+        ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
+        CtClass clazz = ClassPool.getDefault().get(BCM);
+
+        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+
+        return clazz.toClass();
     }
 
     @Override
@@ -47,23 +65,5 @@ public class BlockClassLoader extends LaunchClassLoader {
             e.printStackTrace();
         }
         return parent.loadClass(name);
-    }
-
-    public static Class<BlockBridgeAE> loadBridgeAE() throws NotFoundException, CannotCompileException {
-        ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
-        CtClass clazz = ClassPool.getDefault().get(BBAE);
-
-        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
-
-        return clazz.toClass();
-    }
-
-    public static Class<BlockCraftingManager> loadBlockCraftingManager() throws NotFoundException, CannotCompileException {
-        ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
-        CtClass clazz = ClassPool.getDefault().get(BCM);
-
-        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
-
-        return clazz.toClass();
     }
 }
