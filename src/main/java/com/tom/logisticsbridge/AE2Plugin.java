@@ -25,8 +25,6 @@ import appeng.tile.AEBaseTile;
 import appeng.util.ItemSorters;
 import appeng.util.prioritylist.IPartitionList;
 import appeng.util.prioritylist.MergedPriorityList;
-import com.tom.logisticsbridge.block.BlockBridgeAE;
-import com.tom.logisticsbridge.block.BlockCraftingManager;
 import com.tom.logisticsbridge.item.VirtualPatternAE;
 import com.tom.logisticsbridge.network.RequestIDListPacket;
 import com.tom.logisticsbridge.network.SetIDPacket;
