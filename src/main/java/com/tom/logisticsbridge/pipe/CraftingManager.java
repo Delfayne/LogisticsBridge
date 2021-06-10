@@ -223,7 +223,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 	public void openGui(EntityPlayer entityPlayer) {
 		ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(isBuffered() ? Integer.toString(blockingMode.ordinal()) : "0").setId(2).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 		MainProxy.sendPacketToPlayer(packet, entityPlayer);
-		entityPlayer.openGui(LogisticsBridge.modInstance, GuiIDs.CraftingManager.ordinal(), getWorld(), getX(), getY(), getZ());
+		entityPlayer.openGui(LogisticsBridge.modInstance, GuiIDs.CRAFTING_MANAGER.ordinal(), getWorld(), getX(), getY(), getZ());
 		packet = PacketHandler.getPacket(SetIDPacket.class).setName(satelliteId).setId(0).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 		MainProxy.sendPacketToPlayer(packet, entityPlayer);
 		packet = PacketHandler.getPacket(SetIDPacket.class).setName(resultId).setId(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ());

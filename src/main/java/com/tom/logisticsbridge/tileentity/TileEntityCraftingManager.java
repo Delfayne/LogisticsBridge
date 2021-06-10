@@ -422,7 +422,7 @@ IIdPipe, IInventoryChangedListener, ICraftingManager {
 		return ret;
 	}
 	public void openGui(EntityPlayer playerIn){
-		playerIn.openGui(LogisticsBridge.modInstance, GuiIDs.CraftingManager.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
+		playerIn.openGui(LogisticsBridge.modInstance, GuiIDs.CRAFTING_MANAGER.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
 		ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(supplyID).setId(0).setPosX(pos.getX()).setPosY(pos.getY()).setPosZ(pos.getZ());
 		MainProxy.sendPacketToPlayer(packet, playerIn);
 	}

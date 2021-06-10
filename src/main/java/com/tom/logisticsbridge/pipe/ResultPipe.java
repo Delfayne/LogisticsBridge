@@ -4,8 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 
 import com.tom.logisticsbridge.network.SyncResultNamePacket;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
-import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.utils.PlayerCollectionList;
@@ -15,8 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import com.tom.logisticsbridge.GuiHandler.GuiIDs;
 import com.tom.logisticsbridge.LogisticsBridge;
@@ -60,13 +56,10 @@ import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.BufferMode;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.SatellitePipe;
-import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
-import network.rs485.logisticspipes.connection.SingleAdjacent;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.InventoryProperty;
 
@@ -154,7 +147,7 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
 		// Send the satellite id when opening gui
 		final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 		MainProxy.sendPacketToPlayer(packet, entityplayer);
-		entityplayer.openGui(LogisticsBridge.modInstance, GuiIDs.ResultPipe.ordinal(), getWorld(), getX(), getY(), getZ());
+		entityplayer.openGui(LogisticsBridge.modInstance, GuiIDs.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
 	}
 	@Override
 	public void setPipeID(int fid, String integer, EntityPlayer player) {

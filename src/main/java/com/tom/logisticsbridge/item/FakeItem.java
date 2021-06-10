@@ -67,7 +67,7 @@ public class FakeItem extends Item {
 				playerIn.setHeldItem(handIn, est);
 				return new ActionResult<>(EnumActionResult.SUCCESS, est);
 			}else{
-				playerIn.openGui(LogisticsBridge.modInstance, GuiIDs.TemplatePkg.ordinal(), worldIn, handIn.ordinal(), 0, 0);
+				playerIn.openGui(LogisticsBridge.modInstance, GuiIDs.TEMPLATE_PKG.ordinal(), worldIn, handIn.ordinal(), 0, 0);
 				if(!worldIn.isRemote && is.hasTagCompound()){
 					final ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setSide(-2).setName(is.getTagCompound().getString("__pkgDest")).setId(0);
 					MainProxy.sendPacketToPlayer(packet, playerIn);

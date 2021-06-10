@@ -31,12 +31,12 @@ import network.rs485.logisticspipes.SatellitePipe;
 
 public class GuiHandler implements IGuiHandler {
 	public static enum GuiIDs {
-		ResultPipe,
-		CraftingManager,
-		TemplatePkg,
+		RESULT_PIPE,
+		CRAFTING_MANAGER,
+		TEMPLATE_PKG,
 
 		;
-		public static final GuiIDs[] VALUES = values();
+		protected static final GuiIDs[] values = values();
 	}
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
@@ -58,8 +58,8 @@ public class GuiHandler implements IGuiHandler {
 			}
 			return null;
 		}
-		switch (GuiIDs.VALUES[ID]) {
-		case ResultPipe:
+		switch (GuiIDs.values[ID]) {
+		case RESULT_PIPE:
 		{
 			CoreUnroutedPipe pipe = getPipe(world, x, y, z);
 			if (pipe != null && pipe instanceof IIdPipe) {
@@ -67,7 +67,7 @@ public class GuiHandler implements IGuiHandler {
 			}
 		}
 		break;
-		case CraftingManager:
+		case CRAFTING_MANAGER:
 		{
 			CoreUnroutedPipe pipe = getPipe(world, x, y, z);
 			if (pipe != null && pipe instanceof CraftingManager) {
@@ -80,7 +80,7 @@ public class GuiHandler implements IGuiHandler {
 			}
 		}
 		break;
-		case TemplatePkg:
+		case TEMPLATE_PKG:
 		{
 			EnumHand hand = EnumHand.values()[x];
 			ItemStack is = player.getHeldItem(hand);
@@ -114,8 +114,8 @@ public class GuiHandler implements IGuiHandler {
 			}
 			return null;
 		}
-		switch (GuiIDs.VALUES[ID]) {
-		case ResultPipe:
+		switch (GuiIDs.values[ID]) {
+		case RESULT_PIPE:
 		{
 			CoreUnroutedPipe pipe = getPipe(world, x, y, z);
 			if (pipe != null && pipe instanceof SatellitePipe) {
@@ -123,7 +123,7 @@ public class GuiHandler implements IGuiHandler {
 			}
 		}
 		break;
-		case CraftingManager:
+		case CRAFTING_MANAGER:
 		{
 			CoreUnroutedPipe pipe = getPipe(world, x, y, z);
 			if (pipe != null && pipe instanceof CraftingManager) {
@@ -136,7 +136,7 @@ public class GuiHandler implements IGuiHandler {
 			}
 		}
 		break;
-		case TemplatePkg:
+		case TEMPLATE_PKG:
 		{
 			EnumHand hand = EnumHand.values()[x];
 			ItemStack is = player.getHeldItem(hand);

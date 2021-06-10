@@ -38,6 +38,6 @@ public class BlockCraftingManagerRS extends BlockNode {
 			return false;
 		}
 
-		return openNetworkGui(GuiIDs.CraftingManager.ordinal(), player, world, pos, side);
+		return openNetworkGui(GuiIDs.CRAFTING_MANAGER.ordinal(), player, world, pos, side);
 	}
 }
