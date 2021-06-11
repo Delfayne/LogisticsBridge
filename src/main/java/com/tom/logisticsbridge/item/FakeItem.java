@@ -37,7 +37,7 @@ public class FakeItem extends Item {
     @Override
     public void addInformation(@Nonnull ItemStack stack, World worldIn, @Nonnull List<String> tooltip, @Nonnull ITooltipFlag flag) {
         if (isPackage) {
-            if (stack.hasTagCompound())
+            if (stack.getTagCompound() != null || stack.hasTagCompound())
                 tooltip.add(I18n.format("tooltip.logisticsbridge.packageEmt"));
             else {
                 displayOverride = true;
