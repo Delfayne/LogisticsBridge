@@ -36,27 +36,31 @@ public class FakeItem extends Item {
 
     @Override
     public void addInformation(@Nonnull ItemStack stack, World worldIn, @Nonnull List<String> tooltip, @Nonnull ITooltipFlag flag) {
-        if (isPackage) {
-            if (stack.getTagCompound() != null || stack.hasTagCompound())
-                tooltip.add(I18n.format("tooltip.logisticsbridge.packageEmt"));
-            else {
-                displayOverride = true;
-                if (stack.getTagCompound().getBoolean("__actStack"))
-                    tooltip.add(I18n.format("tooltip.logisticsbridge.packageAct", stack.getDisplayName()));
-                else
-                    tooltip.add(I18n.format("tooltip.logisticsbridge.packageTmp", stack.getDisplayName()));
-                displayOverride = false;
-                String id = stack.getTagCompound().getString("__pkgDest");
-                if (!id.isEmpty())
-                    tooltip.add(I18n.format("tooltip.logisticsbridge.satID", id));
+        try {
+            if (isPackage) {
+                if (stack.getTagCompound() != null || stack.hasTagCompound())
+                    tooltip.add(I18n.format("tooltip.logisticsbridge.packageEmt"));
+                else {
+                    displayOverride = true;
+                    if (stack.getTagCompound().getBoolean("__actStack"))
+                        tooltip.add(I18n.format("tooltip.logisticsbridge.packageAct", stack.getDisplayName()));
+                    else
+                        tooltip.add(I18n.format("tooltip.logisticsbridge.packageTmp", stack.getDisplayName()));
+                    displayOverride = false;
+                    String id = stack.getTagCompound().getString("__pkgDest");
+                    if (!id.isEmpty())
+                        tooltip.add(I18n.format("tooltip.logisticsbridge.satID", id));
 
+                }
+            } else {
+                if (stack.hasTagCompound())
+                    tooltip.add(I18n.format("tooltip.logisticsbridge.request", stack.getDisplayName()));
+                else
+                    tooltip.add(I18n.format("tooltip.logisticsbridge.fakeItemNull"));
+                tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
             }
-        } else {
-            if (stack.hasTagCompound())
-                tooltip.add(I18n.format("tooltip.logisticsbridge.request", stack.getDisplayName()));
-            else
-                tooltip.add(I18n.format("tooltip.logisticsbridge.fakeItemNull"));
-            tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
+        } catch (NullPointerException e) {
+            tooltip.add(I18n.format("tooltip.logisticsbridge.packageEmt"));
         }
     }
 
