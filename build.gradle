@@ -89,6 +89,7 @@ dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
     //
     compileOnly ":logisticspipes-0.10.4.3-api"
+    compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
     implementation ":logisticspipes-0.10.4.3-deobf"
     implementation deobf (":MCMultiPart-2.5.3")
     implementation deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
