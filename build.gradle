@@ -95,12 +95,11 @@ dependencies {
     implementation deobf (":refinedstorage-1.6.16")
     implementation ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
     implementation deobf (":appliedenergistics2-rv6-stable-7")
+    compileOnly ":jei_1.12.2-4.16.1.302:api"
     //
-//    runtimeOnly ":appliedenergistics2-rv6-stable-7"
-//    runtimeOnly ":NotEnoughItems-1.12.2-2.4.3.245-universal"
+    runtimeOnly ":jei_1.12.2-4.16.1.302"
     runtimeOnly ":refinedstorage-1.6.16"
     runtimeOnly ":MCMultiPart-2.5.3"
-    runtimeOnly deobf (":jei_1.12.2-4.16.1.301")
     runtimeOnly ":ThermalExpansion-1.12.2-5.5.7.1-universal"
     runtimeOnly ":ThermalFoundation-1.12.2-2.6.7.1-universal"
     runtimeOnly ":CoFHCore-1.12.2-4.6.6.1-deobf"
