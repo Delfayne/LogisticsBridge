@@ -90,27 +90,25 @@ dependencies {
     compileOnly ":logisticspipes-0.10.4.3-api"
     compileOnly ":logisticspipes-0.10.4.3-deobf"
     compileOnly deobf (":MCMultiPart-2.5.3")
-    compileOnly deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
+//    compileOnly deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
     compileOnly deobf (":refinedstorage-1.6.16")
     compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
     compileOnly deobf (":appliedenergistics2-rv6-stable-7")
     //
     runtimeOnly ":appliedenergistics2-rv6-stable-7"
     runtimeOnly ":NotEnoughItems-1.12.2-2.4.3.245-universal"
-    runtimeOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
+//    runtimeOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
     runtimeOnly ":refinedstorage-1.6.16"
     runtimeOnly ":MCMultiPart-2.5.3"
     runtimeOnly ":logisticspipes-0.10.4.3"
-    //
-    runtimeOnly ":CoFHCore-1.12.2-4.6.6.1-universal"
-    runtimeOnly ":CoFHWorld-1.12.2-1.4.0.1-universal"
+//    runtimeOnly ":CoFHCore-1.12.2-4.6.6.1-universal"
+//    runtimeOnly ":CoFHWorld-1.12.2-1.4.0.1-universal"
     runtimeOnly ":jei_1.12.2-4.16.1.301"
-    runtimeOnly ":ThermalExpansion-1.12.2-5.5.7.1-universal"
-    runtimeOnly ":ThermalFoundation-1.12.2-2.6.7.1-universal"
-    runtimeOnly ":RedstoneFlux-1.12-2.1.1.1-universal"
+//    runtimeOnly ":ThermalExpansion-1.12.2-5.5.7.1-universal"
+//    runtimeOnly ":ThermalFoundation-1.12.2-2.6.7.1-universal"
+//    runtimeOnly ":RedstoneFlux-1.12-2.1.1.1-universal"
     //
     runtimeOnly ":CodeChickenLib-1.12.2"
-
     // https://mvnrepository.com/artifact/javassist/javassist
     shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
 }

@@ -7,6 +7,7 @@ import com.tom.logisticsbridge.module.ModuleCrafterExt;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
