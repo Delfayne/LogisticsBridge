@@ -80,15 +80,18 @@ public class LogisticsBridge {
     public static final Logger log = LogManager.getLogger(NAME);
     private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
     private static final String SERVER_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ServerProxy";
-    public static Method registerTexture, registerPipe;
+    private static Method registerTexture;
+    private static Method registerPipe;
     @SidedProxy(clientSide = CLIENT_PROXY_CLASS, serverSide = SERVER_PROXY_CLASS)
     public static CommonProxy proxy;
 
-    public static Block bridgeAE, bridgeRS;
+    public static Block bridgeAE;
+    public static Block bridgeRS;
     public static Block craftingManager;
     public static Item logisticsFakeItem;
     public static Item packageItem;
-    public static boolean aeLoaded, rsLoaded;
+    public static boolean aeLoaded;
+    public static boolean rsLoaded;
 
     @ObjectHolder("logisticspipes:pipe_lb.bridgepipe")
     public static Item pipeBridge;
@@ -128,7 +131,7 @@ public class LogisticsBridge {
             ClassLoader loader = thread.getContextClassLoader();
             ClassLoader newLoader = new BlockClassLoader(loader);
             thread.setContextClassLoader(newLoader);
-            Class<AE2Plugin> clazz = (Class<AE2Plugin>) newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
+            Class<?> clazz = newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
             clazz.getMethod("preInit", ClassLoader.class).invoke(null, newLoader);
             thread.setContextClassLoader(loader);
         }
@@ -147,8 +150,7 @@ public class LogisticsBridge {
         }
         MinecraftForge.EVENT_BUS.register(modInstance);
         proxy.registerRenderers();
-        long time = System.currentTimeMillis() - tM;
-        log.info("Pre Initialization took in " + time + " milliseconds");
+        log.info("Pre Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
     }
 
     private static void registerPipe(IForgeRegistry<Item> registry, String name, Function<Item, ? extends CoreUnroutedPipe> constructor) {
@@ -170,8 +172,7 @@ public class LogisticsBridge {
         NetworkRegistry.INSTANCE.registerGuiHandler(modInstance, new GuiHandler());
         proxy.init();
         loadRecipes();
-        long time = System.currentTimeMillis() - tM;
-        log.info("Initialization took in " + time + " milliseconds");
+        log.info("Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
     }
 
     @EventHandler
@@ -179,8 +180,7 @@ public class LogisticsBridge {
         log.info("Start Post Initialization");
         long tM = System.currentTimeMillis();
         ItemPipeSignCreator.signTypes.add(CraftingManagerPipeSign.class);
-        long time = System.currentTimeMillis() - tM;
-        log.info("Post Initialization took in " + time + " milliseconds");
+        log.info("Post Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
     }
 
     private static void loadRecipes() {
