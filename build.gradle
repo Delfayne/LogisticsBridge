@@ -84,6 +84,7 @@ configurations {
 dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
     minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
     //
@@ -96,11 +97,12 @@ dependencies {
     compileOnly deobf (":appliedenergistics2-rv6-stable-7")
     //
     runtimeOnly ":appliedenergistics2-rv6-stable-7"
-    runtimeOnly ":NotEnoughItems-1.12.2-2.4.3.245-universal"
+//    runtimeOnly ":NotEnoughItems-1.12.2-2.4.3.245-universal"
     runtimeOnly ":refinedstorage-1.6.16"
     runtimeOnly ":MCMultiPart-2.5.3"
-    runtimeOnly ":logisticspipes-0.10.4.3"
-    runtimeOnly ":jei_1.12.2-4.16.1.301"
+    runtimeOnly ":logisticspipes-0.10.4.3-deobf"
+//    runtimeOnly ":logisticspipes-0.10.4.3"
+//    runtimeOnly ":jei_1.12.2-4.16.1.301"
     runtimeOnly ":ThermalDynamics-1.12.2-2.5.6.1-universal"
     runtimeOnly ":ThermalExpansion-1.12.2-5.5.7.1-universal"
     runtimeOnly ":ThermalFoundation-1.12.2-2.6.7.1-universal"

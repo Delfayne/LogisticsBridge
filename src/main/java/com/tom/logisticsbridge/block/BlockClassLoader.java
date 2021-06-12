@@ -20,7 +20,11 @@ public class BlockClassLoader extends LaunchClassLoader {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
         CtClass clazz = ClassPool.getDefault().get(BBAE);
 
-        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        try {
+            clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        } catch (javassist.NotFoundException ignored) {
+            clazz.removeMethod(clazz.getMethod("createNewTileEntity", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        }
 
         return clazz.toClass();
     }
@@ -29,7 +33,11 @@ public class BlockClassLoader extends LaunchClassLoader {
         ClassPool.getDefault().insertClassPath(new ClassClassPath(BlockClassLoader.class));
         CtClass clazz = ClassPool.getDefault().get(BCM);
 
-        clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        try {
+            clazz.removeMethod(clazz.getMethod("func_149915_a", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        } catch (javassist.NotFoundException ignored) {
+            clazz.removeMethod(clazz.getMethod("createNewTileEntity", "(Lnet/minecraft/world/World;I)Lnet/minecraft/tileentity/TileEntity;"));
+        }
 
         return clazz.toClass();
     }
