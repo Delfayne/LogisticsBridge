@@ -23,8 +23,6 @@ import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.upgrades.ItemStackExtractionUpgrade;
-import logisticspipes.proxy.ConfigToolHandler;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -63,7 +61,6 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
