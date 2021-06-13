@@ -9,7 +9,7 @@ buildscript {
             url = "https://files.minecraftforge.net/maven"
         }
     }
-
+ 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
@@ -73,6 +73,10 @@ repositories {
         name = "forge"
         url = "https://files.minecraftforge.net/maven"
     }
+    maven {
+        name = "forge"
+        url = "https://libraries.minecraft.net"
+    } 
     flatDir { dirs "./lib" }
 }
 
