@@ -22,4 +22,7 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Check if there is new file exist
+      run: ls -l
+      
 
