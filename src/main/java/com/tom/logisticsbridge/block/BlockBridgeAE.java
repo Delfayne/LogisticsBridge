@@ -25,7 +25,7 @@ public class BlockBridgeAE extends AEBaseTileBlock {
     @Nonnull
     @Override
     public String getUnlocalizedName() {
-        return "tile.lb.bridge.name";
+        return "tile.lb.bridge";
     }
 
     @Override
