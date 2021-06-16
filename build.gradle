@@ -113,7 +113,7 @@ dependencies {
 }
 
 tasks.withType(Wrapper) {
-    version = 5.2
+    version = 4.9
 }
 
 jar {
