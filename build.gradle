@@ -17,6 +17,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
 def forge_version = '1.12.2-14.23.5.2854'
@@ -95,10 +96,10 @@ dependencies {
     compileOnly ":logisticspipes-0.10.4.3-api"
     compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
     implementation ":logisticspipes-0.10.4.3-deobf"
-    implementation deobf (":MCMultiPart-2.5.3")
-    implementation deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
-    implementation deobf (":refinedstorage-1.6.16")
-    implementation deobf (":appliedenergistics2-rv6-stable-7")
+    api fg.deobf (":MCMultiPart-2.5.3")
+    api fg.deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
+    api fg.deobf (":refinedstorage-1.6.16")
+    api fg.deobf (":appliedenergistics2-rv6-stable-7")
     //
     runtimeOnly ":refinedstorage-1.6.16"
     runtimeOnly ":MCMultiPart-2.5.3"
