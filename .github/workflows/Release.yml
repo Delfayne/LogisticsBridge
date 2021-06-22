@@ -4,7 +4,9 @@
 name: Build and release
 
 on: 
-  workflow_dispatch
+  push:
+    paths:
+      - 'version-check.json'
 
 jobs:
   build:
