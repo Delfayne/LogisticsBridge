@@ -6,12 +6,10 @@ name: Build and release
 on:
   workflow_dispatch:
     inputs:
-      logLevel:
-        description: 'Log level'     
+      version:
+        description: 'Version'     
         required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'  
+        default: 'Input version here'
 
 jobs:
   build:
@@ -28,23 +26,15 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
-    - name: Read version-check.json
-      id: versioncheck
-      uses: pCYSl5EDgo/cat@master
-      with:
-        path: ./version-check.json
-    - name: Read version
-      id: version
-      run: grep '-latest"' version-check.json | awk '{print $3}'
     - name: Create GitHub Release
       uses: meeDamian/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: v${{ steps.version.outputs.text }}
+        tag: ${{ github.event.inputs.version }}
         commitish: master
-        name: ${{ steps.version.outputs.text }}
+        name:  ${{ github.event.inputs.version }}
         prerelease: false
         allow_override: false
         gzip: false
         files: |
-            ./build/libs/LogisticsBridge-${{ steps.version.outputs.text }}.jar
+            ./build/libs/LogisticsBridge.jar
