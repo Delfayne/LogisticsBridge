@@ -5,10 +5,6 @@ name: Build and release
 
 on: 
   workflow_dispatch
-  
-  push:
-    paths:
-      - 
 
 jobs:
   build:
