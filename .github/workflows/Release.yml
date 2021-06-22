@@ -22,10 +22,6 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew build
-  release:   
-    runs-on: ubuntu-20.04
-    needs: build
-    steps:
     - name: Create GitHub Release
       uses: meeDamian/github-release@2.0
       with:
