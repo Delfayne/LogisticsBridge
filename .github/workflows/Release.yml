@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Check for version
-      run: cat version-check.json| grep "latest" | grep '[0-9]*\.[0-9]*\.[0-9]*' >> version
+      run: grep "latest" version-check.json | grep '[0-9]*\.[0-9]*\.[0-9]*' >> version
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
