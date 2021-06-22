@@ -15,18 +15,18 @@ jobs:
     - uses: actions/checkout@v2
     - name: Check for version
       run: grep "\-latest" version-check.json | grep -o '[0-9]*\.[0-9]*\.[0-9]*"' | grep -o '[0-9]*\.[0-9]*\.[0-9]*' >> version
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Build with Gradle
-      run: ./gradlew build
     - name: Read version
       id: version
       uses: pCYSl5EDgo/cat@master
       with:
         path: ./version
         trim: true
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Build with Gradle
+      run: ./gradlew build
     - name: Create GitHub Release
       uses: meeDamian/github-release@2.0
       with:
