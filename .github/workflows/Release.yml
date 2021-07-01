@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - 'version-check.json'
+  workflow_dispatch:
 
 jobs:
   build:
