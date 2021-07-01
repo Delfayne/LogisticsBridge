@@ -13,22 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Extract version
-      run: awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g ; s/ //g' | awk -F":" '{print $2}' > version
-    - name: Extract changelog
-      run: awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F":" '{print $2}' > changelog.md
-    - name: Read version
-      id: version
-      uses: pCYSl5EDgo/cat@master
-      with:
-        path: ./version
-        trim: true
-    - name: Read changelog
-      id: cl
-      uses: pCYSl5EDgo/cat@master
-      with:
-        path: ./changelog.md
-        trim: true
+    - name: Create version|changelog variable
+      run: echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g | awk -F":" '{print $2}')"
+           echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F":" '{print $2}')"
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -39,10 +26,10 @@ jobs:
       uses: meeDamian/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ steps.version.outputs.text }}
+        tag: ${{ steps.vars.outputs.version }}
         commitish: master
-        body:  ${{ steps.cl.outputs.text }}
-        name:  ${{ steps.version.outputs.text }}
+        body:  ${{ steps.vars.outputs.changelog }}
+        name:  ${{ steps.vars.outputs.version }}
         prerelease: false
         allow_override: false
         gzip: false
