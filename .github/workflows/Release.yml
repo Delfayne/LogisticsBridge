@@ -23,7 +23,7 @@ jobs:
       with:
         path: ./version
         trim: true
-    - name: Read version
+    - name: Read changelog
       id: cl
       uses: pCYSl5EDgo/cat@master
       with:
