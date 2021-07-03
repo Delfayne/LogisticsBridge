@@ -61,9 +61,9 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
         }
     }
 
-//    @Override
-//    protected void drawGuiContainerForegroundLayer(int par1, int par2) { // TODO: FIX THIS FUNCTION
-//        super.drawGuiContainerForegroundLayer(par1, par2);
+    @Override
+    protected void drawGuiContainerForegroundLayer(int par1, int par2) { // TODO: FIX THIS FUNCTION
+        super.drawGuiContainerForegroundLayer(par1, par2);
 ////		drawCenteredString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
 ////		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 ////		int yOffset = 0;
@@ -72,7 +72,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 ////			yOffset = 4;
 ////		}
 ////		drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);
-//    }
+    }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
