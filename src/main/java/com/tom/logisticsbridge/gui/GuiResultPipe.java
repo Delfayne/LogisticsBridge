@@ -100,6 +100,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     }
 
     public void handleResponse(SatelliteNamingResult result, String newName) {
+	response = result.toString();
         if (result == SatelliteNamingResult.SUCCESS) {
             resultPipe.setSatellitePipeName(newName);
         }
