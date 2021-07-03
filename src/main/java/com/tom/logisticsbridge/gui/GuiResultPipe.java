@@ -64,9 +64,17 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     @Override
     protected void drawGuiContainerForegroundLayer(int par1, int par2) { // TODO: FIX THIS FUNCTION
         super.drawGuiContainerForegroundLayer(par1, par2);
-		mc.fontRenderer.drawString(StringUtils.translate(_result.getName(slot)), 33, 10, 0x404040);
-		String name = StringUtils.getCuttedString(_result.getPipeID(slot), 100, mc.fontRenderer);
+		mc.fontRenderer.drawString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
+		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(slot), 100, mc.fontRenderer);
 		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
+////		drawCenteredString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
+////		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
+////		int yOffset = 0;
+////		if (!response.isEmpty()) {
+////			drawCenteredString("StringUtils.translate(\"gui.resultPipe.naming_result.\"" + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+////			yOffset = 4;
+////		}
+////		drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);
     }
 
     @Override
