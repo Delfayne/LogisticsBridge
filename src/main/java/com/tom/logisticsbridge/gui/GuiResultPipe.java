@@ -68,7 +68,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 //		mc.fontRenderer.drawString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
 //		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 //		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
-		drawCenteredString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
+		drawCenteredString(StringUtils.translate(gui.resultPipe.id), 59, 7, 0x404040);
 		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 		int yOffset = 0;
 		if (!response.isEmpty()) {
