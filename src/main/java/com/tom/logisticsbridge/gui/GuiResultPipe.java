@@ -66,7 +66,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     protected void drawGuiContainerForegroundLayer(int par1, int par2) { // TODO: FIX THIS FUNCTION
         super.drawGuiContainerForegroundLayer(par1, par2);
 		mc.fontRenderer.drawString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
-		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(slot), 100, mc.fontRenderer);
+		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
 ////		drawCenteredString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
 ////		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
