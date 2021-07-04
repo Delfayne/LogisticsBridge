@@ -26,9 +26,6 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 
     private final SatellitePipe resultPipe;
 	
-    @Nonnull
-    private String response = "";
-	
     private InputBar input;
 
     public GuiResultPipe(@Nonnull SatellitePipe result) {
@@ -75,10 +72,6 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 		drawCenteredString(TextUtil.translate("Result Pipe"), 59, 7, 0x404040);
 		String name = TextUtil.getTrimmedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer, "...");
 		int yOffset = 0;
-		if (!response.isEmpty()) {
-			drawCenteredString(TextUtil.translate("gui.satellite.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
-			yOffset = 4;
-		}
 		drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);
     }
 
@@ -104,7 +97,6 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     }
 
     public void handleResponse(SatelliteNamingResult result, String newName) {
-	response = result.toString();
         if (result == SatelliteNamingResult.SUCCESS) {
             resultPipe.setSatellitePipeName(newName);
         }
