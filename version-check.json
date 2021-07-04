@@ -1,10 +1,11 @@
 {
 	"homepage": "https://www.curseforge.com/minecraft/mc-mods/logistics-bridge-dmnedition",
 	"promos": {
-		"1.12.2-latest": "1.4.4",
-		"1.12.2-recommended": "1.4.4"
+		"1.12.2-latest": "1.4.5",
+		"1.12.2-recommended": "1.4.5"
 	},
 	"1.12.2": {
+		"1.4.5": "Fixed stuff (#11)",
 		"1.4.4": "Small Fixes",
 		"1.4.3": "Crash fix",
 		"1.4.2": "Russian Translate",
