@@ -25,6 +25,10 @@ import java.io.IOException;
 public class GuiResultPipe extends LogisticsBaseGuiScreen {
 
     private final SatellitePipe resultPipe;
+	
+    @Nonnull
+    private String response = "";
+	
     private InputBar input;
 
     public GuiResultPipe(@Nonnull SatellitePipe ResultPipe) {
@@ -103,6 +107,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     }
 
     public void handleResponse(SatelliteNamingResult result, String newName) {
+	response = result.toString();
         if (result == SatelliteNamingResult.SUCCESS) {
             resultPipe.setSatellitePipeName(newName);
         }
