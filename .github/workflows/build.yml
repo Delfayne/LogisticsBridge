@@ -10,6 +10,7 @@ on:
       - '.github/workflows/Release.yml'
       - 'LICENSE'
       - 'README.md'
+      - 'version-check.json'
   pull_request:
     branches: [ master ]
 
