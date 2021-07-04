@@ -93,7 +93,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
             GlStateManager.scale(f, f, f);
             slotIn.xPos = 0;
             slotIn.yPos = 0;
-//			super.drawSlot(slotIn); TODO: NEED FIX
+			super.drawSlot(slotIn); //TODO: NEED FIX
             slotIn.xPos = Integer.MIN_VALUE;
             slotIn.yPos = Integer.MIN_VALUE;
             GlStateManager.popMatrix();
@@ -113,14 +113,14 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                     inv.setInventorySlotContents(0, new ItemStack(output));
                     fakeSlot.xPos = slotIn.xPos;
                     fakeSlot.yPos = slotIn.yPos;
-//					super.drawSlot(fakeSlot); TODO: NEED FIX
+					super.drawSlot(fakeSlot); //TODO: NEED FIX
                     inv.setInventorySlotContents(0, ItemStack.EMPTY);
                 }
 				else
-//					super.drawSlot(slotIn); TODO: NEED FIX
+					super.drawSlot(slotIn); //TODO: NEED FIX
             }
 			else
-//				super.drawSlot(slotIn); TODO: NEED FIX
+				super.drawSlot(slotIn); //TODO: NEED FIX
         }
     }
 
