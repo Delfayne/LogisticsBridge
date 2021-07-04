@@ -5,7 +5,7 @@
 		"1.12.2-recommended": "1.4.5"
 	},
 	"1.12.2": {
-		"1.4.5": "Fixed missing GUI for Crafting Manager & Result Pipe (#11).\nFixed wrong tooltip for Package.",
+		"1.4.5": "Fixed missing GUI for Crafting Manager & Result Pipe (#11). Fixed wrong tooltip for Package.",
 		"1.4.4": "Small Fixes",
 		"1.4.3": "Crash fix",
 		"1.4.2": "Russian Translate",
