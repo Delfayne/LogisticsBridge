@@ -23,8 +23,8 @@ jobs:
     - name: Create version|changelog variable
       id: vars
       run: |
-        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g ; s/://g' | awk -F":" '{print $2}')"
-        echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g ' | awk -F":" '{print $2}')"
+        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
+        echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
     - name: Create GitHub Release
       uses: meeDamian/github-release@2.0
       with:
