@@ -1,4 +1,9 @@
-package com.tom.logisticsbridge.gui.GuiResultPipe;
+package com.tom.logisticsbridge.gui;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
@@ -8,12 +13,10 @@ import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.string.StringUtils;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
+
 import network.rs485.logisticspipes.SatellitePipe;
+import network.rs485.logisticspipes.util.TextUtil;
+
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
@@ -24,14 +27,14 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     private final SatellitePipe resultPipe;
     private InputBar input;
 
-    public GuiResultPipe(@Nonnull SatellitePipe result) {
+    public GuiResultPipe(@Nonnull SatellitePipe ResultPipe) {
         super(new Container() {
             @Override
             public boolean canInteractWith(@Nonnull EntityPlayer player) {
                 return true;
             }
         });
-        resultPipe = result;
+        this.ResultPipe = ResultPipe;
         xSize = 116;
         ySize = 77;
     }
@@ -68,11 +71,11 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 //		mc.fontRenderer.drawString(StringUtils.translate("gui.resultPipe.id"), 59, 7, 0x404040);
 //		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 //		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
-		drawCenteredString(StringUtils.translate(get.GuiResultPipe.getid()), 59, 7, 0x404040);
-		String name = StringUtils.getCuttedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
+		drawCenteredString(TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
+		String name = TextUtil.getTrimmedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer);
 		int yOffset = 0;
 		if (!response.isEmpty()) {
-			drawCenteredString(StringUtils.translate("resultPipe.naming_result." + response ) , xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+			drawCenteredString(TextUtil.translate("gui.satellite.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
 			yOffset = 4;
 		}
 		drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);
