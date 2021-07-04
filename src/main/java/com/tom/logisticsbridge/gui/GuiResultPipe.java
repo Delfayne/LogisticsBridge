@@ -31,7 +31,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 	
     private InputBar input;
 
-    public GuiResultPipe(@Nonnull SatellitePipe _result) {
+    public GuiResultPipe(@Nonnull SatellitePipe result) {
         super(new Container() {
             @Override
             public boolean canInteractWith(@Nonnull EntityPlayer player) {
