@@ -35,7 +35,7 @@ jobs:
       shell: bash
       run: |
         echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g ; s/ //g' | awk -F":" '{print $2}')"
+        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
     - name: Build with Gradle
       run: ./gradlew build
     - name: Upload a Build Artifact
