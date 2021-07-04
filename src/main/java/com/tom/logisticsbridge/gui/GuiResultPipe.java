@@ -31,14 +31,15 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 	
     private InputBar input;
 
-    public GuiResultPipe(@Nonnull SatellitePipe ResultPipe) {
+    public GuiResultPipe(@Nonnull SatellitePipe _result) {
         super(new Container() {
             @Override
             public boolean canInteractWith(@Nonnull EntityPlayer player) {
                 return true;
             }
         });
-        this.ResultPipe = ResultPipe;
+        this.result = result;
+	result = _result;
         xSize = 116;
         ySize = 77;
     }
