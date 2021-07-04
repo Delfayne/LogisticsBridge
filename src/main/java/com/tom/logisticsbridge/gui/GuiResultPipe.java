@@ -38,8 +38,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
                 return true;
             }
         });
-        this.result = result;
-	result = _result;
+	resultPipe = result;
         xSize = 116;
         ySize = 77;
     }
