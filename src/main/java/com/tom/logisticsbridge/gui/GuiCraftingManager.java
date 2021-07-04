@@ -68,7 +68,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         bindTexture(BG);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-//		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY); TODO: NEED FIX
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY); //TODO: NEED FIX
     }
 
     /**
