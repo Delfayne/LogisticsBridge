@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe, SatellitePipe {
+public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_base");
 
     @PartModels
