@@ -21,13 +21,17 @@ import appeng.parts.automation.PartSharedItemBus;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+
 import com.tom.logisticsbridge.AE2Plugin;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
+import network.rs485.logisticspipes.SatellitePipe;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -44,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
+public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe, SatellitePipe {
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_base");
 
     @PartModels
