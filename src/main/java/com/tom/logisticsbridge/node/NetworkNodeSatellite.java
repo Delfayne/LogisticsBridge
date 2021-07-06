@@ -1,11 +1,15 @@
 package com.tom.logisticsbridge.node;
 
 import com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNode;
+
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
+import network.rs485.logisticspipes.SatellitePipe;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class NetworkNodeSatellite extends NetworkNode implements IIdPipe {
+public class NetworkNodeSatellite extends NetworkNode implements IIdPipe, SatellitePipe {
     public static final String ID = "lb.satellite";
     public String satelliteId = "";
     private final List<ItemStack> itemsToInsert = new ArrayList<>();
