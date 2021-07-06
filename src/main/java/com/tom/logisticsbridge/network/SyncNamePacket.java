@@ -8,9 +8,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.SatellitePipe;
 
 @StaticResolve
-public class SyncNamePacket extends SyncSatelliteNamePacket {
+public class SyncResultNamePacket extends SyncSatelliteNamePacket {
 
-    public SyncNamePacket(int id) {
+    public SyncResultNamePacket(int id) {
         super(id);
     }
 
@@ -26,6 +26,6 @@ public class SyncNamePacket extends SyncSatelliteNamePacket {
 
     @Override
     public ModernPacket template() {
-        return new SyncNamePacket(getId());
+        return new SyncResultNamePacket(getId());
     }
 }
