@@ -94,7 +94,7 @@ public class GuiHandler implements IGuiHandler {
             if (te instanceof IPartHost) {
                 final IPart part = ((IPartHost) te).getPart(side);
                 if (part instanceof PartSatelliteBus)
-                    return new GuiResultPipe((IIdPipe) part, player, 0);
+                    return new GuiResultPipe((SatellitePipe) part);
             }
             return null;
         }
@@ -107,8 +107,8 @@ public class GuiHandler implements IGuiHandler {
         switch (GuiIDs.values[ID]) {
             case RESULT_PIPE: {
                 CoreUnroutedPipe pipe = getPipe(world, x, y, z);
-                if (pipe != null && pipe instanceof IIdPipe) {
-                    return new GuiResultPipe((IIdPipe) TE, player, 0);
+                if (pipe != null && pipe instanceof SatellitePipe) {
+                    return new GuiResultPipe((SatellitePipe) pipe);
                 }
             }
             break;
