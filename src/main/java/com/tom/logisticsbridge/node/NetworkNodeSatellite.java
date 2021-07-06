@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class NetworkNodeSatellite extends NetworkNode implements IIdPipe, SatellitePipe {
+public class NetworkNodeSatellite extends NetworkNode implements IIdPipe {
     public static final String ID = "lb.satellite";
     public String satelliteId = "";
     private final List<ItemStack> itemsToInsert = new ArrayList<>();
