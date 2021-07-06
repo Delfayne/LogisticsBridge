@@ -19,7 +19,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> implements IIdPipe, SatellitePipe {
+public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> implements IIdPipe {
 
     @Override
     public NetworkNodeSatellite createNode(World world, BlockPos pos) {
