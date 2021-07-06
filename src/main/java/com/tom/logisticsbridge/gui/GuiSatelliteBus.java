@@ -14,7 +14,7 @@ import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.string.StringUtils;
+import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 
@@ -42,7 +42,7 @@ public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
 		super.initGui();
-		buttonList.add(new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, StringUtils.translate("gui.popup.addchannel.save")));
+		buttonList.add(new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, TextUtil.translate("gui.popup.addchannel.save")));
 		input = new InputBar(fontRenderer, this, guiLeft + 8, guiTop + 40, 100, 16);
 	}
 
@@ -64,8 +64,8 @@ public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		super.drawGuiContainerForegroundLayer(par1, par2);
-		mc.fontRenderer.drawString(StringUtils.translate(_result.getName(slot)), 33, 10, 0x404040);
-		String name = StringUtils.getCuttedString(_result.getPipeID(slot), 100, mc.fontRenderer);
+		mc.fontRenderer.drawString(TextUtil.translate(_result.getName(slot)), 33, 10, 0x404040);
+		String name = TextUtil.getTrimmedString(_result.getPipeID(slot), 100, mc.fontRenderer, "...");
 		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
 	}
 
