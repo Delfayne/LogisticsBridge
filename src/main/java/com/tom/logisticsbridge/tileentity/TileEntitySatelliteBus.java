@@ -1,13 +1,17 @@
 package com.tom.logisticsbridge.tileentity;
 
 import com.raoulvdberge.refinedstorage.tile.TileNode;
+
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import com.tom.logisticsbridge.node.NetworkNodeSatellite;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
+import network.rs485.logisticspipes.SatellitePipe;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,7 +19,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> implements IIdPipe {
+public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> implements IIdPipe, SatellitePipe {
 
     @Override
     public NetworkNodeSatellite createNode(World world, BlockPos pos) {
