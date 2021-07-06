@@ -55,7 +55,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
 
     @PartModels
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_has_channel"));
-    public String satelliteId;
+    public String satelliteId = "";
     private final List<IAEItemStack> itemsToInsert = new ArrayList<>();
 
     @Reflected
