@@ -4,7 +4,7 @@ import com.tom.logisticsbridge.GuiHandler.GuiIDs;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
-import com.tom.logisticsbridge.network.SyncNamePacket;
+import com.tom.logisticsbridge.network.SyncResultNamePacket;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -136,7 +136,7 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
     @Override
     public void onWrenchClicked(EntityPlayer entityplayer) {
         // Send the satellite id when opening gui
-        final ModernPacket packet = PacketHandler.getPacket(SyncNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+        final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
         MainProxy.sendPacketToPlayer(packet, entityplayer);
         entityplayer.openGui(LogisticsBridge.modInstance, GuiIDs.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
     }
@@ -451,7 +451,7 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
     public void playerStartWatching(EntityPlayer player, int mode) {
         if (mode == 1) {
             localModeWatchers.add(player);
-            final ModernPacket packet = PacketHandler.getPacket(SyncNamePacket.class).setString((this).resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+            final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString((this).resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
             MainProxy.sendPacketToPlayer(packet, player);
         } else
             super.playerStartWatching(player, mode);
@@ -485,7 +485,7 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
 
     @Override
     public void updateWatchers() {
-        CoordinatesPacket packet = PacketHandler.getPacket(SyncNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
+        CoordinatesPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
         MainProxy.sendToPlayerList(packet, localModeWatchers);
         MainProxy.sendPacketToAllWatchingChunk(this.getContainer(), packet);
     }
