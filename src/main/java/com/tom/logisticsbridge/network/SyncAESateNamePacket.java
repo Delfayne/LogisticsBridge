@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.SatellitePipe;
 
 @StaticResolve
-public class SyncSatelliteBusPacket extends SyncSatelliteNamePacket {
+public class SyncAESateNamePacket extends SyncSatelliteNamePacket {
 
     public SyncAESateNamePacket(int id) {
         super(id);
@@ -20,12 +20,12 @@ public class SyncSatelliteBusPacket extends SyncSatelliteNamePacket {
         if (pipe == null || pipe.pipe == null)
             return;
 
-        if (pipe.pipe instanceof SatelliteBus)
-            ((SatellitePipe) pipe.pipe).setSatelliteBusName(getString());
+        if (pipe.pipe instanceof SatellitePipe)
+            ((SatellitePipe) pipe.pipe).setSatellitePipeName(getString());
     }
 
     @Override
     public ModernPacket template() {
-        return new SyncSatelliteBusPacket(getId());
+        return new SyncAESateNamePacket(getId());
     }
 }
