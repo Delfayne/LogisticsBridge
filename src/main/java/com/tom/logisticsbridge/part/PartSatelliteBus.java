@@ -21,13 +21,17 @@ import appeng.parts.automation.PartSharedItemBus;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+
 import com.tom.logisticsbridge.AE2Plugin;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
+import network.rs485.logisticspipes.SatellitePipe;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -55,7 +59,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
 
     @PartModels
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_has_channel"));
-    public String satelliteId;
+    public String satelliteId = "";
     private final List<IAEItemStack> itemsToInsert = new ArrayList<>();
 
     @Reflected

@@ -3,10 +3,12 @@ package com.tom.logisticsbridge;
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
+
 import com.tom.logisticsbridge.gui.GuiCraftingManager;
 import com.tom.logisticsbridge.gui.GuiCraftingManagerU;
 import com.tom.logisticsbridge.gui.GuiPackage;
 import com.tom.logisticsbridge.gui.GuiResultPipe;
+import com.tom.logisticsbridge.gui.GuiSatelliteBus;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManagerU;
 import com.tom.logisticsbridge.inventory.ContainerPackage;
@@ -14,9 +16,12 @@ import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import com.tom.logisticsbridge.part.PartSatelliteBus;
 import com.tom.logisticsbridge.pipe.CraftingManager;
 import com.tom.logisticsbridge.tileentity.ICraftingManager;
+
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyContainer;
+import network.rs485.logisticspipes.SatellitePipe;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +29,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
-import network.rs485.logisticspipes.SatellitePipe;
+
 
 public class GuiHandler implements IGuiHandler {
     private static CoreUnroutedPipe getPipe(World world, int x, int y, int z) {
@@ -94,14 +99,14 @@ public class GuiHandler implements IGuiHandler {
             if (te instanceof IPartHost) {
                 final IPart part = ((IPartHost) te).getPart(side);
                 if (part instanceof PartSatelliteBus)
-                    return new GuiResultPipe((SatellitePipe) part);
+                    return new GuiSatelliteBus((IIdPipe) part, player, 0);
             }
             return null;
         }
         if (ID == 5) {
             final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-            if (te != null && te instanceof SatellitePipe)
-                return new GuiResultPipe((SatellitePipe) te);
+			if (te != null && te instanceof IIdPipe)
+				return new GuiSatelliteBus((IIdPipe) te, player, 0);
             return null;
         }
         switch (GuiIDs.values[ID]) {
