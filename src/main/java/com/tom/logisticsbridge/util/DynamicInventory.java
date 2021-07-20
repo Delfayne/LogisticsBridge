@@ -4,6 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,36 +14,28 @@ import java.util.stream.Stream;
 public class DynamicInventory implements IInventory {
     private final List<ItemStack> stacks = new ArrayList<>();
 
+    @NotNull
     @Override
-    public String getName() {
-        return null;
-    }
+    public String getName() { return ""; }
 
     @Override
-    public boolean hasCustomName() {
-        return false;
-    }
+    public boolean hasCustomName() { return false; }
+
+    @NotNull
+    @Override
+    public ITextComponent getDisplayName() { return new TextComponentString(""); }
 
     @Override
-    public ITextComponent getDisplayName() {
-        return null;
-    }
+    public int getSizeInventory() { return stacks.size(); }
 
     @Override
-    public int getSizeInventory() {
-        return stacks.size();
-    }
+    public boolean isEmpty() { return stacks.isEmpty(); }
 
+    @NotNull
     @Override
-    public boolean isEmpty() {
-        return stacks.isEmpty();
-    }
+    public ItemStack getStackInSlot(int index) { return index >= stacks.size() ? ItemStack.EMPTY : stacks.get(index); }
 
-    @Override
-    public ItemStack getStackInSlot(int index) {
-        return index >= stacks.size() ? ItemStack.EMPTY : stacks.get(index);
-    }
-
+    @NotNull
     @Override
     public ItemStack decrStackSize(int index, int count) {
         ItemStack stack = getStackInSlot(index);
@@ -51,6 +45,7 @@ public class DynamicInventory implements IInventory {
         return ret;
     }
 
+    @NotNull
     @Override
     public ItemStack removeStackFromSlot(int index) {
         return index >= stacks.size() ? ItemStack.EMPTY : stacks.remove(index);
@@ -70,51 +65,34 @@ public class DynamicInventory implements IInventory {
     }
 
     @Override
-    public int getInventoryStackLimit() {
-        return 64;
-    }
+    public int getInventoryStackLimit() { return 64; }
 
     @Override
-    public void markDirty() {
-    }
+    public void markDirty() { }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
-        return false;
-    }
+    public boolean isUsableByPlayer(EntityPlayer player) { return false; }
 
     @Override
-    public void openInventory(EntityPlayer player) {
-    }
+    public void openInventory(EntityPlayer player) { }
 
     @Override
-    public void closeInventory(EntityPlayer player) {
-    }
+    public void closeInventory(EntityPlayer player) { }
 
     @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return true;
-    }
+    public boolean isItemValidForSlot(int index, ItemStack stack) { return true; }
 
     @Override
-    public int getField(int id) {
-        return 0;
-    }
+    public int getField(int id) { return 0; }
 
     @Override
-    public void setField(int id, int value) {
-
-    }
+    public void setField(int id, int value) { }
 
     @Override
-    public int getFieldCount() {
-        return 0;
-    }
+    public int getFieldCount() { return 0; }
 
     @Override
-    public void clear() {
-        stacks.clear();
-    }
+    public void clear() { stacks.clear(); }
 
     public void insert(ItemStack stack) {
         stack = stack.copy();
@@ -133,15 +111,7 @@ public class DynamicInventory implements IInventory {
         }
     }
 
-    public void removeEmpties() {
-        stacks.removeIf(ItemStack::isEmpty);
-    }
-
-    public Stream<ItemStack> stream() {
-        return stacks.stream().filter(s -> !s.isEmpty());
-    }
-
-    public void addStack(ItemStack is) {
-        stacks.add(is.copy());
-    }
+    public void removeEmpties() { stacks.removeIf(ItemStack::isEmpty); }
+    public Stream<ItemStack> stream() { return stacks.stream().filter(s -> !s.isEmpty()); }
+    public void addStack(ItemStack is) { stacks.add(is.copy()); }
 }
