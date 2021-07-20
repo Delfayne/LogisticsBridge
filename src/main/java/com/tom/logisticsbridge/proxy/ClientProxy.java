@@ -54,25 +54,25 @@ public class ClientProxy extends CommonProxy {
                 Map<Class<? extends IBootstrapComponent>, List<IBootstrapComponent>> bootstrapComponents = (Map<Class<? extends IBootstrapComponent>, List<IBootstrapComponent>>) bootstrapComponentsF.get(ff);
                 List<IBootstrapComponent> itemRegComps = bootstrapComponents.get(IModelRegistrationComponent.class);
                 ItemVariantsComponent partReg = null;
-                Field ItemVariantsComponent_item = ItemVariantsComponent.class.getDeclaredField("item");
-                ItemVariantsComponent_item.setAccessible(true);
+                Field itemVariantsComponentItem = ItemVariantsComponent.class.getDeclaredField("item");
+                itemVariantsComponentItem.setAccessible(true);
                 for (IBootstrapComponent iBootstrapComponent : itemRegComps) {
                     if (iBootstrapComponent instanceof ItemVariantsComponent) {
-                        Item item = (Item) ItemVariantsComponent_item.get(iBootstrapComponent);
+                        Item item = (Item) itemVariantsComponentItem.get(iBootstrapComponent);
                         if (item == ItemPart.instance) {
                             partReg = (ItemVariantsComponent) iBootstrapComponent;
                             break;
                         }
                     }
                 }
-                Field ItemVariantsComponent_resources = ItemVariantsComponent.class.getDeclaredField("resources");
-                ItemVariantsComponent_resources.setAccessible(true);
-                ((HashSet<ResourceLocation>) ItemVariantsComponent_resources.get(partReg)).addAll(AE2Plugin.SATELLITE_BUS.getItemModels());
+                Field itemVariantsComponentResources = ItemVariantsComponent.class.getDeclaredField("resources");
+                itemVariantsComponentResources.setAccessible(true);
+                ((HashSet<ResourceLocation>) itemVariantsComponentResources.get(partReg)).addAll(AE2Plugin.SATELLITE_BUS.getItemModels());
             } catch (Exception e) {
                 throw new RuntimeException("Error registering part model", e);
             }
         }
-        //OBJLoader.INSTANCE.addDomain(LogisticsBridge.ID);
+//        OBJLoader.INSTANCE.addDomain(LogisticsBridge.ID);
     }
 
     @Override

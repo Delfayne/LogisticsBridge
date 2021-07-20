@@ -61,7 +61,6 @@ import java.util.stream.Collectors;
 
 public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IRequestItems, IChangeListener, ICraftItems, IRequireReliableTransport {
     public static TextureType TEXTURE = Textures.empty;
-    //private static Method recurseFailedRequestTree;
     private static Consumer<RequestTreeNode> recurseFailedRequestTree;
     private static final Function<RequestTreeNode, List<RequestTreeNode>> subRequests;
     private static final Function<RequestTreeNode, List<IExtraPromise>> extrapromises;
@@ -144,6 +143,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
         return tree.getPromiseAmount();
     }*/
+
     public static void listExras(RequestTreeNode node, List<IExtraPromise> list) {
         list.addAll(extrapromises.apply(node));
         subRequests.apply(node).forEach(n -> listExras(n, list));
@@ -172,9 +172,6 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
 
     @Override
     public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-		/*System.out.println("BridgePipe.canProvide()");
-		System.out.println(tree);
-		System.out.println(root);*/
         if (!isEnabled() || bridge == null || canCraft(tree.getRequestType()))
             return;
         if (tree.getRequestType() instanceof ItemResource) {
@@ -218,8 +215,6 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
     @Override
     public LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination, IAdditionalTargetInformation info) {
         if (destination == this || bridge == null) return null;
-		/*System.out.println("BridgePipe.fullFill()");
-		System.out.println(promise);*/
         spawnParticle(Particles.WhiteParticle, 2);
         long count = bridge.countItem(promise.item.makeNormalStack(1), true);
         if (count < promise.numberOfItems) {
@@ -313,11 +308,13 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
             _orderItemManager.sendFailed();
             return 0;
         }
+
         ServerRouter dRtr = SimpleServiceLocator.routerManager.getServerRouter(destination);
         if (dRtr == null) {
             _orderItemManager.sendFailed();
             return 0;
         }
+
         SinkReply reply = LogisticsManager.canSink(stack.makeNormalStack(), dRtr, null, true, stack.getItem(), null, true, false);
         boolean defersend = false;
         if (reply != null && reply.maxNumberOfItems < wanted) {// some pipes are not aware of the space in the adjacent inventory, so they return null
@@ -328,15 +325,17 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
             }
             defersend = true;
         }
+
         if (!canUseEnergy(wanted * neededEnergy()))
             return -1;
+
         ItemStack removed = this.getMultipleItems(item, wanted);
         if (removed == null || removed.getCount() == 0) {
             if (setFailed) _orderItemManager.sendFailed();
             else _orderItemManager.deferSend();
             return 0;
         }
-        //System.out.println(removed + " " + wanted);
+
         int sent = removed.getCount();
         useEnergy(sent * neededEnergy());
 
