@@ -113,14 +113,16 @@ public interface IDynamicPatternDetailsAE {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
+            if (this == obj)
+                return true;
+            if (obj == null || getClass() != obj.getClass())
+                return false;
             TileEntityWrapper other = (TileEntityWrapper) obj;
-            if (dim != other.dim) return false;
-            if (pos == null) {
+            if (dim != other.dim)
+                return false;
+            if (pos == null)
                 return other.pos == null;
-            } else return pos.equals(other.pos);
+            return pos.equals(other.pos);
         }
     }
 }
