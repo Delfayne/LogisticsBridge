@@ -30,7 +30,6 @@ import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
-import network.rs485.logisticspipes.SatellitePipe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

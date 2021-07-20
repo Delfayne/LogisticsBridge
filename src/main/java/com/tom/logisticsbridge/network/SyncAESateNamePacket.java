@@ -6,18 +6,18 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.SatellitePipe;
+import org.jetbrains.annotations.NotNull;
 
 @StaticResolve
 public class SyncAESateNamePacket extends SyncSatelliteNamePacket {
-
     public SyncAESateNamePacket(int id) {
         super(id);
     }
 
     @Override
-    public void processPacket(EntityPlayer player) {
+    public void processPacket(@NotNull EntityPlayer player) {
         final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
-        if (pipe == null || pipe.pipe == null)
+        if (pipe.pipe == null)
             return;
 
         if (pipe.pipe instanceof SatellitePipe)
