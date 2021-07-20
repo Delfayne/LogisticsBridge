@@ -67,7 +67,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int par1, int par2) { // TODO: REWORK
+    protected void drawGuiContainerForegroundLayer(int par1, int par2) {
         super.drawGuiContainerForegroundLayer(par1, par2);
 		drawCenteredString(TextUtil.translate("gui.resultPipe"), 59, 7, 0x404040);
 		String name = TextUtil.getTrimmedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer, "...");
