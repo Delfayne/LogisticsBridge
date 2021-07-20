@@ -14,6 +14,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -85,7 +86,7 @@ public class FakeItem extends Item {
 
     @SuppressWarnings("deprecation")
     @Override
-    public String getItemStackDisplayName(ItemStack stack) {
+    public String getItemStackDisplayName(@NotNull ItemStack stack) {
         if (!displayOverride && isPackage && stack.hasTagCompound()) {
             String id = stack.getTagCompound().getString("__pkgDest");
             if (!id.isEmpty())

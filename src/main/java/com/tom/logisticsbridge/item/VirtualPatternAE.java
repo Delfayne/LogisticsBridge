@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
     }
 
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flag) {
+    public void addInformation(@NotNull ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(I18n.format("tooltip.logisticsbridge.techItem"));
     }
 
