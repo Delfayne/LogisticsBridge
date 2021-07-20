@@ -115,12 +115,8 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                     fakeSlot.yPos = slotIn.yPos;
 					super.drawSlot(fakeSlot);
                     inv.setInventorySlotContents(0, ItemStack.EMPTY);
-                }
-				else
-					super.drawSlot(slotIn);
-            }
-			else
-				super.drawSlot(slotIn);
+                } else super.drawSlot(slotIn);
+            } else super.drawSlot(slotIn);
         }
     }
 
@@ -284,7 +280,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
             String pid = getString();
             if (!isFullyExtended()) {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240 / 1.0F);
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
                 GL11.glEnable(GL11.GL_LIGHTING);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 RenderHelper.enableGUIStandardItemLighting();
