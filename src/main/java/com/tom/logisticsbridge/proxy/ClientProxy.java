@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientProxy extends CommonProxy {
-    public static Field GuiMEMonitorable_Repo;
-    public static Field ItemRepo_myPartitionList;
+    public static Field guiMEMonitorableRepo;
+    public static Field itemRepoMyPartitionList;
     private List<Item> renderers = new ArrayList<>();
 
     private static void addRenderToRegistry(Item item, int meta, String name) {
@@ -94,10 +94,10 @@ public class ClientProxy extends CommonProxy {
     public void init() {
         try {
             if (LogisticsBridge.aeLoaded) {
-                GuiMEMonitorable_Repo = GuiMEMonitorable.class.getDeclaredField("repo");
-                GuiMEMonitorable_Repo.setAccessible(true);
-                ItemRepo_myPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
-                ItemRepo_myPartitionList.setAccessible(true);
+                guiMEMonitorableRepo = GuiMEMonitorable.class.getDeclaredField("repo");
+                guiMEMonitorableRepo.setAccessible(true);
+                itemRepoMyPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
+                itemRepoMyPartitionList.setAccessible(true);
             }
         } catch (SecurityException | NoSuchFieldException e) {
             throw new RuntimeException(e);
