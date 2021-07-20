@@ -47,9 +47,7 @@ public class DynamicInventory implements IInventory {
 
     @NotNull
     @Override
-    public ItemStack removeStackFromSlot(int index) {
-        return index >= stacks.size() ? ItemStack.EMPTY : stacks.remove(index);
-    }
+    public ItemStack removeStackFromSlot(int index) { return index >= stacks.size() ? ItemStack.EMPTY : stacks.remove(index); }
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
