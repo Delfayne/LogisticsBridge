@@ -187,8 +187,8 @@ public class AE2Plugin {
             if (AE2Plugin.HIDE_FAKE_ITEM == null)
                 AE2Plugin.HIDE_FAKE_ITEM = new HideFakeItem();
             try {
-                ItemRepo r = (ItemRepo) ClientProxy.GuiMEMonitorable_Repo.get(g);
-                IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.ItemRepo_myPartitionList.get(r);
+                ItemRepo r = (ItemRepo) ClientProxy.guiMEMonitorableRepo.get(g);
+                IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.itemRepoMyPartitionList.get(r);
                 if (pl instanceof MergedPriorityList) {
                     MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
                     Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Plugin.MergedPriorityList_negative.get(ml);
@@ -198,7 +198,7 @@ public class AE2Plugin {
                     }
                 } else {
                     MergedPriorityList<IAEItemStack> mlist = new MergedPriorityList<>();
-                    ClientProxy.ItemRepo_myPartitionList.set(r, mlist);
+                    ClientProxy.itemRepoMyPartitionList.set(r, mlist);
                     if (pl != null) mlist.addNewList(pl, true);
                     mlist.addNewList(AE2Plugin.HIDE_FAKE_ITEM, false);
                     r.updateView();
