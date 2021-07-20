@@ -68,7 +68,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         bindTexture(BG);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY); //TODO: REWORK
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
     }
 
     /**
@@ -82,8 +82,8 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
 
     }
 
-    //	@Override
-    public void drawSlot(Slot slotIn) { // TODO: NEED FIX
+    @Override
+    public void drawSlot(Slot slotIn) {
         if (slotIn.slotNumber >= 27 && slotIn.slotNumber < 27 * 3) {
             GlStateManager.pushMatrix();
             float f = 1 / 3f;
@@ -93,7 +93,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
             GlStateManager.scale(f, f, f);
             slotIn.xPos = 0;
             slotIn.yPos = 0;
-			super.drawSlot(slotIn); //TODO: REWORK
+			super.drawSlot(slotIn);
             slotIn.xPos = Integer.MIN_VALUE;
             slotIn.yPos = Integer.MIN_VALUE;
             GlStateManager.popMatrix();
@@ -113,14 +113,14 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                     inv.setInventorySlotContents(0, new ItemStack(output));
                     fakeSlot.xPos = slotIn.xPos;
                     fakeSlot.yPos = slotIn.yPos;
-					super.drawSlot(fakeSlot); //TODO: REWORK
+					super.drawSlot(fakeSlot);
                     inv.setInventorySlotContents(0, ItemStack.EMPTY);
                 }
 				else
-					super.drawSlot(slotIn); //TODO: REWORK
+					super.drawSlot(slotIn);
             }
 			else
-				super.drawSlot(slotIn); //TODO: REWORK
+				super.drawSlot(slotIn);
         }
     }
 
