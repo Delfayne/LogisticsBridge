@@ -122,7 +122,8 @@ public interface IDynamicPatternDetailsAE {
                 return false;
             if (pos == null)
                 return other.pos == null;
-            return pos.equals(other.pos);
+            else 
+                return pos.equals(other.pos);
         }
     }
 }
