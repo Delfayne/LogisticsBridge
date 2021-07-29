@@ -27,10 +27,12 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
+forge_version = ${config.forge_ver}
+mappings_version = ${config.mappings_ver}
 version = "${config.minecraft_ver}-$System.env.MOD_VER"
 
 minecraft {
-    mappings channel: 'snapshot', version: {config.mappings_ver}
+    mappings channel: 'snapshot', version: mappings_version
 
     runs {
         client {
@@ -77,7 +79,7 @@ dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_ver
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
-    minecraft group: 'net.minecraftforge', name: 'forge', version: {config.forge_ver}
+    minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
     //
     compileOnly ":logisticspipes-${config.lp_ver}-api"
     compileOnly ":NotEnoughItems-${config.mc_ver}-${config.nei_ver}-deobf"
