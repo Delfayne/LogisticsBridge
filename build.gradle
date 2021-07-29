@@ -26,10 +26,13 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-version = "${config.mc_ver}-$System.env.MOD_VER"
+version = "$System.env.MOD_VER"
 
 minecraft {
     mappings channel: 'snapshot', version: "${config.mappings_ver}"
+
+    replace '@VERSION@', project.version
+    replace '@MCVERSION@', "${config.mc_ver}"
 
     runs {
         client {
