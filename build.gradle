@@ -31,9 +31,6 @@ version = "$System.env.MOD_VER"
 minecraft {
     mappings channel: 'snapshot', version: "${config.mappings_ver}"
 
-    replace '@VERSION@', project.version
-    replace '@MCVERSION@', "${config.mc_ver}"
-
     runs {
         client {
             workingDirectory project.file('run')
@@ -99,6 +96,25 @@ dependencies {
     runtimeOnly ":CodeChickenLib-${config.mc_ver}"
     // https://mvnrepository.com/artifact/javassist/javassist
     shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", "${config.mc_ver}"
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 tasks.withType(Wrapper) {
