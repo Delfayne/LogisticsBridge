@@ -26,7 +26,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-version = '${config.minecraft_ver}-$System.env.MOD_VER'
+version = "${config.minecraft_ver}-$System.env.MOD_VER"
 
 minecraft {
     mappings channel: 'snapshot', version: "${config.mappings_ver}"
@@ -56,12 +56,12 @@ repositories {
         url = 'https://jitpack.io'
     }
     maven {
-        name = "forge"
-        url = "https://files.minecraftforge.net/maven"
+        name = 'forge'
+        url = 'https://files.minecraftforge.net/maven'
     }
     maven {
-        name = "forge"
-        url = "https://libraries.minecraft.net"
+        name = 'minecraftlibs'
+        url = 'https://libraries.minecraft.net'
     } 
     flatDir { dirs "./lib" }
 }
