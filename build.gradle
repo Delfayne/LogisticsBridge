@@ -108,15 +108,6 @@ jar {
             exclude 'META-INF', 'META-INF/**'
         }
     }
-    manifest {
-	    attributes([
-			"Specification-Title": "Just Enough Items",
-			"Specification-Vendor": "mezz",
-			"Specification-Version": "${semver}",
-			"Implementation-Title": project.name,
-			"Implementation-Version": "${project.version}",
-	    ])
-	}
 }
 
 jar.finalizedBy('reobfJar')
