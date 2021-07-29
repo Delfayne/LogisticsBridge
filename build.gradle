@@ -20,11 +20,19 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-def forge_version = '1.12.2-14.23.5.2854'
-def mappings_version = '20171120-1.12'
+ext.configFile = file "build.properties"
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+def modVersion = ${{ steps.vars.outputs.version }}
+version = "${config.minecraft_version}-$modVersion"
 
 minecraft {
-    mappings channel: 'snapshot', version: mappings_version
+    mappings channel: 'snapshot', version: ${config.mappings_version}
 
     runs {
         client {
@@ -71,24 +79,24 @@ dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
-    minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
+    minecraft group: 'net.minecraftforge', name: 'forge', version: ${config.forge_version}
     //
-    compileOnly ":logisticspipes-0.10.4.3-api"
-    compileOnly ":NotEnoughItems-1.12.2-2.4.3.245-deobf"
-    implementation ":logisticspipes-0.10.4.3-deobf"
-    api fg.deobf (":MCMultiPart-2.5.3")
-    api fg.deobf (":ThermalDynamics-1.12.2-2.5.6.1-universal")
-    api fg.deobf (":refinedstorage-1.6.16")
-    api fg.deobf (":appliedenergistics2-rv6-stable-7")
+    compileOnly ":logisticspipes-${config.lp_ver}-api"
+    compileOnly ":NotEnoughItems-${config.mc_ver}-${config.nei_ver}-deobf"
+    implementation ":logisticspipes-${config.lp_ver}-deobf"
+    api fg.deobf (":MCMultiPart-${config.mcmp_ver}")
+    api fg.deobf (":ThermalDynamics-${config.mc_ver}-${config.td_ver}-universal")
+    api fg.deobf (":refinedstorage-${config.rs_ver}")
+    api fg.deobf (":appliedenergistics2-${config.ae_ver}")
     //
-    runtimeOnly ":refinedstorage-1.6.16"
-    runtimeOnly ":MCMultiPart-2.5.3"
-    runtimeOnly ":ThermalExpansion-1.12.2-5.5.7.1-universal"
-    runtimeOnly ":ThermalFoundation-1.12.2-2.6.7.1-universal"
-    runtimeOnly ":CoFHCore-1.12.2-4.6.6.1-deobf"
-    runtimeOnly ":CoFHWorld-1.12.2-1.4.0.1-universal"
-    runtimeOnly ":RedstoneFlux-1.12-2.1.1.1-deobf"
-    runtimeOnly ":CodeChickenLib-1.12.2"
+    runtimeOnly ":refinedstorage-${config.rs_ver}"
+    runtimeOnly ":MCMultiPart-${config.mcmp_ver}"
+    runtimeOnly ":ThermalExpansion-${config.mc_ver}-${config.te_ver}-universal"
+    runtimeOnly ":ThermalFoundation-${config.mc_ver}-${config.tf_ver}-universal"
+    runtimeOnly ":CoFHCore-${config.mc_ver}-${config.cofhc_ver}-deobf"
+    runtimeOnly ":CoFHWorld-${config.mc_ver}-${config.cofhw_ver}-universal"
+    runtimeOnly ":RedstoneFlux-${config.mc_ver_short}-${config.rf_ver}-deobf"
+    runtimeOnly ":CodeChickenLib-${config.mc_ver}"
     // https://mvnrepository.com/artifact/javassist/javassist
     shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
 }
