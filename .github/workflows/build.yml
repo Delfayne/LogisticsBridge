@@ -38,7 +38,7 @@ jobs:
         echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
     - name: Set ENV for version
       env: 
-        mod_version: ${{ steps.vars.outputs.version }}
+        MOD_VER: ${{ steps.vars.outputs.version }}
     - name: Build with Gradle
       run: ./gradlew build
     - name: Upload a Build Artifact
