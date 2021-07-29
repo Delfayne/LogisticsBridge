@@ -3,7 +3,7 @@
   "modid" : "logisticsbridge",
   "name" : "Logistics Bridge",
   "description": "",
-  "version": "{$version}",
+  "version": "${version}",
   "url" : "",
   "authorList": ["tom5454", "DomamaN202", "SotS", "KorewaLidesu", "NelkGames"],
   "logoFile" : "logo.png"
