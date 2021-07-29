@@ -1,6 +1,4 @@
-
 buildscript {
-
     ext.configFile = file "build.properties"
     configFile.withReader {
         // Load config.  It shall from now be referenced as simply config or project.config
@@ -29,7 +27,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-version = "${config.minecraft_version}-$System.env.mod_version"
+version = "${config.minecraft_version}-$System.env.MOD_VER"
 
 minecraft {
     mappings channel: 'snapshot', version: ${config.mappings_version}
