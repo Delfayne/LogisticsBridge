@@ -1,5 +1,12 @@
+ext.configFile = file "build.properties"
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
 buildscript {
-    ext.kotlin_version = '1.5.0'
 
     repositories {
         mavenCentral()
@@ -11,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_version}"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
@@ -19,14 +26,6 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
-
-ext.configFile = file "build.properties"
-configFile.withReader {
-    // Load config.  It shall from now be referenced as simply config or project.config
-    def prop = new Properties()
-    prop.load(it)
-    project.ext.config = new ConfigSlurper().parse prop
-}
 
 def modVersion = ${{ steps.vars.outputs.version }}
 version = "${config.minecraft_version}-$modVersion"
@@ -75,8 +74,8 @@ configurations {
 }
 
 dependencies {
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: ${config.kotlin_version}
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: ${config.kotlin_version}
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
     minecraft group: 'net.minecraftforge', name: 'forge', version: ${config.forge_version}
