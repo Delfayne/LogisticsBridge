@@ -2,9 +2,10 @@
 {
   "modid" : "logisticsbridge",
   "name" : "Logistics Bridge",
-  "description": "",
-  "version": "${version}",
-  "url" : "",
+  "description": "This mod is an Add-On mod for AppliedEnergistics, Refined Storage and Logistics Pipes.",
+  "version": "@VERSION@",
+  "mcversion": "@MCVERSION@",
+  "url" : "https://www.curseforge.com/minecraft/mc-mods/logistics-bridge-dmnedition",
   "authorList": ["tom5454", "DomamaN202", "SotS", "KorewaLidesu", "NelkGames"],
   "logoFile" : "logo.png"
 }
