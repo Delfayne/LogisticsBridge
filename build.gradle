@@ -29,8 +29,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-def modVersion = ${steps.vars.outputs.version}
-version = "${config.minecraft_version}-$modVersion"
+version = "${config.minecraft_version}-$System.env.mod_version"
 
 minecraft {
     mappings channel: 'snapshot', version: ${config.mappings_version}
