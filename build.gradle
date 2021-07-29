@@ -23,6 +23,14 @@ buildscript {
     }
 }
 
+ext.configFile = file "build.properties" //Need fix here
+configFile.withReader {
+   // Load config.  It shall from now be referenced as simply config or project.config
+   def prop = new Properties()
+   prop.load(it)
+   project.ext.config = new ConfigSlurper().parse prop
+}
+
 apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
