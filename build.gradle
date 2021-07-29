@@ -7,14 +7,14 @@ buildscript {
         project.ext.config = new ConfigSlurper().parse prop
     }
 
-    ext.kotlin_ver = '${config.kotlin_ver}'
+    ext.kotlin_ver = "${config.kotlin_ver}"
     
     repositories {
         mavenCentral()
         jcenter()
         maven {
-            name = "forge"
-            url = "https://files.minecraftforge.net/maven"
+            name = 'forge'
+            url = 'https://files.minecraftforge.net/maven'
         }
     }
 
@@ -28,8 +28,8 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-def forge_version = '${config.forge_ver}'
-def mappings_version = '${config.mappings_ver}'
+def forge_version = "${config.forge_ver}"
+def mappings_version = "${config.mappings_ver}"
 version = '${config.minecraft_ver}-$System.env.MOD_VER'
 
 minecraft {
