@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_ver}"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
@@ -75,8 +75,8 @@ configurations {
 }
 
 dependencies {
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: ${config.kotlin_version}
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: ${config.kotlin_version}
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: ${config.kotlin_ver}
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: ${config.kotlin_ver}
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
     minecraft group: 'net.minecraftforge', name: 'forge', version: ${config.forge_version}
