@@ -1,13 +1,14 @@
-ext.configFile = file "build.properties"
-configFile.withReader {
-    // Load config.  It shall from now be referenced as simply config or project.config
-    def prop = new Properties()
-    prop.load(it)
-    project.ext.config = new ConfigSlurper().parse prop
-}
 
 buildscript {
-    ext.kotlin_version = ${config.kotlin_ver}
+
+    ext.configFile = file "build.properties"
+    configFile.withReader {
+        // Load config.  It shall from now be referenced as simply config or project.config
+        def prop = new Properties()
+        prop.load(it)
+        project.ext.config = new ConfigSlurper().parse prop
+    }
+    
     repositories {
         mavenCentral()
         jcenter()
@@ -18,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_version}"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
