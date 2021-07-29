@@ -35,8 +35,8 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-forge_version = ${config.forge_ver}
-mappings_version = ${config.mappings_ver}
+def forge_version = ${config.forge_ver}
+def mappings_version = ${config.mappings_ver}
 version = "${config.minecraft_ver}-$System.env.MOD_VER"
 
 minecraft {
