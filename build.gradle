@@ -6,8 +6,6 @@ buildscript {
         prop.load(it)
         project.ext.config = new ConfigSlurper().parse prop
     }
-
-    ext.kotlin_ver = "${config.kotlin_ver}"
     
     repositories {
         mavenCentral()
@@ -19,7 +17,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_ver"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_ver}"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
@@ -28,12 +26,10 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-def forge_version = "${config.mc_ver}-${config.forge_ver}"
-def mappings_version = "${config.mappings_ver}"
 version = '${config.minecraft_ver}-$System.env.MOD_VER'
 
 minecraft {
-    mappings channel: 'snapshot', version: mappings_version
+    mappings channel: 'snapshot', version: "${config.mappings_ver}"
 
     runs {
         client {
@@ -76,11 +72,11 @@ configurations {
 }
 
 dependencies {
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_ver
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_ver
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "${config.kotlin_ver}"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "${config.kotlin_ver}"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     //
-    minecraft group: 'net.minecraftforge', name: 'forge', version: forge_version
+    minecraft group: 'net.minecraftforge', name: 'forge', version: "${config.mc_ver}-${config.forge_ver}"
     //
     compileOnly ":logisticspipes-${config.lp_ver}-api"
     compileOnly ":NotEnoughItems-${config.mc_ver}-${config.nei_ver}-deobf"
