@@ -62,7 +62,7 @@ jobs:
         body:  ${{ steps.vars.outputs.changelog }}
         name:  ${{ steps.vars.outputs.version }}
         prerelease: false
-        allow_override: false
+        allow_override: true
         gzip: false
         files: |
             ./LogisticsBridge/LogisticsBridge*.jar
