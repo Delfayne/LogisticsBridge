@@ -25,6 +25,7 @@ import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
@@ -455,7 +456,9 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                                 ItemStack removed = util.getMultipleItems(toSend.getItem(), toSend.getStackSize());
                                 if (removed != null && !removed.isEmpty()) {
                                     sendStack(removed, SimpleServiceLocator.routerManager.getIDforUUID(en.getKey()), ItemSendMode.Fast, null, getPointedOrientation());
-                                    maxDist = Math.max(maxDist, (int) SimpleServiceLocator.routerManager.getRouter(SimpleServiceLocator.routerManager.getIDforUUID(en.getKey())).getPipe().getPos().distanceSq(getPos()));
+                                    IRouter router = SimpleServiceLocator.routerManager.getRouter(SimpleServiceLocator.routerManager.getIDforUUID(en.getKey()));
+                                    if (router != null)
+                                        maxDist = Math.max(maxDist, (int) router.getPipe().getPos().distanceSq(getPos()));
                                 }
                             }
                             useEnergy(neededEnergy(), true);
