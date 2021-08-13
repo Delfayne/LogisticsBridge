@@ -55,4 +55,4 @@ jobs:
         allow_override: false
         gzip: false
         files: |
-            ./LogisticsBridge/LogisticsBridge.jar
+            ./LogisticsBridge/LogisticsBridge*.jar
