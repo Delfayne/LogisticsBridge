@@ -456,11 +456,11 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                                 ItemStack removed = util.getMultipleItems(toSend.getItem(), toSend.getStackSize());
                                 if (removed != null && !removed.isEmpty()) {
                                     if (getSatelliteRouterByID(getUUIDForSatelliteName(en.getKey())) != null )
-                                         UUID satId = en.getKey();
+                                         UUID moved = en.getKey();
                                     else
-                                         UUID satId = getSatelliteUUID;
-                                    sendStack(removed, satId, ItemSendMode.Fast, null, getPointedOrientation());
-                                    maxDist = Math.max(maxDist, (int) getSatelliteRouterByID(getUUIDForSatelliteName(satId)).getPipe().getPos().distanceSq(getPos()));
+                                         UUID moved = getSatelliteUUID;
+                                    sendStack(removed, moved, ItemSendMode.Fast, null, getPointedOrientation());
+                                    maxDist = Math.max(maxDist, (int) getSatelliteRouterByID(getUUIDForSatelliteName(moved)).getPipe().getPos().distanceSq(getPos()));
                                 }
                             }
                             useEnergy(neededEnergy(), true);
