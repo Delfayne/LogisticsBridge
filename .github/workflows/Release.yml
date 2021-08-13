@@ -19,14 +19,23 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+        
+    - name: Declare some variables
+      id: vars
+      shell: bash
+      run: |
+        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
 
     - name: Build with Gradle
+      env: 
+        MOD_VER: ${{ steps.vars.outputs.version }}
       run: ./gradlew build
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: LogisticsBridge
+        name: LogisticsBridge-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.sha_short }}
         path: build/libs
 
   release:
@@ -43,6 +52,7 @@ jobs:
       run: |
         echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
         echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
+        
     - name: Create GitHub Release
       uses: KorewaLidesu/github-release@2.0
       with:
@@ -55,4 +65,4 @@ jobs:
         allow_override: true
         gzip: false
         files: |
-            ./LogisticsBridge/LogisticsBridge.jar
+            ./LogisticsBridge/LogisticsBridge*.jar
