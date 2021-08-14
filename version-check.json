@@ -5,7 +5,7 @@
 		"1.12.2-recommended": "1.4.5.2"
 	},
 	"1.12.2": {
-                "1.4.5.2": "Fixed wrong return, replacent for 1.4.5.1",
+		"1.4.5.2": "Fixed wrong return, replacent for 1.4.5.1",
 		"1.4.5.1": "Fixed nullptr exception when using Crafting Manager.",
 		"1.4.5": "Fixed missing GUI for Crafting Manager & Result Pipe (#11). Fixed wrong tooltip for Package.",
 		"1.4.4": "Small Fixes",
