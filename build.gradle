@@ -26,7 +26,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'net.minecraftforge.gradle'
 
-version = "$System.env.MOD_VER"
+lbversion = "$System.env.MOD_VER"
 
 minecraft {
     mappings channel: 'snapshot', version: "${config.mappings_ver}"
@@ -98,13 +98,9 @@ dependencies {
     shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
 }
 
-tasks.withType(Wrapper) {
-    version = 5.3
-}
-
 processResources {
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
+    inputs.property "version", project.lbversion
     inputs.property "mcversion", "${config.mc_ver}"
 
     // replace stuff in mcmod.info, nothing else
@@ -119,6 +115,11 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+
+tasks.withType(Wrapper) {
+    version = 5.3
 }
  
 jar {
