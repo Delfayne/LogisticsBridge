@@ -108,7 +108,7 @@ processResources {
         include 'mcmod.info'
                 
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':"${config.mc_ver}"
+        expand 'version':project.lbversion, 'mcversion':"${config.mc_ver}"
     }
         
     // copy everything else, thats not the mcmod.info
@@ -116,7 +116,6 @@ processResources {
         exclude 'mcmod.info'
     }
 }
-
 
 tasks.withType(Wrapper) {
     version = 5.3
