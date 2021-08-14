@@ -19,13 +19,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-        
-    - name: Declare some variables
-      id: vars
-      shell: bash
-      run: |
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
 
     - name: Build with Gradle
       env: 
@@ -35,7 +28,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: LogisticsBridge-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.sha_short }}
+        name: LogisticsBridge
         path: build/libs
 
   release:
