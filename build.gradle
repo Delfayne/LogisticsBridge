@@ -120,7 +120,7 @@ processResources {
 tasks.withType(Wrapper) {
     version = 5.3
 }
-
+ 
 jar {
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
