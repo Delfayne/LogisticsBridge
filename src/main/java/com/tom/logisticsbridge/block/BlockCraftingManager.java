@@ -26,10 +26,10 @@ public class BlockCraftingManager extends AEBaseTileBlock {
     @Override
     public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (super.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ)) return true;
-        if (!worldIn.isRemote) {
-            TileEntity te = worldIn.getTileEntity(pos);
+        if (!world.isRemote) {
+            TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityCraftingManager) {
-                ((TileEntityCraftingManager) te).openGui(playerIn);
+                ((TileEntityCraftingManager) te).openGui(player);
             }
         }
         return true;
