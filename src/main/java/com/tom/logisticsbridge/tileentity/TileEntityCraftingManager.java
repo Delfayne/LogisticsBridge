@@ -410,8 +410,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
     public void openGui(EntityPlayer playerIn) {
         playerIn.openGui(LogisticsBridge.modInstance, GuiIDs.CRAFTING_MANAGER.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
         ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(supplyID).setId(0).setPosX(pos.getX()).setPosY(pos.getY()).setPosZ(pos.getZ());
-        if (playerIn.isServerWorld())
-            MainProxy.sendPacketToPlayer(packet, playerIn);
+        MainProxy.sendPacketToPlayer(packet, playerIn);
     }
 
     @Override
