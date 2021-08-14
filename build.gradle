@@ -98,6 +98,10 @@ dependencies {
     shade group: 'javassist', name: 'javassist', version: '3.12.1.GA'
 }
 
+tasks.withType(Wrapper) {
+    version = 5.3
+}
+
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
@@ -115,10 +119,6 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-}
-
-tasks.withType(Wrapper) {
-    version = 5.3
 }
  
 jar {
