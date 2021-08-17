@@ -34,7 +34,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: LogisticsBridge
+        name: LogisticsBridge-Artifact
         path: build/libs
 
   release:
@@ -64,4 +64,4 @@ jobs:
         allow_override: true
         gzip: false
         files: |
-            ./LogisticsBridge/LogisticsBridge*.jar
+            ./LogisticsBridge/LogisticsBridge-${{ steps.vars.outputs.version }}.jar
