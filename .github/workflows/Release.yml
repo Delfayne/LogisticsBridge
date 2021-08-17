@@ -63,4 +63,4 @@ jobs:
         allow_override: true
         gzip: false
         files: |
-            ./LogisticsBridge/LogisticsBridge*.jar
+            ./LogisticsBridge-Artifact/LogisticsBridge-${{ steps.vars.outputs.version }}.jar
