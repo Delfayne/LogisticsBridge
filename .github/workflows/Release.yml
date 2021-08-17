@@ -19,6 +19,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+        
+    - name: Declare variable
+      id: vars
+      shell: bash
+      run: |
+        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
 
     - name: Build with Gradle
       env: 
