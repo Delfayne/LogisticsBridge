@@ -41,43 +41,4 @@ public class DmNTransformer implements IClassTransformer {
             throw new Error(e);
         }
     }
-
-//    MetadataSerializer frmMetadataSerializer;
-//    List<IResourcePack> resourcePacks;
-//    void checkResourcePath(ResourceLocation p_188552_1_) {}
-//    static ResourceLocation getLocationMcmeta(ResourceLocation location) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException { return (ResourceLocation) Class.forName("suka!").getMethod("").invoke(null); }
-//    InputStream getInputStream(ResourceLocation location, IResourcePack resourcePack) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException { return (InputStream) Class.forName("suka!").getMethod("").invoke(null); }
-//
-//    public IResource getResource(ResourceLocation l) throws Exception {
-//        IResource res = ru.DmN.LB.Main.__F1(l);
-//        if (res != null)
-//            return res;
-//        this.checkResourcePath(l);
-//        IResourcePack iresourcepack = null;
-//        ResourceLocation resourcelocation = getLocationMcmeta(l);
-//
-//        for (int i = this.resourcePacks.size() - 1; i >= 0; --i)
-//        {
-//            IResourcePack iresourcepack1 = this.resourcePacks.get(i);
-//
-//            if (iresourcepack == null && iresourcepack1.resourceExists(resourcelocation))
-//            {
-//                iresourcepack = iresourcepack1;
-//            }
-//
-//            if (iresourcepack1.resourceExists(l))
-//            {
-//                InputStream inputstream = null;
-//
-//                if (iresourcepack != null)
-//                {
-//                    inputstream = this.getInputStream(resourcelocation, iresourcepack);
-//                }
-//
-//                return new SimpleResource(iresourcepack1.getPackName(), l, this.getInputStream(l, iresourcepack1), inputstream, this.frmMetadataSerializer);
-//            }
-//        }
-//
-//        throw new FileNotFoundException(l.toString());
-//    }
 }
