@@ -25,7 +25,7 @@ import java.io.IOException;
 public class GuiResultPipe extends LogisticsBaseGuiScreen {
 
     private final SatellitePipe resultPipe;
-	
+
     private InputBar input;
 
     public GuiResultPipe(@Nonnull SatellitePipe result) {
@@ -35,7 +35,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
                 return true;
             }
         });
-	resultPipe = result;
+	    resultPipe = result;
         xSize = 116;
         ySize = 77;
     }
@@ -44,7 +44,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
         super.initGui();
-        buttonList.add(new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save"));
+        buttonList.add(new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, TextUtil.translate("gui.popup.addchannel.save")));
         input = new InputBar(fontRenderer, this, guiLeft + 8, guiTop + 40, 100, 16);
     }
 
@@ -76,7 +76,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
-//		super.drawGuiContainerBackgroundLayer(f, x, y);
+		super.drawGuiContainerBackgroundLayer(f, x, y);
         GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
         input.drawTextBox();
     }

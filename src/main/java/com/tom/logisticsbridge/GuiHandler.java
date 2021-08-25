@@ -99,14 +99,14 @@ public class GuiHandler implements IGuiHandler {
             if (te instanceof IPartHost) {
                 final IPart part = ((IPartHost) te).getPart(side);
                 if (part instanceof PartSatelliteBus)
-                    return new GuiSatelliteBus((IIdPipe) part, player, 0);
+                    return new GuiSatelliteBus((IIdPipe) part);
             }
             return null;
         }
         if (ID == 5) {
             final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te != null && te instanceof IIdPipe)
-				return new GuiSatelliteBus((IIdPipe) te, player, 0);
+				return new GuiSatelliteBus((IIdPipe) te);
             return null;
         }
         switch (GuiIDs.values[ID]) {
