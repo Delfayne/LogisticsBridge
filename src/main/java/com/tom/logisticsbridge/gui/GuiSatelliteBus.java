@@ -18,22 +18,18 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 
-	private IIdPipe _result;
-	private EntityPlayer _player;
+	private IIdPipe _satellite;
 	private InputBar input;
-	private int slot;
 
-	public GuiSatelliteBus(IIdPipe result, EntityPlayer player, int slot) {
+	public GuiSatelliteBus(IIdPipe ae_sate) {
 		super(new Container() {
 
 			@Override
-			public boolean canInteractWith(EntityPlayer entityplayer) {
+			public boolean canInteractWith(EntityPlayer player) {
 				return true;
 			}
 		});
-		this.slot = slot;
-		_result = result;
-		_player = player;
+		_satellite = ae_sate;
 		xSize = 116;
 		ySize = 77;
 	}
@@ -55,7 +51,7 @@ public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 	@Override
 	protected void actionPerformed(GuiButton guibutton) throws IOException {
 		if (guibutton.id == 0) {
-			_result.setPipeID(slot, input.getText(), null);
+			_satellite.setPipeID(0, input.getText(), null);
 		} else {
 			super.actionPerformed(guibutton);
 		}
@@ -64,8 +60,8 @@ public class GuiSatelliteBus extends LogisticsBaseGuiScreen {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		super.drawGuiContainerForegroundLayer(par1, par2);
-		mc.fontRenderer.drawString(TextUtil.translate(_result.getName(slot)), 33, 10, 0x404040);
-		String name = TextUtil.getTrimmedString(_result.getPipeID(slot), 100, mc.fontRenderer, "...");
+		mc.fontRenderer.drawString(TextUtil.translate(_satellite.getName(0)), 33, 10, 0x404040);
+		String name = TextUtil.getTrimmedString(_satellite.getPipeID(0), 100, mc.fontRenderer, "...");
 		mc.fontRenderer.drawString(name, 59 - mc.fontRenderer.getStringWidth(name) / 2, 24, 0x404040);
 	}
 
