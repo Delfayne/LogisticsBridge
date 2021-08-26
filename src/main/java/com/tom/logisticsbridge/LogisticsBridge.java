@@ -74,7 +74,7 @@ import java.util.stream.Stream;
 public class LogisticsBridge {
     public static final String ID = "logisticsbridge";
     public static final String NAME = "Logistics Bridge";
-    public static final String VERSION = "1.4.5.3";
+    public static final String VERSION = "1.4.5.4";
     public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.3.84,)";
     public static final String UPDATE = "https://raw.githubusercontent.com/Domaman202/LogisticsBridge/master/version-check.json";
     public static final Logger log = LogManager.getLogger(NAME);
