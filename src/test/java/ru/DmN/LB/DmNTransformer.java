@@ -2,10 +2,8 @@ package ru.DmN.LB;
 
 import javassist.CtClass;
 import javassist.CtMethod;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.util.ResourceLocation;
 
 import static ru.DmN.LB.Main.pool;
 
@@ -16,7 +14,7 @@ public class DmNTransformer implements IClassTransformer {
             try {
                 CtClass clazz = pool.get("net.minecraft.client.resources.FallbackResourceManager");
                 clazz.getMethod("getResource", "(Lnet/minecraft/util/ResourceLocation;)Lnet/minecraft/client/resources/IResource;").setName("__getResource__");
-                clazz.addMethod(CtMethod.make("public net.minecraft.client.resources.IResource getResource(net.minecraft.util.ResourceLocation l) { net.minecraft.client.resources.IResource r = ru.DmN.LB.Main.__F1(l); if(r != null) return r; return __getResource__(l); }", clazz));
+                clazz.addMethod(CtMethod.make("public net.minecraft.client.resources.IResource getResource(net.minecraft.util.ResourceLocation l) { net.minecraft.client.resources.IResource r = ru.DmN.LB.Main.__F1(this, l); if(r != null) return r; return __getResource__(l); }", clazz));
                 return clazz.toBytecode();
             } catch (Exception e) {
                 throw new Error(e);
