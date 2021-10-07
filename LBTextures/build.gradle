@@ -1,4 +1,4 @@
-buildscript { 
+buildscript {
     ext.configFile = file "build.properties"
     configFile.withReader {
         // Load config.  It shall from now be referenced as simply config or project.config
@@ -17,7 +17,6 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${config.kotlin_ver}"
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
@@ -26,7 +25,10 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'java'
 apply plugin: 'java-library'
 
-version = "$System.env.MOD_VER"
+version = '1.0'
+archivesBaseName = 'LBTextures'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
     mappings channel: 'snapshot', version: "${config.mappings_ver}"
@@ -34,20 +36,16 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
         }
 
         server {
-            workingDirectory project.file('run-server')
-
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
         }
     }
 }
-
 
 repositories {
     jcenter()
@@ -62,42 +60,11 @@ repositories {
     maven {
         name = 'minecraftlibs'
         url = 'https://libraries.minecraft.net'
-    } 
-    flatDir { dirs "./lib" }
-}
-
-configurations {
-    shade
-    implementation.extendsFrom shade
+    }
 }
 
 dependencies {
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "${config.kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "${config.kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${config.kotlin_ver}"
-    //
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${config.mc_ver}-${config.forge_ver}"
-    //
-    compileOnly ":logisticspipes-${config.lp_ver}-api"
-    compileOnly ":NotEnoughItems-${config.mc_ver}-${config.nei_ver}-deobf"
-    implementation ":logisticspipes-${config.lp_ver}-deobf"
-    api fg.deobf (":MCMultiPart-${config.mcmp_ver}")
-    api fg.deobf (":ThermalDynamics-${config.mc_ver}-${config.td_ver}-universal")
-    api fg.deobf (":refinedstorage-${config.rs_ver}")
-    api fg.deobf (":appliedenergistics2-${config.ae_ver}")
-    //
-    runtimeOnly ":refinedstorage-${config.rs_ver}"
-    runtimeOnly ":MCMultiPart-${config.mcmp_ver}"
-    runtimeOnly ":ThermalExpansion-${config.mc_ver}-${config.te_ver}-universal"
-    runtimeOnly ":ThermalFoundation-${config.mc_ver}-${config.tf_ver}-universal"
-    runtimeOnly ":CoFHCore-${config.mc_ver}-${config.cofhc_ver}-deobf"
-    runtimeOnly ":CoFHWorld-${config.mc_ver}-${config.cofhw_ver}-universal"
-    runtimeOnly ":RedstoneFlux-${config.mc_ver_short}-${config.rf_ver}-deobf"
-    runtimeOnly ":CodeChickenLib-${config.mc_ver}"
-    //
-    shade 'org.javassist:javassist:3.28.0-GA'
-    //
-    implementation project(':LBTextures')
 }
 
 processResources {
@@ -108,22 +75,14 @@ processResources {
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
         expand 'modversion':project.version, 'mcversion':"${config.mc_ver}"
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
-    }
-}
- 
-jar {
-    configurations.shade.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude 'META-INF', 'META-INF/**'
-        }
     }
 }
 
