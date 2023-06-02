@@ -29,10 +29,10 @@ public class FakeItem extends Item {
 
     @Nonnull
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
-        if (!stack.hasTagCompound()) return super.getUnlocalizedName(stack);
+    public String getTranslationKey(ItemStack stack) {
+        if (!stack.hasTagCompound()) return super.getTranslationKey(stack);
         ItemStack st = new ItemStack(stack.getTagCompound());
-        return st.getUnlocalizedName();
+        return st.getTranslationKey();
     }
 
     @Override

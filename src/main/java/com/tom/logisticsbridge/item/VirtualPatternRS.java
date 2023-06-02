@@ -32,7 +32,7 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
     }
 
     public VirtualPatternRS() {
-        setUnlocalizedName("lb.virtPatternRS");
+        setTranslationKey("lb.virtPatternRS");
     }
 
     private static ICraftingPattern getPatternForItem(ItemStack is, ICraftingPatternContainer container) {
@@ -69,18 +69,18 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
         NBTTagCompound in = ot.getCompoundTag("in");
         NBTTagCompound out = ot.getCompoundTag("out");
         NBTTagCompound oldOt = ot;
-        if (!out.hasNoTags()) ot = out;
+        if (!out.isEmpty()) ot = out;
         is.setTagCompound(new NBTTagCompound());
         NBTTagCompound tag = is.getTagCompound();
         tag.setTag("out", ot);
         NBTTagList list = new NBTTagList();
         tag.setTag("in", list);
         if (oldOt.getBoolean("_writing")) tag.setBoolean("writer", true);
-        if (in.hasNoTags())
+        if (in.isEmpty())
             list.appendTag(LogisticsBridge.fakeStack(ot, 1).writeToNBT(new NBTTagCompound()));
         else
             list.appendTag(in);
-        if (!dyTag.hasNoTags()) tag.setTag("dynamic", dyTag);
+        if (!dyTag.isEmpty()) tag.setTag("dynamic", dyTag);
         return getPatternForItem(is, container);
     }
 
@@ -125,7 +125,7 @@ public class VirtualPatternRS extends Item implements ICraftingPatternProvider {
                 NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
                 final ItemStack gs = new ItemStack(ingredient);
 
-                if (!ingredient.hasNoTags() && gs.isEmpty())
+                if (!ingredient.isEmpty() && gs.isEmpty())
                     throw new IllegalArgumentException("No pattern here!");
 
                 in.add(gs);

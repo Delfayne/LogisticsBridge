@@ -352,7 +352,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
             inv.clear();
         }
         if (!supplyID.isEmpty()) tag.setString("satName", supplyID);
-        return tag.hasNoTags() ? null : tag;
+        return tag.isEmpty() ? null : tag;
     }
 
     @Override

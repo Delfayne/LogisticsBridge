@@ -20,7 +20,7 @@ apply plugin: 'java-library'
 version = "$System.env.MOD_VER"
 
 minecraft {
-    mappings channel: 'snapshot', version: "${mappings_ver}"
+    mappings channel: 'stable', version: "${mappings_ver}"
 
     runs {
         client {

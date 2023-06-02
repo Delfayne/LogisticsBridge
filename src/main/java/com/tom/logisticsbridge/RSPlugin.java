@@ -50,7 +50,7 @@ public class RSPlugin {
         virtualPattern = new VirtualPatternRS();
         satelliteBus = new BlockSatelliteBus();
         craftingManager = new BlockCraftingManagerRS();
-        LogisticsBridge.bridgeRS = new BlockBridgeRS().setUnlocalizedName("lb.bridge.rs");
+        LogisticsBridge.bridgeRS = new BlockBridgeRS().setTranslationKey("lb.bridge.rs");
         registerBlock((BlockBase) LogisticsBridge.bridgeRS);
         registerBlock(satelliteBus);
         registerBlock(craftingManager);

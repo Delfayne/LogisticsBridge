@@ -123,8 +123,8 @@ public class LogisticsBridge {
         aeLoaded = Loader.isModLoaded("appliedenergistics2");
         rsLoaded = Loader.isModLoaded("refinedstorage");
 
-        logisticsFakeItem = new FakeItem(false).setUnlocalizedName("lb.logisticsFakeItem");
-        packageItem = new FakeItem(true).setUnlocalizedName("lb.package").setCreativeTab(CreativeTabs.MISC);
+        logisticsFakeItem = new FakeItem(false).setTranslationKey("lb.logisticsFakeItem");
+        packageItem = new FakeItem(true).setTranslationKey("lb.package").setCreativeTab(CreativeTabs.MISC);
 
         if (aeLoaded) {
             Thread thread = Thread.currentThread();
@@ -264,7 +264,7 @@ public class LogisticsBridge {
 
     public static void registerItem(Item item, boolean registerRenderer) {
         if (item.getRegistryName() == null)
-            item.setRegistryName(item.getUnlocalizedName().substring(5));
+            item.setRegistryName(item.getTranslationKey().substring(5));
         ForgeRegistries.ITEMS.register(item);
         if (registerRenderer)
             proxy.addRenderer(item);
@@ -277,7 +277,7 @@ public class LogisticsBridge {
 
     public static void registerOnlyBlock(Block block) {
         if (block.getRegistryName() == null)
-            block.setRegistryName(block.getUnlocalizedName().substring(5));
+            block.setRegistryName(block.getTranslationKey().substring(5));
         ForgeRegistries.BLOCKS.register(block);
     }
 
@@ -294,7 +294,7 @@ public class LogisticsBridge {
 
     public static ItemStack fakeStack(NBTTagCompound stack, int count) {
         ItemStack is = new ItemStack(logisticsFakeItem, count);
-        if (stack != null && !stack.hasNoTags())
+        if (stack != null && !stack.isEmpty())
             is.setTagCompound(stack);
         return is;
     }

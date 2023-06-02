@@ -28,7 +28,7 @@ public class BlockCraftingManagerRS extends BlockNode {
 
     @Nonnull
     @Override
-    public String getUnlocalizedName() {
+    public String getTranslationKey() {
         return "tile.lb.craftingmanager.rs";
     }
 

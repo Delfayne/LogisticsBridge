@@ -95,7 +95,7 @@ public class BlockSatelliteBus extends BlockCable {
 
     @Nonnull
     @Override
-    public String getUnlocalizedName() {
+    public String getTranslationKey() {
         return "tile.lb.satellite_rs";
     }
 }

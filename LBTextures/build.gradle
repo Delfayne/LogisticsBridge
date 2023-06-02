@@ -31,7 +31,7 @@ archivesBaseName = 'LBTextures'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    mappings channel: 'snapshot', version: "${config.mappings_ver}"
+    mappings channel: 'stable', version: "${config.mappings_ver}"
 
     runs {
         client {

@@ -30,7 +30,7 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
     }
 
     public VirtualPatternAE() {
-        setUnlocalizedName("lb.virtPattern");
+        setTranslationKey("lb.virtPattern");
     }
 
     private static ICraftingPatternDetails getPatternForItem(ItemStack is) {
@@ -155,7 +155,7 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
                     final ItemStack gs = new ItemStack(resultItemTag);
 
                     if (gs.isEmpty()) {
-                        if (!resultItemTag.hasNoTags())
+                        if (!resultItemTag.isEmpty())
                             throw new IllegalArgumentException("No pattern here!");
                     } else
                         out.add(items.createStack(gs));
@@ -167,7 +167,7 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
                 NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
                 final ItemStack gs = new ItemStack(ingredient);
 
-                if (!ingredient.hasNoTags() && gs.isEmpty())
+                if (!ingredient.isEmpty() && gs.isEmpty())
                     throw new IllegalArgumentException("No pattern here!");
 
                 in.add(items.createStack(gs));

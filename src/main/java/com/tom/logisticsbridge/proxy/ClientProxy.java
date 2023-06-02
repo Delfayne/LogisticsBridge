@@ -43,7 +43,7 @@ public class ClientProxy extends CommonProxy {
     public void registerRenderers() {
         LogisticsBridge.log.info("Loading Renderers");
         for (Item item : renderers) {
-            addRenderToRegistry(item, 0, item.getUnlocalizedName().substring(5));
+            addRenderToRegistry(item, 0, item.getTranslationKey().substring(5));
         }
         renderers = null;
         if (LogisticsBridge.aeLoaded) {
