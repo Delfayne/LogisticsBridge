@@ -147,6 +147,6 @@ public class GuiHandler implements IGuiHandler {
         TEMPLATE_PKG,
 
         ;
-        protected static final GuiIDs[] values = values();
+        private static final GuiIDs[] values = values();
     }
 }
