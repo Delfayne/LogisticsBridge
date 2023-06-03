@@ -29,7 +29,7 @@ jobs:
       id: gradle_properties
       with:
         file: gradle.properties
-        all: true
+        property: mod_version
 
     - name: Gather short SHA and changelog
       id: vars
@@ -48,7 +48,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: LogisticsBridge-${{ steps.vars.outputs.sha_short }}
+        name: LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}-${{ steps.vars.outputs.sha_short }}
         path: build/libs
 
     - name: Create GitHub Release
