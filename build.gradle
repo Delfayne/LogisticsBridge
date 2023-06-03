@@ -125,9 +125,10 @@ dependencies {
     //
     embed 'org.javassist:javassist:3.28.0-GA'
     // Kotlin stuff
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "${kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "${kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${kotlin_ver}"
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:${kotlin_ver}"))
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${kotlinx_ver}"
 
     if (project.use_mixins.toBoolean()) {
         // Change your mixin refmap name here:
