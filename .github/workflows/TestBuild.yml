@@ -43,7 +43,9 @@ jobs:
         java-version: '17'
         cache: gradle # Only cache stuff since test build action happen mostly
 
-    - name: Gather short SHA
+    - name: Gather short SHA and changelog
+      id: vars
+      shell: bash
       run: |
         echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
