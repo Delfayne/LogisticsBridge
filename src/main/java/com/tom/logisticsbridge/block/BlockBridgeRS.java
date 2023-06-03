@@ -3,6 +3,7 @@ package com.tom.logisticsbridge.block;
 import com.raoulvdberge.refinedstorage.block.BlockNode;
 import com.raoulvdberge.refinedstorage.block.info.BlockInfoBuilder;
 import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.tileentity.TileEntityBridgeRS;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,7 +17,7 @@ import javax.annotation.Nonnull;
 public class BlockBridgeRS extends BlockNode {
 
     public BlockBridgeRS() {
-        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, LogisticsBridge.ID, "lb.bridge.rs").tileEntity(TileEntityBridgeRS::new).create());
+        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, Reference.MOD_ID, "lb.bridge.rs").tileEntity(TileEntityBridgeRS::new).create());
     }
 
     @Override

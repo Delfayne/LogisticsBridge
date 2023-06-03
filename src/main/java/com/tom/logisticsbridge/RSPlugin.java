@@ -55,9 +55,9 @@ public class RSPlugin {
         registerBlock(satelliteBus);
         registerBlock(craftingManager);
         LogisticsBridge.registerItem(virtualPattern, true);
-        GameRegistry.registerTileEntity(TileEntityBridgeRS.class, new ResourceLocation(LogisticsBridge.ID, "bridge_rs"));
-        GameRegistry.registerTileEntity(TileEntitySatelliteBus.class, new ResourceLocation(LogisticsBridge.ID, "satellite_bus_rs"));
-        GameRegistry.registerTileEntity(TileEntityCraftingManagerRS.class, new ResourceLocation(LogisticsBridge.ID, "craftingmanager_rs"));
+        GameRegistry.registerTileEntity(TileEntityBridgeRS.class, new ResourceLocation(Reference.MOD_ID, "bridge_rs"));
+        GameRegistry.registerTileEntity(TileEntitySatelliteBus.class, new ResourceLocation(Reference.MOD_ID, "satellite_bus_rs"));
+        GameRegistry.registerTileEntity(TileEntityCraftingManagerRS.class, new ResourceLocation(Reference.MOD_ID, "craftingmanager_rs"));
         registerNode(NetworkNodeBridge.ID, NetworkNodeBridge::new);
         registerNode(NetworkNodeSatellite.ID, NetworkNodeSatellite::new);
         registerNode(NetworkNodeCraftingManager.ID, NetworkNodeCraftingManager::new);
@@ -82,20 +82,20 @@ public class RSPlugin {
                 'I', RSBlocks.INTERFACE,
                 'c', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_IMPROVED),
                 'e', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_ADVANCED)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/bridge_rs")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/bridge_rs")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(satelliteBus), "ii ", "Ic-", "ii ",
                 'i', "ingotIron",
                 '-', RSBlocks.CABLE,
                 'I', new ItemStack(RSItems.CORE, 1, 0),
                 'c', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_IMPROVED)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/satellite_bus_rs")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/satellite_bus_rs")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(craftingManager), "cIc", "bab", "iIi",
                 'i', "ingotIron",
                 'c', RSBlocks.CRAFTER,
                 'b', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_BASIC),
                 'I', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_IMPROVED),
                 'a', new ItemStack(RSItems.PROCESSOR, 1, ItemProcessor.TYPE_ADVANCED)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/crafting_manager_rs")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/crafting_manager_rs")));
     }
 
     @SideOnly(Side.CLIENT)
