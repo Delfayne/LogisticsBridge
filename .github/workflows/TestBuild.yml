@@ -43,7 +43,7 @@ jobs:
         java-version: '17'
         cache: gradle # Only cache stuff since test build action happen mostly
 
-    - name: Gather short SHA and changelog
+    - name: Gather short SHA
       run: |
         echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
@@ -52,7 +52,7 @@ jobs:
       env:
         TEST_SHA_SHORT: ${{ env.SHA_SHORT }}
       with:
-        arguments: build --scan
+        arguments: build
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2.2.3
