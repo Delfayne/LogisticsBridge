@@ -39,7 +39,7 @@ jobs:
       id: gradle_properties
       with:
         file: gradle.properties
-        property: mod_version
+        all: true
 
     - name: Gather SHA short
       id: vars
