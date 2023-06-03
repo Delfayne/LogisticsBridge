@@ -17,7 +17,7 @@ public class SyncResultNamePacket extends SyncSatelliteNamePacket {
     @Override
     public void processPacket(EntityPlayer player) {
         final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
-        if (pipe == null || pipe.pipe == null)
+        if (pipe.pipe == null)
             return;
 
         if (pipe.pipe instanceof SatellitePipe)
