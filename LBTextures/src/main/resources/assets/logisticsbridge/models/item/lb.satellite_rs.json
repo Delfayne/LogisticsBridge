@@ -1,7 +1,0 @@
-{
-	"parent": "refinedstorage:block/external_storage",
-	"textures": {
-		"particle": "refinedstorage:blocks/cable",
-      	"border": "refinedstorage:blocks/cable_part_border"
-	}
-}

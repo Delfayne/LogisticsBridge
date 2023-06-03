@@ -91,8 +91,6 @@ dependencies {
     runtimeOnly ":CodeChickenLib-${mc_ver}"
     //
     shade 'org.javassist:javassist:3.28.0-GA'
-    //
-    implementation project(':LBTextures')
 }
 
 processResources {
