@@ -42,6 +42,12 @@ minecraft {
 
 repositories {
     maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
         name = 'JitPack.io'
         url = 'https://jitpack.io'
     }
@@ -68,9 +74,8 @@ dependencies {
     //
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${mc_ver}-${forge_ver}"
     //
-    compileOnly ":logisticspipes-${lp_ver}-api"
     compileOnly ":NotEnoughItems-${mc_ver}-${nei_ver}-deobf"
-    implementation ":logisticspipes-${lp_ver}-deobf"
+    implementation fg.deobf("curse.maven:logistics-pipes-232838:4481079")
     api fg.deobf (":MCMultiPart-${mcmp_ver}")
     api fg.deobf (":ThermalDynamics-${mc_ver}-${td_ver}-universal")
     api fg.deobf (":refinedstorage-${rs_ver}")
