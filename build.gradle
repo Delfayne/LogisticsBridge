@@ -1,4 +1,4 @@
-buildscript { 
+buildscript {
     repositories {
         mavenCentral()
         maven {
@@ -58,7 +58,7 @@ repositories {
     maven {
         name = 'minecraftlibs'
         url = 'https://libraries.minecraft.net'
-    } 
+    }
     flatDir { dirs "./lib" }
 }
 
@@ -70,16 +70,16 @@ configurations {
 dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "${kotlin_ver}"
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "${kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${kotlin_ver}"
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${kotlin_ver}"
     //
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${mc_ver}-${forge_ver}"
     //
-    compileOnly ":NotEnoughItems-${mc_ver}-${nei_ver}-deobf"
+    compileOnly "curse.maven:NotEnoughItems-247694:2755792"
     implementation fg.deobf("curse.maven:logistics-pipes-232838:4481079")
-    api fg.deobf ("curse.maven:MCMultiPart-239431:2615930")
-    api fg.deobf ("curse.maven:ThermalDynamics-227443:2920505")
-    api fg.deobf ("curse.maven:refinedstorage-243076:2940914")
-    api fg.deobf ("curse.maven:appliedenergistics2-223794:2747063")
+    api fg.deobf("curse.maven:MCMultiPart-239431:2615930")
+    api fg.deobf("curse.maven:ThermalDynamics-227443:2920505")
+    api fg.deobf("curse.maven:refinedstorage-243076:2940914")
+    api fg.deobf("curse.maven:appliedenergistics2-223794:2747063")
     //
     runtimeOnly ":refinedstorage-${rs_ver}"
     runtimeOnly ":MCMultiPart-${mcmp_ver}"
@@ -101,17 +101,17 @@ processResources {
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
-        expand 'modversion':project.version, 'mcversion':"${mc_ver}"
+        expand 'modversion': project.version, 'mcversion': "${mc_ver}"
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
- 
+
 jar {
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
