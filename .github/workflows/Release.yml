@@ -38,6 +38,10 @@ jobs:
         echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
         echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"  
 
+    # For caching
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+
     - name: Build with Gradle
       run: ./gradlew build
 
