@@ -112,12 +112,12 @@ dependencies {
     api rfg.deobf("curse.maven:refined-storage-243076:2940914")
     api rfg.deobf("curse.maven:ThermalDynamics-227443:2920505")
     api rfg.deobf("curse.maven:MCMultiPart-239431:2615930")
-    api rfg.deobf("curse.maven:appliedenergistics2-570458:4553942")
+    api rfg.deobf("curse.maven:ae2-extended-life-570458:4553942")
     //
     runtimeOnly "curse.maven:refined-storage-243076:2940914"
     runtimeOnly "curse.maven:MCMultiPart-239431:2615930"
     runtimeOnly "curse.maven:ThermalDynamics-227443:2920505"
-    runtimeOnly "curse.maven:appliedenergistics2-570458:4553942"
+    runtimeOnly "curse.maven:ae2-extended-life-570458:4553942"
     runtimeOnly "curse.maven:ThermalExpansion-69163:2926431"
     runtimeOnly "curse.maven:ThermalFoundation-222880:2926428"
     runtimeOnly "curse.maven:CoFHCore-69162:2920433"
