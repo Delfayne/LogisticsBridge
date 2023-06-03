@@ -35,10 +35,4 @@ public class BlockBridgeAE extends AEBaseTileBlock {
             ((TileEntityBridgeAE) world.getTileEntity(pos)).blockClicked(player);
         return true;
     }
-
-    @Nullable
-    @Override
-    public TileEntity createNewTileEntity(@Nonnull World world, int meta) {
-        return new TileEntityBridgeAE();
-    }
 }
