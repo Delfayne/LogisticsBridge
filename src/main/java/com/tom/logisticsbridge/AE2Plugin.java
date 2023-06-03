@@ -357,5 +357,20 @@ public class AE2Plugin {
         public ItemStack getDefinition() {
             return ItemStack.EMPTY;
         }
+
+        @Override
+        public boolean equals(ItemStack itemStack) {
+            return false; // TODO
+        }
+
+        @Override
+        public ItemStack getCachedItemStack(long l) {
+            return null; // TODO
+        }
+
+        @Override
+        public void setCachedItemStack(ItemStack itemStack) {
+            // TODO
+        }
     }
 }

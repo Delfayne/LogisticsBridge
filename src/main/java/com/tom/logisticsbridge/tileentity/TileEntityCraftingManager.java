@@ -356,8 +356,8 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
     }
 
     @Override
-    public void uploadSettings(SettingsFrom from, NBTTagCompound compound) {
-        super.uploadSettings(from, compound);
+    public void uploadSettings(SettingsFrom from, NBTTagCompound compound, EntityPlayer player) {
+        super.uploadSettings(from, compound, player);
         if (from == SettingsFrom.DISMANTLE_ITEM) {
             LogisticsBridge.loadAllItems(compound.getTagList("patterns", 10), inv);
         }
