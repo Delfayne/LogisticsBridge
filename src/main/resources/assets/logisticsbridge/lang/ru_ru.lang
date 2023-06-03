@@ -66,7 +66,7 @@ chat.logisticsbridge.bridgeMode=%s Bridge mode switched to: %s
 chat.logisticsbridge.bridgeMode.simple=Simple Mode
 chat.logisticsbridge.bridgeMode.smart=Smart Mode
 
-gui.resultPipe.Id=Result Pipe ID
+gui.resultPipe.id=Result Pipe ID
 gui.resultPipe=Result Pipe
 gui.resultPipe.naming_result.success=Успешно
 gui.resultPipe.naming_result.duplicate_name=Имя уже используется.
