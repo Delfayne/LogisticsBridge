@@ -41,6 +41,7 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '17'
+        cache: gradle # Only cache stuff since test build action happen mostly
 
     - name: Gather SHA short
       id: vars
@@ -53,7 +54,7 @@ jobs:
       env:
         TEST_SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
       with:
-        arguments: build
+        arguments: build --scan
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2.2.3
