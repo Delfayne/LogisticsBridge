@@ -33,11 +33,9 @@ jobs:
         java-version: '17'
 
     - name: Gather short SHA and changelog
-      id: vars
-      shell: bash
       run: |
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-        echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"  
+        echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "CHANGELOG=$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')" >> $GITHUB_OUTPUT
 
     # For caching
     - name: Setup Gradle
@@ -48,7 +46,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}-${{ steps.vars.outputs.sha_short }}
+        name: LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}-${{ env.SHA_SHORT }}
         path: build/libs
 
     - name: Create GitHub Release
@@ -57,7 +55,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ steps.gradle_properties.outputs.mod_version }}
         commitish: main
-        body:  ${{ steps.vars.outputs.changelog }}
+        body:  ${{ env.CHANGELOG }}
         name:  ${{ steps.gradle_properties.outputs.mod_version }}
         prerelease: false
         allow_override: true
