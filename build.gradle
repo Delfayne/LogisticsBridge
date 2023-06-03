@@ -1,5 +1,7 @@
-import org.jetbrains.gradle.ext.Gradle
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
+import org.jetbrains.gradle.ext.Gradle
+
+import static org.gradle.jvm.toolchain.JvmVendorSpec.AZUL
 
 plugins {
     id 'java'
@@ -20,7 +22,7 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
         // Azul covers the most platforms for Java 8 toolchains, crucially including MacOS arm64
-        vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.AZUL)
+        vendor.set(AZUL)
     }
     // Generate sources and javadocs jars when building and publishing
     // withSourcesJar()
@@ -147,7 +149,7 @@ dependencies {
 
 // Adds Access Transformer files to tasks
 if (project.use_access_transformer.toBoolean()) {
-    for (File at : sourceSets.getByName("main").resources.files) {
+    for (File at : sourceSets.named("main").resources.files) {
         if (at.name.toLowerCase().endsWith("_at.cfg")) {
             tasks.deobfuscateMergedJarToSrg.accessTransformerFiles.from(at)
             tasks.srgifyBinpatchedJar.accessTransformerFiles.from(at)
