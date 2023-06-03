@@ -103,7 +103,6 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
             if (stack.getItem() instanceof ItemModule) {
                 LogisticsModule next = getModuleForItem(stack, module.getModule(i), this, this);
                 next.registerPosition(ModulePositionType.SLOT, i);
-                next.registerCCEventQueuer(this);
                 if (module.getModule(i) != next) {
                     module.installModule(i, next);
                     if (!MainProxy.isClient())
