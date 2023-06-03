@@ -9,7 +9,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_ver}"
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
     }
 }
 
@@ -76,10 +76,10 @@ dependencies {
     //
     compileOnly ":NotEnoughItems-${mc_ver}-${nei_ver}-deobf"
     implementation fg.deobf("curse.maven:logistics-pipes-232838:4481079")
-    api fg.deobf (":MCMultiPart-${mcmp_ver}")
-    api fg.deobf (":ThermalDynamics-${mc_ver}-${td_ver}-universal")
-    api fg.deobf (":refinedstorage-${rs_ver}")
-    api fg.deobf (":appliedenergistics2-${ae_ver}")
+    api fg.deobf ("curse.maven:MCMultiPart-239431:2615930")
+    api fg.deobf ("curse.maven:ThermalDynamics-227443:2920505")
+    api fg.deobf ("curse.maven:refinedstorage-243076:2940914")
+    api fg.deobf ("curse.maven:appliedenergistics2-223794:2747063")
     //
     runtimeOnly ":refinedstorage-${rs_ver}"
     runtimeOnly ":MCMultiPart-${mcmp_ver}"
