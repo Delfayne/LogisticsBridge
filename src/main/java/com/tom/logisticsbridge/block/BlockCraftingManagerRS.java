@@ -4,6 +4,7 @@ import com.raoulvdberge.refinedstorage.block.BlockNode;
 import com.raoulvdberge.refinedstorage.block.info.BlockInfoBuilder;
 import com.tom.logisticsbridge.GuiHandler.GuiIDs;
 import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.tileentity.TileEntityCraftingManagerRS;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +18,7 @@ import javax.annotation.Nonnull;
 public class BlockCraftingManagerRS extends BlockNode {
 
     public BlockCraftingManagerRS() {
-        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, LogisticsBridge.ID, "lb.craftingmanager.rs").
+        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, Reference.MOD_ID, "lb.craftingmanager.rs").
                 tileEntity(TileEntityCraftingManagerRS::new).create());
     }
 

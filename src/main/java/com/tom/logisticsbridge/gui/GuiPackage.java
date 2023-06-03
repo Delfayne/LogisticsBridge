@@ -1,6 +1,6 @@
 package com.tom.logisticsbridge.gui;
 
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.inventory.ContainerPackage;
 import com.tom.logisticsbridge.inventory.ContainerPackage.SlotPhantom;
 import com.tom.logisticsbridge.network.SetIDPacket;
@@ -22,7 +22,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 import java.io.IOException;
 
 public class GuiPackage extends GuiContainer implements Runnable {
-    private static final ResourceLocation BG = new ResourceLocation(LogisticsBridge.ID, "textures/gui/package_gui.png");
+    private static final ResourceLocation BG = new ResourceLocation(Reference.MOD_ID, "textures/gui/package_gui.png");
     private final EntityPlayer player;
     private GuiTextField textField;
 
@@ -65,7 +65,7 @@ public class GuiPackage extends GuiContainer implements Runnable {
 
     //this.mc.playerController.sendEnchantPacket(this.container.windowId, k);
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(GuiButton button) {
         if (button.id == 0) {
             final ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setSide(-2).setName(textField.getText()).setId(0);
             MainProxy.sendPacketToServer(packet);

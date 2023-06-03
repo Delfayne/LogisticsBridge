@@ -11,6 +11,7 @@ import appeng.items.parts.ItemPart;
 import com.tom.logisticsbridge.AE2Plugin;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.RSPlugin;
+import com.tom.logisticsbridge.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -34,7 +35,7 @@ public class ClientProxy extends CommonProxy {
     private List<Item> renderers = new ArrayList<>();
 
     private static void addRenderToRegistry(Item item, int meta, String name) {
-        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(new ResourceLocation(LogisticsBridge.ID, name), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID, name), "inventory"));
     }
 
     //public static Field

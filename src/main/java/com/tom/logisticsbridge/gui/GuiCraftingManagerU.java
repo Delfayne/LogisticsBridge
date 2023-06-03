@@ -1,6 +1,6 @@
 package com.tom.logisticsbridge.gui;
 
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManagerU;
 import com.tom.logisticsbridge.pipe.CraftingManager.BlockingMode;
 import com.tom.logisticsbridge.tileentity.ICraftingManager;
@@ -25,7 +25,7 @@ import org.lwjgl.opengl.GL12;
 import java.io.IOException;
 
 public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
-    private static final ResourceLocation BG = new ResourceLocation(LogisticsBridge.ID, "textures/gui/crafting_manager.png");
+    private static final ResourceLocation BG = new ResourceLocation(Reference.MOD_ID, "textures/gui/crafting_manager.png");
     private final EntityPlayer player;
     private final ICraftingManager pipe;
 
@@ -87,7 +87,7 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
                 openSubGuiForSatelliteSelection();

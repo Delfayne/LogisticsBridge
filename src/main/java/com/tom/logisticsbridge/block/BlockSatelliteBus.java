@@ -9,6 +9,7 @@ import com.raoulvdberge.refinedstorage.render.constants.ConstantsCable;
 import com.raoulvdberge.refinedstorage.render.constants.ConstantsExternalStorage;
 import com.raoulvdberge.refinedstorage.render.model.baked.BakedModelCableCover;
 import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.tileentity.TileEntitySatelliteBus;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -29,7 +30,7 @@ import java.util.List;
 
 public class BlockSatelliteBus extends BlockCable {
     public BlockSatelliteBus() {
-        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, LogisticsBridge.ID,
+        super(BlockInfoBuilder.forMod(LogisticsBridge.modInstance, Reference.MOD_ID,
                 "lb.satellite_rs").material(Material.GLASS).soundType(SoundType.GLASS).
                 hardness(0.35F).tileEntity(TileEntitySatelliteBus::new).create());
     }

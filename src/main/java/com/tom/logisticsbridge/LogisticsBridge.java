@@ -69,15 +69,12 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-@Mod(modid = LogisticsBridge.ID, name = LogisticsBridge.NAME, version = LogisticsBridge.VERSION,
+@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION,
         dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
 public class LogisticsBridge {
-    public static final String ID = "logisticsbridge";
-    public static final String NAME = "Logistics Bridge";
-    public static final String VERSION = "1.4.5.4";
     public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.4.44,)";
     public static final String UPDATE = "https://raw.githubusercontent.com/Domaman202/LogisticsBridge/master/version-check.json";
-    public static final Logger log = LogManager.getLogger(NAME);
+    public static final Logger log = LogManager.getLogger(Reference.NAME);
     private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
     private static final String SERVER_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ServerProxy";
     private static Method registerTexture;
@@ -108,12 +105,12 @@ public class LogisticsBridge {
     @ObjectHolder("logisticspipes:upgrade_lb.adv_extraction_upgrade")
     public static Item upgradeAdvExt;
 
-    @Instance(ID)
+    @Instance(Reference.MOD_ID)
     public static LogisticsBridge modInstance;
 
     @EventHandler
     public static void construction(FMLConstructionEvent evt) {
-        log.info("Logistics Bridge version: " + VERSION);
+        log.info("Logistics Bridge version: " + Reference.VERSION);
     }
 
     @EventHandler
@@ -150,7 +147,7 @@ public class LogisticsBridge {
         }
         MinecraftForge.EVENT_BUS.register(modInstance);
         proxy.registerRenderers();
-        log.info("Pre Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
+        log.info("Pre Initialization took in {} milliseconds", System.currentTimeMillis() - tM);
     }
 
     private static void registerPipe(IForgeRegistry<Item> registry, String name, Function<Item, ? extends CoreUnroutedPipe> constructor) {
@@ -172,7 +169,7 @@ public class LogisticsBridge {
         NetworkRegistry.INSTANCE.registerGuiHandler(modInstance, new GuiHandler());
         proxy.init();
         loadRecipes();
-        log.info("Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
+        log.info("Initialization took in {} milliseconds", System.currentTimeMillis() - tM);
     }
 
     @EventHandler
@@ -180,7 +177,7 @@ public class LogisticsBridge {
         log.info("Start Post Initialization");
         long tM = System.currentTimeMillis();
         ItemPipeSignCreator.signTypes.add(CraftingManagerPipeSign.class);
-        log.info("Post Initialization took in {0} milliseconds", System.currentTimeMillis() - tM);
+        log.info("Post Initialization took in {} milliseconds", System.currentTimeMillis() - tM);
     }
 
     private static void loadRecipes() {
@@ -192,7 +189,7 @@ public class LogisticsBridge {
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPrg);
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPrg);
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgr);
-        ResourceLocation group = new ResourceLocation(ID, "recipes");
+        ResourceLocation group = new ResourceLocation(Reference.MOD_ID, "recipes");
 
         if (aeLoaded)
             AE2Plugin.loadRecipes(group);
@@ -205,24 +202,24 @@ public class LogisticsBridge {
                 'f', LPItems.chipFPGA,
                 'd', "gemDiamond",
                 'a', LPItems.chipAdvanced).
-                setRegistryName(new ResourceLocation(ID, "recipes/pipe_bridge")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/pipe_bridge")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeResult), " p ", "rar", " s ",
                 'p', getIngredientForProgrammer(resultPrg),
                 's', LPItems.pipeBasic,
                 'a', LPItems.chipFPGA,
                 'r', "dustRedstone").
-                setRegistryName(new ResourceLocation(ID, "recipes/pipe_result")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/pipe_result")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeCraftingManager), "gpg", "rsr", "gcg",
                 'p', getIngredientForProgrammer(craftingMgrPrg),
                 's', LPItems.pipeBasic,
                 'g', LPItems.chipFPGA,
                 'r', "ingotGold",
                 'c', "chest").
-                setRegistryName(new ResourceLocation(ID, "recipes/crafting_manager")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/crafting_manager")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(packageItem), "pw",
                 'p', Items.PAPER,
                 'w', "plankWood").
-                setRegistryName(new ResourceLocation(ID, "recipes/package")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/package")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(upgradeBuffer), "rpr", "ici", "PnP",
                 'p', getIngredientForProgrammer(bufferUpgr),
                 'n', LPItems.chipAdvanced,
@@ -230,11 +227,11 @@ public class LogisticsBridge {
                 'r', "dustRedstone",
                 'i', "gemDiamond",
                 'P', "paper").
-                setRegistryName(new ResourceLocation(ID, "recipes/buffer_upgrade")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/buffer_upgrade")));
         ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, new ItemStack(upgradeAdvExt),
                 ItemUpgrade.getAndCheckUpgrade(LPItems.upgrades.get(ItemStackExtractionUpgrade.getName())),
                 "dustRedstone").
-                setRegistryName(new ResourceLocation(ID, "recipes/adv_ext_upgrade")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/adv_ext_upgrade")));
     }
 
     private static Ingredient getIngredientForProgrammer(ResourceLocation rl) {

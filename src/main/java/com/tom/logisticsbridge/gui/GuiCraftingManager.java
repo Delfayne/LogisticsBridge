@@ -1,6 +1,7 @@
 package com.tom.logisticsbridge.gui;
 
 import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager.SlotCraftingCard;
 import com.tom.logisticsbridge.pipe.CraftingManager;
@@ -39,7 +40,7 @@ import org.lwjgl.opengl.GL12;
 import java.io.IOException;
 
 public class GuiCraftingManager extends LogisticsBaseGuiScreen {
-    private static final ResourceLocation BG = new ResourceLocation(LogisticsBridge.ID, "textures/gui/crafting_manager.png");
+    private static final ResourceLocation BG = new ResourceLocation(Reference.MOD_ID, "textures/gui/crafting_manager.png");
     private final EntityPlayer player;
     private final CraftingManager pipe;
     private final PopupMenu popup;

@@ -99,9 +99,9 @@ public class AE2Plugin {
         Api.INSTANCE.getPartModels().registerModels(AE2Plugin.SATELLITE_BUS.getModels());
         AE2Plugin.SATELLITE_BUS_SRC = ItemPart.instance.createPart(AE2Plugin.SATELLITE_BUS);
 
-        GameRegistry.registerTileEntity(TileEntityBridgeAE.class, new ResourceLocation(LogisticsBridge.ID, "bridge"));
+        GameRegistry.registerTileEntity(TileEntityBridgeAE.class, new ResourceLocation(Reference.MOD_ID, "bridge"));
         AEBaseTile.registerTileItem(TileEntityBridgeAE.class, new BlockStackSrc(LogisticsBridge.bridgeAE, 0, ActivityState.Enabled));
-        GameRegistry.registerTileEntity(TileEntityCraftingManager.class, new ResourceLocation(LogisticsBridge.ID, "craftingManagerAE"));
+        GameRegistry.registerTileEntity(TileEntityCraftingManager.class, new ResourceLocation(Reference.MOD_ID, "craftingManagerAE"));
         AEBaseTile.registerTileItem(TileEntityCraftingManager.class, new BlockStackSrc(LogisticsBridge.craftingManager, 0, ActivityState.Enabled));
     }
 
@@ -142,20 +142,20 @@ public class AE2Plugin {
                 'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
                 'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
                 'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/bridge")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/bridge")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1), " c ", "ifi", " p ",
                 'p', Blocks.PISTON,
                 'f', mat.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
                 'i', "ingotIron",
                 'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/satellite_bus")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/satellite_bus")));
         ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.craftingManager), "IlI", "cec", "ili",
                 'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
                 'l', mat.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
                 'i', "ingotIron",
                 'e', mat.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
                 'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-                setRegistryName(new ResourceLocation(LogisticsBridge.ID, "recipes/crafting_manager_ae")));
+                setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/crafting_manager_ae")));
     }
 
     public static IIdPipe processReqIDList(EntityPlayer player, RequestIDListPacket pck) {

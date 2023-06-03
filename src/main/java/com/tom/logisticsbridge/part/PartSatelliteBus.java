@@ -24,6 +24,7 @@ import appeng.util.item.AEItemStack;
 
 import com.tom.logisticsbridge.AE2Plugin;
 import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 
@@ -48,16 +49,16 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
-    public static final ResourceLocation MODEL_BASE = new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_base");
+    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_base");
 
     @PartModels
-    public static final IPartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_off"));
+    public static final IPartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_off"));
 
     @PartModels
-    public static final IPartModel MODELS_ON = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_on"));
+    public static final IPartModel MODELS_ON = new PartModel(MODEL_BASE, new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_on"));
 
     @PartModels
-    public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(LogisticsBridge.ID, "part/satellite_bus_has_channel"));
+    public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_has_channel"));
     public String satelliteId = "";
     private final List<IAEItemStack> itemsToInsert = new ArrayList<>();
 
