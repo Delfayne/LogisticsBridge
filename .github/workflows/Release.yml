@@ -58,7 +58,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ steps.vars.outputs.version }}
-        commitish: master
+        commitish: main
         body:  ${{ steps.vars.outputs.changelog }}
         name:  ${{ steps.vars.outputs.version }}
         prerelease: false
