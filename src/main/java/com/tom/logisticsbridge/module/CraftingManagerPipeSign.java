@@ -8,7 +8,10 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.renderer.LogisticsRenderPipe;
+import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,10 +19,18 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class CraftingManagerPipeSign implements IPipeSign {
 
     private CoreRoutedPipe pipe;
+
+    @SideOnly(Side.CLIENT)
+    private Framebuffer fbo;
+    private ItemIdentifierStack oldRenderedStack = null;
+
 
     @Override
     public boolean isAllowedFor(CoreRoutedPipe pipe) {
@@ -32,10 +43,12 @@ public class CraftingManagerPipeSign implements IPipeSign {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) { }
+    public void readFromNBT(NBTTagCompound tag) {
+    }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) { }
+    public void writeToNBT(NBTTagCompound tag) {
+    }
 
     @Override
     public ModernPacket getPacket() {
@@ -44,7 +57,8 @@ public class CraftingManagerPipeSign implements IPipeSign {
     }
 
     @Override
-    public void updateServerSide() { }
+    public void updateServerSide() {
+    }
 
     @Override
     public void init(CoreRoutedPipe pipe, EnumFacing dir) {
@@ -52,7 +66,8 @@ public class CraftingManagerPipeSign implements IPipeSign {
     }
 
     @Override
-    public void activate(EntityPlayer player) { }
+    public void activate(EntityPlayer player) {
+    }
 
     @Override
     @SideOnly(Side.CLIENT)
@@ -94,6 +109,8 @@ public class CraftingManagerPipeSign implements IPipeSign {
                         toRender = new ItemStack(output);
                     }
 
+                    oldRenderedStack = ItemIdentifierStack.getFromStack(is);
+
                     GlStateManager.pushMatrix();
                     GlStateManager.translate(x * 0.35f, -y * 0.35f, 0);
                     renderer.renderItemStackOnSign(toRender);
@@ -104,5 +121,41 @@ public class CraftingManagerPipeSign implements IPipeSign {
 			/*GlStateManager.depthMask(true);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);*/
         }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public Framebuffer getMCFrameBufferForSign() {
+        if (!OpenGlHelper.isFramebufferEnabled()) {
+            return null;
+        }
+        if (fbo == null) {
+            fbo = new Framebuffer(256, 256, true);
+        }
+        return fbo;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
+        CraftingManager craftingManager = (CraftingManager) pipe;
+        ItemIdentifierStack itemStack = getItemIdentifierStack(craftingManager);
+        if (itemStack != null && oldRenderedStack != null) {
+            return fbo == null || !oldRenderedStack.equals(itemStack);
+        } else if (itemStack == null && oldRenderedStack == null) {
+            return fbo == null;
+        } else {
+            return true;
+        }
+    }
+
+    @Nullable
+    private ItemIdentifierStack getItemIdentifierStack(CraftingManager craftingManager) {
+        return Optional.ofNullable(craftingManager)
+                .map(CraftingManager::getClientModuleInventory)
+                .map(it -> it.getStackInSlot(0))
+                .filter(it -> !it.isEmpty())
+                .map(ItemIdentifierStack::getFromStack)
+                .orElse(null);
     }
 }
