@@ -28,6 +28,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,9 +125,7 @@ public class ModuleCrafterExt extends ModuleCrafter {
             IRouter r = getFluidSatelliteRouter(-1);
             if (r != null) {
                 IRequestFluid sat = (IRequestFluid) r.getPipe();
-                for (int i = 0; i < liquidCrafter; i++) {
-                    liquidTarget[i] = sat;
-                }
+                Arrays.fill(liquidTarget, sat);
             }
         } else {
             for (int i = 0; i < liquidCrafter; i++) {
