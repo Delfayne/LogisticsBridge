@@ -779,7 +779,7 @@ public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IReques
         }
 
         @Override
-        public boolean recievePassive() {
+        public boolean receivePassive() {
             return true;
         }
 

@@ -13,7 +13,7 @@ import logisticspipes.network.packets.chassis.ChassisGUI;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.gui.extention.GuiExtention;
+import logisticspipes.utils.gui.extension.GuiExtension;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -190,13 +190,13 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
     public void initGui() {
         super.initGui();//120 155
         String select = TextUtil.translate("gui.crafting.Select");
-        extentionControllerLeft.clear();
+        extensionControllerLeft.clear();
         ConfigExtension ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.satellite"), new ItemStack(LPItems.pipeSatellite), 0);
-        ce.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(0, guiLeft - 45, guiTop + 25, 40, 10, select))));
-        extentionControllerLeft.addExtention(ce);
+        ce.registerButton(extensionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(0, guiLeft - 45, guiTop + 25, 40, 10, select))));
+        extensionControllerLeft.addExtension(ce);
         ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.result"), new ItemStack(LogisticsBridge.pipeResult), 1);
-        ce.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 45, guiTop + 25, 40, 10, select))));
-        extentionControllerLeft.addExtention(ce);
+        ce.registerButton(extensionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 45, guiTop + 25, 40, 10, select))));
+        extensionControllerLeft.addExtension(ce);
 
         if (pipe.getBlockingMode() != BlockingMode.NULL) {
             ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.blocking"), new ItemStack(Blocks.BARRIER), 2) {
@@ -216,8 +216,8 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                     return 140;
                 }
             };
-            ce.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(4, guiLeft - 45, guiTop + 11, 40, 10, TextUtil.translate("gui.craftingManager.blocking.change")))));
-            extentionControllerLeft.addExtention(ce);
+            ce.registerButton(extensionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(4, guiLeft - 45, guiTop + 11, 40, 10, TextUtil.translate("gui.craftingManager.blocking.change")))));
+            extensionControllerLeft.addExtension(ce);
         }
     }
 
@@ -254,7 +254,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                 uuid -> pipe.setPipeID(id, uuid, null)));
     }
 
-    public class ConfigExtension extends GuiExtention {
+    public class ConfigExtension extends GuiExtension {
         private final String name;
         private final ItemStack stack;
         private final int id;
@@ -276,7 +276,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
         }
 
         @Override
-        public void renderForground(int left, int top) {
+        public void renderForeground(int left, int top) {
             String pid = getString();
             if (!isFullyExtended()) {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
