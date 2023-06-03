@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-
+    name: Build and Upload Artifact
     runs-on: ubuntu-latest
 
     steps:
@@ -33,16 +33,19 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '17'
+
     - name: Gather SHA short
       id: vars
       shell: bash
       run: |
         echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
     - name: Build with Gradle
       env:
         TEST_SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
       run: ./gradlew build
-    - name: Upload a Build Artifact
+
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
         name: LogisticsBridge-${{ steps.vars.outputs.sha_short }}
