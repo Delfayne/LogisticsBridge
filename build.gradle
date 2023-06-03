@@ -1,123 +1,237 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = 'forge'
-            url = 'https://files.minecraftforge.net/maven'
-        }
-    }
+import org.jetbrains.gradle.ext.Gradle
+import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_ver}"
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
-    }
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
+    id 'eclipse'
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.3.+'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'java'
-apply plugin: 'java-library'
+version = project.mod_version
+group = project.maven_group
+archivesBaseName = project.archives_base_name
 
-version = "2.0.0-alpha"
-
-minecraft {
-    mappings channel: 'stable', version: "${mappings_ver}"
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        server {
-            workingDirectory project.file('run-server')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
+// Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+        // Azul covers the most platforms for Java 8 toolchains, crucially including MacOS arm64
+        vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.AZUL)
     }
+    // Generate sources and javadocs jars when building and publishing
+    withSourcesJar()
+    // withJavadocJar()
 }
 
-
-repositories {
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven {
-        name = 'JitPack.io'
-        url = 'https://jitpack.io'
-    }
-    maven {
-        name = 'forge'
-        url = 'https://files.minecraftforge.net/maven'
-    }
-    maven {
-        name = 'minecraftlibs'
-        url = 'https://libraries.minecraft.net'
-    }
-    flatDir { dirs "./lib" }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 configurations {
-    shade
-    implementation.extendsFrom shade
+    embed
+    implementation.extendsFrom(embed)
+}
+
+minecraft {
+    mcVersion = '1.12.2'
+
+    // MCP Mappings
+    mcpMappingChannel = 'stable'
+    mcpMappingVersion = '39'
+
+    // Set username here, the UUID will be looked up automatically
+    username = 'Developer'
+
+    // Add any additional tweaker classes here
+    // extraTweakClasses.add('org.spongepowered.asm.launch.MixinTweaker')
+
+    // Add various JVM arguments here for runtime
+    def args = ["-ea:${project.group}"]
+    args << '-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader' // required by logistics pipe
+    if (project.use_coremod.toBoolean()) {
+        args << '-Dfml.coreMods.load=' + coremod_plugin_class_name
+    }
+    if (project.use_mixins.toBoolean()) {
+        args << '-Dmixin.hotSwap=true'
+        args << '-Dmixin.checks.interfaces=true'
+        args << '-Dmixin.debug.export=true'
+    }
+    extraRunJvmArguments.addAll(args)
+
+    // Include and use dependencies' Access Transformer files
+    useDependencyAccessTransformers = false
+
+    // Add any properties you want to swap out for a dynamic value at build time here
+    // Any properties here will be added to a class at build time, the name can be configured below
+    // Example:
+    // injectedTags.put('VERSION', project.version)
+    // injectedTags.put('MOD_ID', project.archives_base_name)
+}
+
+// Generate a group.archives_base_name.Tags class
+tasks.injectTags.configure {
+    // Change Tags class' name here:
+    outputClassName.set("${project.group}.${project.archives_base_name}.Tags")
+}
+
+repositories {
+    maven {
+        name 'CleanroomMC Maven'
+        url 'https://maven.cleanroommc.com'
+    }
+    maven {
+        name 'SpongePowered Maven'
+        url 'https://repo.spongepowered.org/maven'
+    }
+    maven {
+        name 'CurseMaven'
+        url 'https://cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+    mavenLocal() // Must be last for caching to work
 }
 
 dependencies {
+    if (project.use_mixins.toBoolean()) {
+        implementation 'zone.rong:mixinbooter:7.1'
+    }
+
+    // Example of deobfuscating a dependency
+    // implementation rfg.deobf('curse.maven:had-enough-items-557549:4543375')
+    compileOnly rfg.deobf("curse.maven:NotEnoughItems-247694:2755792")
+    implementation rfg.deobf("curse.maven:logistics-pipes-232838:4481079")
+    api rfg.deobf("curse.maven:refined-storage-243076:2940914")
+    api rfg.deobf("curse.maven:ThermalDynamics-227443:2920505")
+    api rfg.deobf("curse.maven:MCMultiPart-239431:2615930")
+    api rfg.deobf("curse.maven:appliedenergistics2-570458:4553942")
+    //
+    runtimeOnly "curse.maven:refined-storage-243076:2940914"
+    runtimeOnly "curse.maven:MCMultiPart-239431:2615930"
+    runtimeOnly "curse.maven:ThermalDynamics-227443:2920505"
+    runtimeOnly "curse.maven:appliedenergistics2-570458:4553942"
+    runtimeOnly "curse.maven:ThermalExpansion-69163:2926431"
+    runtimeOnly "curse.maven:ThermalFoundation-222880:2926428"
+    runtimeOnly "curse.maven:CoFHCore-69162:2920433"
+    runtimeOnly "curse.maven:CoFHWorld-271384:2920434"
+    runtimeOnly "curse.maven:RedstoneFlux-270789:2920436"
+    runtimeOnly "curse.maven:CodeChickenLib-242818:2779848"
+    //
+    embed 'org.javassist:javassist:3.28.0-GA'
+    // Kotlin stuff
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "${kotlin_ver}"
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "${kotlin_ver}"
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${kotlin_ver}"
-    //
-    minecraft group: 'net.minecraftforge', name: 'forge', version: "${mc_ver}-${forge_ver}"
-    //
-    compileOnly "curse.maven:NotEnoughItems-247694:2755792"
-    implementation fg.deobf("curse.maven:logistics-pipes-232838:4481079")
-    api fg.deobf("curse.maven:MCMultiPart-239431:2615930")
-    api fg.deobf("curse.maven:ThermalDynamics-227443:2920505")
-    api fg.deobf("curse.maven:refinedstorage-243076:2940914")
-    api fg.deobf("curse.maven:appliedenergistics2-223794:2747063")
-    //
-    runtimeOnly ":refinedstorage-${rs_ver}"
-    runtimeOnly ":MCMultiPart-${mcmp_ver}"
-    runtimeOnly ":ThermalExpansion-${mc_ver}-${te_ver}-universal"
-    runtimeOnly ":ThermalFoundation-${mc_ver}-${tf_ver}-universal"
-    runtimeOnly ":CoFHCore-${mc_ver}-${cofhc_ver}-deobf"
-    runtimeOnly ":CoFHWorld-${mc_ver}-${cofhw_ver}-universal"
-    runtimeOnly ":RedstoneFlux-${mc_ver_short}-${rf_ver}-deobf"
-    runtimeOnly ":CodeChickenLib-${mc_ver}"
-    //
-    shade 'org.javassist:javassist:3.28.0-GA'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${kotlin_ver}"
+
+    if (project.use_mixins.toBoolean()) {
+        // Change your mixin refmap name here:
+        String mixin = modUtils.enableMixins('org.spongepowered:mixin:0.8.3', "mixins.${project.archives_base_name}.refmap.json")
+        api (mixin) {
+            transitive = false
+        }
+        annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+        annotationProcessor 'com.google.guava:guava:24.1.1-jre'
+        annotationProcessor 'com.google.code.gson:gson:2.8.6'
+        annotationProcessor (mixin) {
+            transitive = false
+        }
+    }
+}
+
+// Adds Access Transformer files to tasks
+if (project.use_access_transformer.toBoolean()) {
+    for (File at : sourceSets.getByName("main").resources.files) {
+        if (at.name.toLowerCase().endsWith("_at.cfg")) {
+            tasks.deobfuscateMergedJarToSrg.accessTransformerFiles.from(at)
+            tasks.srgifyBinpatchedJar.accessTransformerFiles.from(at)
+        }
+    }
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "modversion", project.version
-    inputs.property "mcversion", "${mc_ver}"
+    // This will ensure that this task is redone when the versions change
+    inputs.property 'modversion', project.version
+    inputs.property 'mcversion', project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'modversion': project.version, 'mcversion': "${mc_ver}"
+    // Replace various properties in mcmod.info and pack.mcmeta if applicable
+    filesMatching(['mcmod.info', 'pack.mcmeta']) { fcd ->
+        // Replace version and mcversion
+        fcd.expand (
+                'modversion': project.version,
+                'mcversion': project.minecraft.version
+        )
     }
 
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    if (project.use_access_transformer.toBoolean()) {
+        rename '(.+_at.cfg)', 'META-INF/$1' // Make sure Access Transformer files are in META-INF folder
     }
 }
 
 jar {
-    configurations.shade.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude 'META-INF', 'META-INF/**'
+    manifest {
+        def attribute_map = [:]
+        if (project.use_coremod.toBoolean()) {
+            attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
+            if (project.include_mod.toBoolean()) {
+                attribute_map['FMLCorePluginContainsFMLMod'] = true
+                attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
+            }
+        }
+        if (project.use_access_transformer.toBoolean()) {
+            attribute_map['FMLAT'] = project.archives_base_name + '_at.cfg'
+        }
+        attributes(attribute_map)
+    }
+    // Add all embedded dependencies into the jar
+    from(provider{ configurations.embed.collect {it.isDirectory() ? it : zipTree(it)} })
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+    project {
+        settings {
+            runConfigurations {
+                "1. Run Client"(Gradle) {
+                    taskNames = ["runClient"]
+                }
+                "2. Run Server"(Gradle) {
+                    taskNames = ["runServer"]
+                }
+                "3. Run Obfuscated Client"(Gradle) {
+                    taskNames = ["runObfClient"]
+                }
+                "4. Run Obfuscated Server"(Gradle) {
+                    taskNames = ["runObfServer"]
+                }
+            }
+            compiler.javac {
+                afterEvaluate {
+                    javacAdditionalOptions = "-encoding utf8"
+                    moduleJavacAdditionalOptions = [
+                            (project.name + ".main"): tasks.compileJava.options.compilerArgs.collect { '"' + it + '"' }.join(' ')
+                    ]
+                }
+            }
         }
     }
 }
 
-jar.finalizedBy('reobfJar')
+tasks.named("processIdeaSettings").configure {
+    dependsOn("injectTags")
+}
+
+tasks.named("jar", Jar) {
+    enabled = true
+    finalizedBy(tasks.reobfJar)
+}
+
+tasks.named("reobfJar", ReobfuscatedJar) {
+    inputJar.set(tasks.named("jar", Jar).flatMap({it.archiveFile}))
+}
