@@ -1,5 +1,11 @@
 # LogisticsBridge
-Add-On mod for AppliedEnergistics, Refined Storage and Logistics Pipes  
-[CurseForge page](https://www.curseforge.com/minecraft/mc-mods/logistics-bridge-dmnedition)
 
-From run debug add ```-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader``` to JVM args!
+An add-on mod for Logistics Pipes, AppliedEnergistics 2 EL and Refined Storage.  
+
+To run debug add the following to the JVM args: 
+```shell
+-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader
+```
+
+### Links
+* [CurseForge page](https://legacy.curseforge.com/minecraft/mc-mods/logistics-bridge-extended-life)

@@ -73,7 +73,7 @@ import java.util.stream.Stream;
         dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
 public class LogisticsBridge {
     public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.4.44,)";
-    public static final String UPDATE = "https://raw.githubusercontent.com/Domaman202/LogisticsBridge/master/version-check.json";
+    public static final String UPDATE = "https://raw.githubusercontent.com/Delfayne/LogisticsBridge/main/version-check.json";
     public static final Logger log = LogManager.getLogger(Reference.NAME);
     private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
     private static final String SERVER_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ServerProxy";

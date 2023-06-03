@@ -2,11 +2,11 @@
 {
   "modid" : "logisticsbridge",
   "name" : "Logistics Bridge",
-  "description": "This mod is an Add-On mod for AppliedEnergistics, Refined Storage and Logistics Pipes.",
+  "description": "An add-on mod for Logistics Pipes, AppliedEnergistics 2 EL and Refined Storage.",
   "version": "${modversion}",
   "mcversion": "${mcversion}",
-  "url" : "https://www.curseforge.com/minecraft/mc-mods/logistics-bridge-dmnedition",
-  "authorList": ["tom5454", "DomamaN202", "SotS", "KorewaLidesu", "NelkGames"],
+  "url" : "https://legacy.curseforge.com/minecraft/mc-mods/logistics-bridge-extended-life",
+  "authorList": ["Delfayne", "KorewaLidesu"],
   "logoFile" : "logo.png"
 }
 ]
