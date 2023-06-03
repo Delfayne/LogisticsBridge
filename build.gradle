@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'java'
 apply plugin: 'java-library'
 
-version = "$System.env.MOD_VER"
+version = "2.0.0-alpha"
 
 minecraft {
     mappings channel: 'stable', version: "${mappings_ver}"
