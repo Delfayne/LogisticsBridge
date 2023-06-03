@@ -178,7 +178,7 @@ public class ModuleCrafterExt extends ModuleCrafter {
 
     @Override
     public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-        if (!_service.getItemOrderManager().hasExtras() || tree.hasBeenQueried(_service.getItemOrderManager())) {
+        if (_service == null || !_service.getItemOrderManager().hasExtras() || tree.hasBeenQueried(_service.getItemOrderManager())) {
             return;
         }
         if (!(_service instanceof CraftingManager)) return;
@@ -287,6 +287,9 @@ public class ModuleCrafterExt extends ModuleCrafter {
     @Override
     public void enabledUpdateEntity() {
         super.enabledUpdateEntity();
+        if (_service == null) {
+            return;
+        }
         if (!_service.isNthTick(6))
             return;
         if (_service instanceof CraftingManager && !_service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA) && getUpgradeManager().getCrafterCleanup() > 0) {
