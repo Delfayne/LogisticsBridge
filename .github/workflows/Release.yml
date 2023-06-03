@@ -10,59 +10,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-        
-    - name: Declare variable
-      id: vars
-      shell: bash
-      run: |
-        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
+  runs-on: ubuntu-latest
+  steps:
+  - name: Checkout branch
+    uses: actions/checkout@v2
 
-    - name: Build with Gradle
-      env: 
-        MOD_VER: ${{ steps.vars.outputs.version }}
-      run: ./gradlew build
+  - name: Set up Zulu JDK 17
+    uses: actions/setup-java@v3
+    with:
+      distribution: 'zulu'
+      java-version: '17'
 
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
-      with:
-        name: LogisticsBridge-Artifact
-        path: build/libs
+  - name: Gather Gradle properties
+    uses: madhead/read-java-properties@latest
+    id: gradle_properties
+    with:
+      file: gradle.properties
+      all: true
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    
-    - uses: actions/checkout@v2
+  - name: Gather short SHA and changelog
+    id: vars
+    shell: bash
+    run: |
+      echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"  
 
-    - name: Download a Build Artifact
-      uses: actions/download-artifact@v2.0.10
+  - name: Build with Gradle
+    run: ./gradlew build
 
-    - name: Create version|changelog variable
-      id: vars
-      run: |
-        echo "::set-output name=version::$(awk 'NR==4' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
-        echo "::set-output name=changelog::$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')"
-        
-    - name: Create GitHub Release
-      uses: KorewaLidesu/github-release@2.0
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ steps.vars.outputs.version }}
-        commitish: master
-        body:  ${{ steps.vars.outputs.changelog }}
-        name:  ${{ steps.vars.outputs.version }}
-        prerelease: false
-        allow_override: true
-        gzip: false
-        files: |
-            ./LogisticsBridge-Artifact/LogisticsBridge-${{ steps.vars.outputs.version }}.jar
+  - name: Upload a Build Artifact
+    uses: actions/upload-artifact@v2.2.3
+    with:
+      name: LogisticsBridge-${{ steps.vars.outputs.sha_short }}
+      path: build/libs
+
+  - name: Create GitHub Release
+    uses: KorewaLidesu/github-release@2.0
+    with:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      tag: ${{ steps.gradle_properties.outputs.mod_version }}
+      commitish: main
+      body:  ${{ steps.vars.outputs.changelog }}
+      name:  ${{ steps.gradle_properties.outputs.mod_version }}
+      prerelease: false
+      allow_override: true
+      gzip: false
+      files: |
+          ./LogisticsBridge-Artifact/LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}.jar

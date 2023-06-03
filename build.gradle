@@ -11,7 +11,7 @@ plugins {
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-version = project.mod_version
+version = project.mod_version + (System.getenv("TEST_SHA_SHORT") != null ? System.getenv("TEST_SHA_SHORT") : "")
 group = project.maven_group
 archivesBaseName = project.archives_base_name
 
@@ -23,7 +23,7 @@ java {
         vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.AZUL)
     }
     // Generate sources and javadocs jars when building and publishing
-    withSourcesJar()
+    // withSourcesJar()
     // withJavadocJar()
 }
 
