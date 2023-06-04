@@ -7,12 +7,12 @@ import com.tom.logisticsbridge.module.ModuleCrafterExt;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
+import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
@@ -25,7 +25,6 @@ import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
@@ -48,8 +47,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     private IInventory clientInv;
 
     private boolean readingNBT;
+    private boolean canSendNext = true;
 
     public CraftingManager(Item item) {
         super(item);
@@ -474,6 +476,10 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                     return;
                 }
 
+                if (blockingMode == BlockingMode.WAIT_FOR_RESULT && !canSendNext) {
+                    return;
+                }
+
                 if (canUseEnergy(neededEnergy()) && !getAvailableAdjacent().inventories().isEmpty()) {
                     IInventoryUtil util = getAvailableAdjacent().inventories().stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
                     for (List<Pair<UUID, ItemIdentifierStack>> map : buffered) {
@@ -494,7 +500,12 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                             }
                             useEnergy(neededEnergy(), true);
                             buffered.remove(map);
-                            if (blockingMode == BlockingMode.EMPTY_MAIN_SATELLITE) sendCooldown = Math.min(maxDist, 16);
+                            if (blockingMode == BlockingMode.EMPTY_MAIN_SATELLITE) {
+                                sendCooldown = Math.min(maxDist, 16);
+                            } else if (blockingMode == BlockingMode.WAIT_FOR_RESULT) {
+                                canSendNext = false;
+                            }
+
                             break;
                         }
                     }
@@ -567,7 +578,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     public enum BlockingMode {
         NULL,
         OFF,
-        //WAIT_FOR_RESULT,
+        WAIT_FOR_RESULT,
         EMPTY_MAIN_SATELLITE,
         REDSTONE_LOW,
         REDSTONE_HIGH,
@@ -575,31 +586,37 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         public static final BlockingMode[] values = values();
     }
 
-	/*public class Origin implements IAdditionalTargetInformation {
-		private final IAdditionalTargetInformation old;
-		public Origin(IAdditionalTargetInformation old) {
-			this.old = old;
-		}
+    public static class OriginalCrafterInfo implements IAdditionalTargetInformation {
+        @Nonnull
+        private final CraftingManager manager;
+        @Nullable
+        private final IAdditionalTargetInformation delegate;
 
-		public void onSent() {
-			canSendNext = true;
-		}
+        public OriginalCrafterInfo(@NotNull CraftingManager manager, @Nullable IAdditionalTargetInformation delegate) {
+            this.manager = manager;
+            this.delegate = delegate;
+        }
 
-		public IAdditionalTargetInformation getOld() {
-			return old;
-		}
-	}
+        public void onSent() {
+            manager.canSendNext = true;
+        }
 
-	public IAdditionalTargetInformation wrap(IAdditionalTargetInformation old) {
-		return new Origin(old);
-	}
+        @Nullable
+        public IAdditionalTargetInformation getDelegate() {
+            return delegate;
+        }
 
-	public static IAdditionalTargetInformation unwrap(IAdditionalTargetInformation info, boolean doFinish) {
-		if(info instanceof Origin) {
-			Origin o = (Origin) info;
-			if(doFinish)o.onSent();
-			return o.old;
-		}
-		return info;
-	}*/
+        public static IAdditionalTargetInformation wrap(@Nonnull CraftingManager manager, @Nullable IAdditionalTargetInformation delegate) {
+            return new OriginalCrafterInfo(manager, delegate);
+        }
+
+        public static IAdditionalTargetInformation unwrap(IAdditionalTargetInformation info, boolean doFinish) {
+            if (info instanceof OriginalCrafterInfo) {
+                OriginalCrafterInfo o = (OriginalCrafterInfo) info;
+                if (doFinish) o.onSent();
+                return o.delegate;
+            }
+            return info;
+        }
+    }
 }
