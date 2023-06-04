@@ -13,7 +13,7 @@ plugins {
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-version = project.mod_version + (System.getenv("TEST_SHA_SHORT") != null ? System.getenv("TEST_SHA_SHORT") : "")
+version = project.mod_version + (System.getenv("CI_SHA_SHORT") != null ? "-" + System.getenv("CI_SHA_SHORT") : "")
 group = project.maven_group
 archivesBaseName = project.archives_base_name
 

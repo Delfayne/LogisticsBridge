@@ -52,7 +52,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       env:
-        TEST_SHA_SHORT: ${{ env.SHA_SHORT }}
+        CI_SHA_SHORT: ${{ steps.vars.outputs.SHA_SHORT }}
       with:
         arguments: build
 
