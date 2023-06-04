@@ -54,6 +54,9 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toMap;
+
 public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     public static TextureType texture = Textures.empty;
     private String satelliteId;
@@ -230,7 +233,12 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     public void openGui(EntityPlayer entityPlayer) {
-        ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(isBuffered() ? Integer.toString(blockingMode.ordinal()) : "0").setId(2).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+        ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class)
+                .setName(isBuffered() ? blockingMode.name() : BlockingMode.OFF.name())
+                .setId(2)
+                .setPosX(getX())
+                .setPosY(getY())
+                .setPosZ(getZ());
         MainProxy.sendPacketToPlayer(packet, entityPlayer);
         entityPlayer.openGui(LogisticsBridge.modInstance, GuiIDs.CRAFTING_MANAGER.ordinal(), getWorld(), getX(), getY(), getZ());
         packet = PacketHandler.getPacket(SetIDPacket.class).setName(satelliteId).setId(0).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
@@ -245,7 +253,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
             return satelliteId;
         if (id == 1)
             return resultId;
-        return Integer.toString(blockingMode.ordinal());
+        return Integer.toString(blockingMode.customOrdinal);
     }
 
     @Override
@@ -262,7 +270,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         if (id == 0) satelliteId = pipeID;
         else if (id == 1) resultId = pipeID;
         else if (id == 2)
-            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
+            blockingMode = BlockingMode.valueOf(pipeID);
     }
 
     @Override
@@ -270,7 +278,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         super.writeToNBT(nbttagcompound);
         if (resultId != null) nbttagcompound.setString("resultname", resultId);
         if (satelliteId != null) nbttagcompound.setString("satellitename", satelliteId);
-        nbttagcompound.setByte("blockingMode", (byte) blockingMode.ordinal());
+        nbttagcompound.setByte("blockingMode", (byte) blockingMode.customOrdinal);
     }
 
     @Override
@@ -576,14 +584,43 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     public enum BlockingMode {
-        NULL,
-        OFF,
-        WAIT_FOR_RESULT,
-        EMPTY_MAIN_SATELLITE,
-        REDSTONE_LOW,
-        REDSTONE_HIGH,
+        NULL(0, -1),
+        OFF(1, 0),
+        WAIT_FOR_RESULT(5, 2),
+        EMPTY_MAIN_SATELLITE(2, 1),
+        REDSTONE_LOW(3, 3),
+        REDSTONE_HIGH(4, 4),
         ;
-        public static final BlockingMode[] values = values();
+
+        public static final BlockingMode[] values = Arrays.stream(values())
+                .filter(it -> it != NULL)
+                .sorted(comparingInt(it -> it.order))
+                .toArray(BlockingMode[]::new);
+
+        private static final Map<Integer, BlockingMode> blockingModeOrders = Arrays.stream(values)
+                .collect(toMap(BlockingMode::getOrder, it -> it));
+
+        public static final int MAX_ORDER = 3;
+
+        private final int customOrdinal;
+        private final int order;
+
+        BlockingMode(int customOrdinal, int order) {
+            this.customOrdinal = customOrdinal;
+            this.order = order;
+        }
+
+        public static BlockingMode blockingModeByOrder(int order) {
+            return blockingModeOrders.get(order % (BlockingMode.values.length));
+        }
+
+        public int getCustomOrdinal() {
+            return customOrdinal;
+        }
+
+        public int getOrder() {
+            return order;
+        }
     }
 
     public static class OriginalCrafterInfo implements IAdditionalTargetInformation {

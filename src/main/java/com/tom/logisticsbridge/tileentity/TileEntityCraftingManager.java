@@ -170,7 +170,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
 
     @Override
     public String getPipeID(int id) {
-        return id == 0 ? supplyID : Integer.toString(blockingMode.ordinal());
+        return id == 0 ? supplyID : Integer.toString(blockingMode.getCustomOrdinal());
     }
 
     @Override
@@ -191,7 +191,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         compound.setString("supplyName", supplyID);
-        compound.setByte("blockingMode", (byte) blockingMode.ordinal());
+        compound.setByte("blockingMode", (byte) blockingMode.getCustomOrdinal());
         return super.writeToNBT(compound);
     }
 

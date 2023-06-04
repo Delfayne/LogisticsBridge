@@ -132,7 +132,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
 
     @Override
     public String getPipeID(int id) {
-        return id == 0 ? supplyID : Integer.toString(blockingMode.ordinal());
+        return id == 0 ? supplyID : Integer.toString(blockingMode.getCustomOrdinal());
     }
 
     @Override
@@ -146,8 +146,8 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
             MainProxy.sendPacketToPlayer(packet, player);
         }
         if (id == 0) supplyID = pipeID;
-        else if (id == 1)
-            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
+        else if (id == 2)
+            blockingMode = BlockingMode.valueOf(pipeID);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
             compound.setUniqueId(NBT_UUID, uuid);
         }
         StackUtils.writeItems(patternsInventory, 0, compound);
-        compound.setByte("blockingMode", (byte) blockingMode.ordinal());
+        compound.setByte("blockingMode", (byte) blockingMode.getCustomOrdinal());
         return super.write(compound);
     }
 

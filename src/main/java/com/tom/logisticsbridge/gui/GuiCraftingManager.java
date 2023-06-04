@@ -232,10 +232,10 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
                 openSubGuiForSatelliteSelection(1);
                 break;
             case 4:
-                BlockingMode m = BlockingMode.values[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.values.length];
+                BlockingMode m = BlockingMode.blockingModeByOrder(pipe.getBlockingMode().getOrder() + 1);
                 if (m == BlockingMode.NULL)
                     m = BlockingMode.OFF;
-                pipe.setPipeID(2, Integer.toString(m.ordinal()), null);
+                pipe.setPipeID(2, m.name(), null);
                 break;
             default:
                 break;

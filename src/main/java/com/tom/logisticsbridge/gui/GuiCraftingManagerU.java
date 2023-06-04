@@ -45,7 +45,7 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         bindTexture(BG);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
     }
 
     /**
@@ -93,9 +93,9 @@ public class GuiCraftingManagerU extends LogisticsBaseGuiScreen {
                 openSubGuiForSatelliteSelection();
                 break;
             case 1:
-                BlockingMode m = BlockingMode.values[(pipe.getBlockingMode().ordinal() + 1) % BlockingMode.values.length];
+                BlockingMode m = BlockingMode.blockingModeByOrder(pipe.getBlockingMode().getOrder() + 1);
                 if (m == BlockingMode.NULL) m = BlockingMode.OFF;
-                pipe.setPipeID(1, Integer.toString(m.ordinal()), null);
+                pipe.setPipeID(2, m.name(), null);
                 break;
             default:
                 break;
