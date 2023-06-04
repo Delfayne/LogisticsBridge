@@ -184,8 +184,12 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
             MainProxy.sendPacketToPlayer(packet, player);
         }
         if (id == 0) supplyID = pipeID;
-        else if (id == 1)
-            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
+        else if (id == 2) {
+            blockingMode = BlockingMode.valueOf(pipeID);
+            if (blockingMode == BlockingMode.WAIT_FOR_RESULT) {
+                blockingMode = BlockingMode.blockingModeByOrder(BlockingMode.WAIT_FOR_RESULT.getOrder() + 1);
+            }
+        }
     }
 
     @Override
