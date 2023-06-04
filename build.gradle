@@ -124,6 +124,7 @@ dependencies {
     runtimeOnly "curse.maven:CoFHWorld-271384:2920434"
     runtimeOnly "curse.maven:RedstoneFlux-270789:2920436"
     runtimeOnly "curse.maven:CodeChickenLib-242818:2779848"
+    runtimeOnly "curse.maven:had-enough-items-557549:4543375"
     //
     embed 'org.javassist:javassist:3.28.0-GA'
     // Kotlin stuff
