@@ -72,7 +72,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         super(item);
     }
 
-    public static boolean isCraftingModule(ItemStack itemStack) {
+    public static boolean isCraftingModule(@Nonnull ItemStack itemStack) {
         return itemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
     }
 
@@ -132,8 +132,8 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         }
     }
 
-    public LogisticsModule getModuleForItem(ItemStack itemStack, LogisticsModule currentModule, IWorldProvider world, IPipeServiceProvider service) {
-        if (itemStack == null && !isCraftingModule(itemStack))
+    public LogisticsModule getModuleForItem(@Nonnull ItemStack itemStack, LogisticsModule currentModule, IWorldProvider world, IPipeServiceProvider service) {
+        if (!isCraftingModule(itemStack))
             return null;
         if (currentModule != null && ModuleCrafterExt.class.equals(currentModule.getClass()))
             return currentModule;
