@@ -281,19 +281,23 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
             IItemIdentifierInventory moduleInventory = (IItemIdentifierInventory) getModuleInventory();
             for (int i = 0; i < getChassisSize(); i++) {
                 ItemIdentifierStack idStack = moduleInventory.getIDStackInSlot(i);
-                if (idStack != null) {
-                    final Item stackItem = idStack.getItem().item;
-                    if (stackItem instanceof ItemModule) {
-                        final ItemModule moduleItem = (ItemModule) stackItem;
-                        ModuleCrafterExt crafterExt = new ModuleCrafterExt();
-                        crafterExt.registerHandler(this, this);
-                        crafterExt.registerPosition(ModulePositionType.SLOT, i);
-                        ItemModuleInformationManager.readInformation(moduleInventory.getStackInSlot(i), crafterExt);
-                        if (crafterExt != null) {
-                            modules.installModule(i, crafterExt);
-                        }
-                    }
+
+                ItemModule moduleItem = Optional.ofNullable(idStack)
+                        .map(ItemIdentifierStack::getItem)
+                        .map(it -> it.item)
+                        .filter(it -> it instanceof ItemModule)
+                        .map(ItemModule.class::cast)
+                        .orElse(null);
+
+                if (moduleItem == null) {
+                    continue;
                 }
+
+                ModuleCrafterExt crafterExt = new ModuleCrafterExt();
+                crafterExt.registerHandler(this, this);
+                crafterExt.registerPosition(ModulePositionType.SLOT, i);
+                ItemModuleInformationManager.readInformation(moduleInventory.getStackInSlot(i), crafterExt);
+                modules.installModule(i, crafterExt);
             }
 
             resultId = nbttagcompound.getString("resultname");
