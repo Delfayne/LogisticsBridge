@@ -1,0 +1,15 @@
+name: Delete Unused Caches
+
+# https://github.com/snnaplab/delete-branch-cache-action#example
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: snnaplab/delete-branch-cache-action@v1
+        with:
+          # Specify explicitly because the ref at the time of merging will be a branch name such as 'main', 'develop'
+          ref: refs/pull/${{ github.event.number }}/merge
