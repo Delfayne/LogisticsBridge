@@ -46,6 +46,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -274,18 +276,18 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbttagcompound) {
-        super.writeToNBT(nbttagcompound);
-        if (resultId != null) nbttagcompound.setString("resultname", resultId);
-        if (satelliteId != null) nbttagcompound.setString("satellitename", satelliteId);
-        nbttagcompound.setByte("blockingMode", (byte) blockingMode.customOrdinal);
+    public void writeToNBT(@Nonnull NBTTagCompound tag) {
+        super.writeToNBT(tag);
+        if (resultId != null) tag.setString("resultname", resultId);
+        if (satelliteId != null) tag.setString("satellitename", satelliteId);
+        blockingMode.writeToNbt(tag);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbttagcompound) {
+    public void readFromNBT(NBTTagCompound tag) {
         try {
             readingNBT = true;
-            super.readFromNBT(nbttagcompound);
+            super.readFromNBT(tag);
             ChassisModule modules = getModules();
 
             IItemIdentifierInventory moduleInventory = (IItemIdentifierInventory) getModuleInventory();
@@ -310,13 +312,13 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                 modules.installModule(i, crafterExt);
             }
 
-            resultId = nbttagcompound.getString("resultname");
-            satelliteId = nbttagcompound.getString("satellitename");
-            if (nbttagcompound.hasKey("resultid")) {
-                resultId = Integer.toString(nbttagcompound.getInteger("resultid"));
-                satelliteId = Integer.toString(nbttagcompound.getInteger("satelliteid"));
+            resultId = tag.getString("resultname");
+            satelliteId = tag.getString("satellitename");
+            if (tag.hasKey("resultid")) {
+                resultId = Integer.toString(tag.getInteger("resultid"));
+                satelliteId = Integer.toString(tag.getInteger("satelliteid"));
             }
-            blockingMode = BlockingMode.values[Math.abs(nbttagcompound.getByte("blockingMode")) % BlockingMode.values.length];
+            blockingMode = BlockingMode.readFromNbt(tag);
         } finally {
             readingNBT = false;
         }
@@ -592,6 +594,8 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         REDSTONE_HIGH(4, 4),
         ;
 
+        private static final String TAG_KEY = "blockingMode";
+
         public static final BlockingMode[] values = Arrays.stream(values())
                 .filter(it -> it != NULL)
                 .sorted(comparingInt(it -> it.order))
@@ -620,6 +624,31 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
         public int getOrder() {
             return order;
+        }
+
+        @Nonnull
+        public static BlockingMode readFromNbt(@Nonnull NBTTagCompound tag) {
+            BlockingMode blockingMode = Optional.of(tag)
+                    .map(it -> it.getString(BlockingMode.TAG_KEY))
+                    .map(String::toUpperCase)
+                    .map(string -> EnumUtils.getEnum(BlockingMode.class, string))
+                    .orElse(OFF);
+
+            if (blockingMode != OFF) {
+                return blockingMode;
+            }
+
+            return Optional.of(tag)
+                    .map(it -> it.getString(TAG_KEY))
+                    .filter(NumberUtils::isParsable)
+                    .map(Integer::parseInt)
+                    .flatMap(ordinal -> Arrays.stream(BlockingMode.values).filter(it -> it.customOrdinal == ordinal).findFirst())
+                    .orElse(OFF);
+        }
+
+        public NBTTagCompound writeToNbt(NBTTagCompound tag) {
+            tag.setString("blockingMode", name());
+            return tag;
         }
     }
 

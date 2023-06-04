@@ -151,28 +151,28 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
     }
 
     @Override
-    public NBTTagCompound write(NBTTagCompound compound) {
-        compound.setString("supplyName", supplyID);
+    public NBTTagCompound write(NBTTagCompound tag) {
+        tag.setString("supplyName", supplyID);
         if (uuid != null) {
-            compound.setUniqueId(NBT_UUID, uuid);
+            tag.setUniqueId(NBT_UUID, uuid);
         }
-        StackUtils.writeItems(patternsInventory, 0, compound);
-        compound.setByte("blockingMode", (byte) blockingMode.getCustomOrdinal());
-        return super.write(compound);
+        StackUtils.writeItems(patternsInventory, 0, tag);
+        blockingMode.writeToNbt(tag);
+        return super.write(tag);
     }
 
     @Override
-    public void read(NBTTagCompound compound) {
+    public void read(NBTTagCompound tag) {
         this.reading = true;
-        StackUtils.readItems(patternsInventory, 0, compound);
+        StackUtils.readItems(patternsInventory, 0, tag);
         this.invalidate();
         this.reading = false;
-        supplyID = compound.getString("supplyName");
-        if (compound.hasUniqueId(NBT_UUID)) {
-            uuid = compound.getUniqueId(NBT_UUID);
+        supplyID = tag.getString("supplyName");
+        if (tag.hasUniqueId(NBT_UUID)) {
+            uuid = tag.getUniqueId(NBT_UUID);
         }
-        blockingMode = BlockingMode.values[Math.abs(compound.getByte("blockingMode")) % BlockingMode.values.length];
-        super.read(compound);
+        blockingMode = BlockingMode.readFromNbt(tag);
+        super.read(tag);
     }
 
     @Override
