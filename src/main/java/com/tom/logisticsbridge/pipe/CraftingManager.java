@@ -46,6 +46,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -147,16 +148,20 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     @Override
-    public void startWatching() { }
+    public void startWatching() {
+    }
 
     @Override
-    public void stopWatching() { }
+    public void stopWatching() {
+    }
 
     @Override
-    public void playerStartWatching(EntityPlayer player, int mode) { }
+    public void playerStartWatching(EntityPlayer player, int mode) {
+    }
 
     @Override
-    public void playerStopWatching(EntityPlayer player, int mode) { }
+    public void playerStopWatching(EntityPlayer player, int mode) {
+    }
 
     @Override
     public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
@@ -271,6 +276,26 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         try {
             readingNBT = true;
             super.readFromNBT(nbttagcompound);
+            ChassisModule modules = getModules();
+
+            IItemIdentifierInventory moduleInventory = (IItemIdentifierInventory) getModuleInventory();
+            for (int i = 0; i < getChassisSize(); i++) {
+                ItemIdentifierStack idStack = moduleInventory.getIDStackInSlot(i);
+                if (idStack != null) {
+                    final Item stackItem = idStack.getItem().item;
+                    if (stackItem instanceof ItemModule) {
+                        final ItemModule moduleItem = (ItemModule) stackItem;
+                        ModuleCrafterExt crafterExt = new ModuleCrafterExt();
+                        crafterExt.registerHandler(this, this);
+                        crafterExt.registerPosition(ModulePositionType.SLOT, i);
+                        ItemModuleInformationManager.readInformation(moduleInventory.getStackInSlot(i), crafterExt);
+                        if (crafterExt != null) {
+                            modules.installModule(i, crafterExt);
+                        }
+                    }
+                }
+            }
+
             resultId = nbttagcompound.getString("resultname");
             satelliteId = nbttagcompound.getString("satellitename");
             if (nbttagcompound.hasKey("resultid")) {
@@ -455,10 +480,10 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                                 ItemStack removed = util.getMultipleItems(toSend.getItem(), toSend.getStackSize());
                                 if (removed != null && !removed.isEmpty()) {
                                     UUID moved;
-                                    if (getSatelliteRouterByID(en.getKey()) != null )
-                                         moved = en.getKey();
+                                    if (getSatelliteRouterByID(en.getKey()) != null)
+                                        moved = en.getKey();
                                     else
-                                         moved = getSatelliteUUID();
+                                        moved = getSatelliteUUID();
                                     sendStack(removed, SimpleServiceLocator.routerManager.getIDforUUID(moved), ItemSendMode.Fast, null, getPointedOrientation());
                                     maxDist = Math.max(maxDist, (int) getSatelliteRouterByID(moved).getPipe().getPos().distanceSq(getPos()));
                                 }
