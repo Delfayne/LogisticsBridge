@@ -13,6 +13,8 @@ import com.tom.logisticsbridge.pipe.BridgePipe;
 import com.tom.logisticsbridge.pipe.CraftingManager;
 import com.tom.logisticsbridge.pipe.ResultPipe;
 import com.tom.logisticsbridge.proxy.CommonProxy;
+import com.tom.logisticsbridge.proxy.GTCEUMultiblockProgressProvider;
+import com.tom.logisticsbridge.proxy.GTCEUProgressProvider;
 import com.tom.logisticsbridge.util.DynamicInventory;
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -23,6 +25,7 @@ import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.upgrades.ItemStackExtractionUpgrade;
+import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -70,6 +73,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import static logisticspipes.asm.wrapper.LogisticsWrapperHandler.getWrappedProgressProvider;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION,
         dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
@@ -236,6 +241,9 @@ public class LogisticsBridge {
                 ItemUpgrade.getAndCheckUpgrade(LPItems.upgrades.get(ItemStackExtractionUpgrade.getName())),
                 "dustRedstone").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/adv_ext_upgrade")));
+
+        SimpleServiceLocator.machineProgressProvider.registerProgressProvider(getWrappedProgressProvider("gregtech", "Generic", GTCEUProgressProvider.class));
+        SimpleServiceLocator.machineProgressProvider.registerProgressProvider(getWrappedProgressProvider("gregtech", "Generic", GTCEUMultiblockProgressProvider.class));
     }
 
     private static Ingredient getIngredientForProgrammer(ResourceLocation rl) {

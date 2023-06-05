@@ -113,6 +113,7 @@ dependencies {
     api rfg.deobf("curse.maven:ThermalDynamics-227443:2920505")
     api rfg.deobf("curse.maven:MCMultiPart-239431:2615930")
     api rfg.deobf("curse.maven:ae2-extended-life-570458:4553942")
+    implementation rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4527757")
     //
     runtimeOnly "curse.maven:refined-storage-243076:2940914"
     runtimeOnly "curse.maven:MCMultiPart-239431:2615930"
