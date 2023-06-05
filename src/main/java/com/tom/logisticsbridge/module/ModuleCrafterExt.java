@@ -156,25 +156,25 @@ public class ModuleCrafterExt extends ModuleCrafter {
     private IRouter getSatelliteRouter(int x) {
         final UUID satelliteUUID = x == -1 ? this.satelliteUUID.getValue() : advancedSatelliteUUIDList.get(x);
         final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
-        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+        return SimpleServiceLocator.routerManager.getServerRouter(satelliteRouterId);
     }
 
     private IRouter getFluidSatelliteRouter(int x) {
         final UUID liquidSatelliteUUID = x == -1 ? this.liquidSatelliteUUID.getValue() : liquidSatelliteUUIDList.get(x);
         final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(liquidSatelliteUUID);
-        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+        return SimpleServiceLocator.routerManager.getServerRouter(satelliteRouterId);
     }
 
     public IRouter getSatelliteRouterByID(UUID id) {
         if (id == null) return null;
         int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(id);
-        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+        return SimpleServiceLocator.routerManager.getServerRouter(satelliteRouterId);
     }
 
     public IRouter getResultRouterByID(UUID id) {
         if (id == null) return null;
         int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(id);
-        return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
+        return SimpleServiceLocator.routerManager.getServerRouter(resultRouterId);
     }
 
     @Override
