@@ -10,6 +10,8 @@ import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AEPartLocation;
 import appeng.block.AEBaseItemBlock;
+import appeng.bootstrap.FeatureFactory;
+import appeng.bootstrap.components.ItemVariantsComponent;
 import appeng.client.gui.implementations.GuiMEMonitorable;
 import appeng.client.me.ItemRepo;
 import appeng.core.Api;
@@ -30,9 +32,9 @@ import com.tom.logisticsbridge.network.RequestIDListPacket;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import com.tom.logisticsbridge.part.PartSatelliteBus;
-import com.tom.logisticsbridge.proxy.ClientProxy;
 import com.tom.logisticsbridge.tileentity.TileEntityBridgeAE;
 import com.tom.logisticsbridge.tileentity.TileEntityCraftingManager;
+import com.tom.logisticsbridge.util.Reflector;
 import io.netty.buffer.ByteBuf;
 import logisticspipes.LPItems;
 import net.minecraft.block.Block;
@@ -53,22 +55,44 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.Set;
+import java.lang.invoke.MethodHandle;
+import java.util.*;
 
 @AEPlugin
 public class AE2Plugin {
     public static AE2Plugin INSTANCE;
     public static VirtualPatternAE virtualPattern;
-    public static HideFakeItem HIDE_FAKE_ITEM;
-    public static Field MergedPriorityList_negative;
+    public static FakeItemList FAKE_ITEM_PARTITION_LIST;
     public static PartType SATELLITE_BUS;
     public static ItemStackSrc SATELLITE_BUS_SRC;
     public final IAppEngApi api;
+
+    public static final MethodHandle guiMEMonitorableRepoGetter;
+    public static final MethodHandle itemRepoMyPartitionListGetter;
+    public static final MethodHandle itemRepoMyPartitionListSetter;
+    public static final MethodHandle sorterBySizeGetter;
+    public static final MethodHandle sorterBySizeSetter;
+    public static final MethodHandle bootstrapComponentsF;
+    public static final MethodHandle itemVariantsComponentItem;
+    public static final MethodHandle itemVariantsComponentResources;
+
+
+    static {
+        try {
+            // "I reject performance" - Korewa_Li
+            guiMEMonitorableRepoGetter = Reflector.resolveFieldGetter(GuiMEMonitorable.class, "repo");
+            itemRepoMyPartitionListGetter = Reflector.resolveFieldGetter(ItemRepo.class,"myPartitionList");
+            itemRepoMyPartitionListSetter = Reflector.resolveFieldSetter(ItemRepo.class,"myPartitionList");
+            sorterBySizeGetter = Reflector.resolveFieldGetter(ItemSorters.class, "CONFIG_BASED_SORT_BY_SIZE");
+            sorterBySizeSetter = Reflector.resolveFieldSetter(ItemSorters.class, "CONFIG_BASED_SORT_BY_SIZE");
+            bootstrapComponentsF = Reflector.resolveFieldGetter(FeatureFactory.class, "bootstrapComponents");
+            itemVariantsComponentItem = Reflector.resolveFieldGetter(ItemVariantsComponent.class,"item");
+            itemVariantsComponentResources = Reflector.resolveFieldGetter(ItemVariantsComponent.class,"resources");
+        } catch (SecurityException se) {
+            throw new RuntimeException(se);
+        }
+    }
+
     public AE2Plugin(IAppEngApi api) {
         this.api = api;
         INSTANCE = this;
@@ -88,12 +112,6 @@ public class AE2Plugin {
         AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
         AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
         LogisticsBridge.registerItem(virtualPattern, true);
-        try {
-            AE2Plugin.MergedPriorityList_negative = MergedPriorityList.class.getDeclaredField("negative");
-            AE2Plugin.MergedPriorityList_negative.setAccessible(true);
-        } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
-        }
         AE2Plugin.SATELLITE_BUS = EnumHelper.addEnum(PartType.class, "SATELLITE_BUS", new Class[]{int.class, String.class, Set.class, Set.class, Class.class},
                 1024, "satellite_bus", EnumSet.of(AEFeature.CRAFTING_CPU), EnumSet.noneOf(IntegrationType.class), PartSatelliteBus.class);
         Api.INSTANCE.getPartModels().registerModels(AE2Plugin.SATELLITE_BUS.getModels());
@@ -108,16 +126,10 @@ public class AE2Plugin {
     @SuppressWarnings("unchecked")
     public static void patchSorter() {
         try {
-            Field sorterBySize = ItemSorters.class.getDeclaredField("CONFIG_BASED_SORT_BY_SIZE");
-            sorterBySize.setAccessible(true);
-            Field mod = Field.class.getDeclaredField("modifiers");
-            mod.setAccessible(true);
-            mod.set(sorterBySize, sorterBySize.getModifiers() & ~Modifier.FINAL);
-            Comparator<IAEItemStack> old = (Comparator<IAEItemStack>) sorterBySize.get(null);
+            Comparator<IAEItemStack> old = (Comparator<IAEItemStack>) sorterBySizeGetter.invokeExact();
             IAEItemStack s1 = new AE2Plugin.StackSize().setStackSize(1);
             IAEItemStack s2 = new AE2Plugin.StackSize().setStackSize(2);
-            sorterBySize.set(null, new Comparator<IAEItemStack>() {
-
+            sorterBySizeSetter.invoke(new Comparator<IAEItemStack>() {
                 @Override
                 public int compare(IAEItemStack o1, IAEItemStack o2) {
                     final int cmp = Long.compare(o2.getStackSize() + o2.getCountRequestable(), o1.getStackSize() + o1.getCountRequestable());
@@ -129,7 +141,7 @@ public class AE2Plugin {
                     return dir * cmp;
                 }
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -183,27 +195,26 @@ public class AE2Plugin {
     public static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event) {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.currentScreen instanceof GuiMEMonitorable) {
-            GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
-            if (AE2Plugin.HIDE_FAKE_ITEM == null)
-                AE2Plugin.HIDE_FAKE_ITEM = new HideFakeItem();
+            GuiMEMonitorable gui = (GuiMEMonitorable) mc.currentScreen;
+            if (AE2Plugin.FAKE_ITEM_PARTITION_LIST == null)
+                AE2Plugin.FAKE_ITEM_PARTITION_LIST = new FakeItemList();
             try {
-                ItemRepo r = (ItemRepo) ClientProxy.guiMEMonitorableRepo.get(g);
-                IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ClientProxy.itemRepoMyPartitionList.get(r);
-                if (pl instanceof MergedPriorityList) {
-                    MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
-                    Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Plugin.MergedPriorityList_negative.get(ml);
-                    if (!negative.contains(AE2Plugin.HIDE_FAKE_ITEM)) {
-                        negative.add(AE2Plugin.HIDE_FAKE_ITEM);
-                        r.updateView();
+                ItemRepo guiItemRepo = (ItemRepo) guiMEMonitorableRepoGetter.invoke(gui);
+                IPartitionList<IAEItemStack> partList = (IPartitionList<IAEItemStack>) itemRepoMyPartitionListGetter.invoke(guiItemRepo);
+                if (partList instanceof MergedPriorityList) {
+                    MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) partList;
+                    if (AE2Plugin.FAKE_ITEM_PARTITION_LIST.getStreams().allMatch(ml::isListed)) {
+                        ml.addNewList(AE2Plugin.FAKE_ITEM_PARTITION_LIST, false);
+                        guiItemRepo.updateView();
                     }
                 } else {
-                    MergedPriorityList<IAEItemStack> mlist = new MergedPriorityList<>();
-                    ClientProxy.itemRepoMyPartitionList.set(r, mlist);
-                    if (pl != null) mlist.addNewList(pl, true);
-                    mlist.addNewList(AE2Plugin.HIDE_FAKE_ITEM, false);
-                    r.updateView();
+                    MergedPriorityList<IAEItemStack> newMList = new MergedPriorityList<>();
+                    itemRepoMyPartitionListSetter.invoke(guiItemRepo, newMList);
+                    if (partList != null) newMList.addNewList(partList, true);
+                    newMList.addNewList(AE2Plugin.FAKE_ITEM_PARTITION_LIST, false);
+                    guiItemRepo.updateView();
                 }
-            } catch (Exception ignored) { }
+            } catch (Throwable ignored) { }
         }
     }
 

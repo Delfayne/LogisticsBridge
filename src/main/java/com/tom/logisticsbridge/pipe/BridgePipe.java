@@ -3,6 +3,7 @@ package com.tom.logisticsbridge.pipe;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.api.BridgeStack;
 import com.tom.logisticsbridge.tileentity.IBridge;
+import com.tom.logisticsbridge.util.Reflector;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.routing.*;
 import logisticspipes.logistics.LogisticsManager;
@@ -46,13 +47,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 import javax.annotation.Nonnull;
-import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -61,36 +56,26 @@ import java.util.stream.Collectors;
 
 public class BridgePipe extends CoreRoutedPipe implements IProvideItems, IRequestItems, IChangeListener, ICraftItems, IRequireReliableTransport {
     public static TextureType TEXTURE = Textures.empty;
-    private static Consumer<RequestTreeNode> recurseFailedRequestTree;
+
+    private static final MethodHandle rfr;
+    private static final MethodHandle srm;
+    private static final MethodHandle em;
+    private static final Consumer<RequestTreeNode> recurseFailedRequestTree;
     private static final Function<RequestTreeNode, List<RequestTreeNode>> subRequests;
     private static final Function<RequestTreeNode, List<IExtraPromise>> extrapromises;
 
     static {
         try {
-            Method m = RequestTreeNode.class.getDeclaredMethod("recurseFailedRequestTree");
-            m.setAccessible(true);
-            Field srf = RequestTreeNode.class.getDeclaredField("subRequests");
-            Field ef = RequestTreeNode.class.getDeclaredField("extrapromises");
-            Constructor<MethodHandles.Lookup> lookupCons = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
-            lookupCons.setAccessible(true);
-            MethodHandles.Lookup lookup = lookupCons.newInstance(RequestTreeNode.class);
-            MethodType imct = MethodType.methodType(void.class, Object.class);
-            MethodHandle mh = lookup.unreflect(m);
-            try {
-                recurseFailedRequestTree = (Consumer<RequestTreeNode>) LambdaMetafactory.metafactory(lookup, "accept",
-                        MethodType.methodType(Consumer.class), imct, mh, mh.type()).getTarget().invoke();
-            } catch (Exception e) {
-                e.printStackTrace();
-                recurseFailedRequestTree = rtn -> {
-                    try {
-                        m.invoke(rtn);
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                };
-            }
-            MethodHandle srm = lookup.unreflectGetter(srf);
-            MethodHandle em = lookup.unreflectGetter(ef);
+            rfr = Reflector.resolveMethod(RequestTreeNode.class, "recurseFailedRequestTree");
+            srm = Reflector.resolveFieldGetter(RequestTreeNode.class,"subRequests");
+            em = Reflector.resolveFieldGetter(RequestTreeNode.class,"extrapromises");
+            recurseFailedRequestTree = rtn -> {
+                try {
+                    rfr.invoke(rtn);
+                } catch (Throwable e2) {
+                    e2.printStackTrace();
+                }
+            };
             subRequests = t -> {
                 try {
                     return (List<RequestTreeNode>) srm.invoke(t);
