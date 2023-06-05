@@ -134,6 +134,11 @@ dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core' , version: "${kotlinx_ver}"
 
+    if (project.use_spark.toBoolean()) {
+        // for profiling
+        runtimeOnly "curse.maven:spark-361579:3542217"
+    }
+
     if (project.use_mixins.toBoolean()) {
         // Change your mixin refmap name here:
         String mixin = modUtils.enableMixins('org.spongepowered:mixin:0.8.3', "mixins.${project.archives_base_name}.refmap.json")

@@ -27,6 +27,8 @@ import appeng.tile.AEBaseTile;
 import appeng.util.ItemSorters;
 import appeng.util.prioritylist.IPartitionList;
 import appeng.util.prioritylist.MergedPriorityList;
+import com.tom.logisticsbridge.block.BlockBridgeAE;
+import com.tom.logisticsbridge.block.BlockCraftingManager;
 import com.tom.logisticsbridge.item.VirtualPatternAE;
 import com.tom.logisticsbridge.network.RequestIDListPacket;
 import com.tom.logisticsbridge.network.SetIDPacket;
@@ -103,12 +105,10 @@ public class AE2Plugin {
         LogisticsBridge.registerBlock(block, AEBaseItemBlock::new);
     }
 
-    public static void preInit(ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void preInit() {
         virtualPattern = new VirtualPatternAE();
-        LogisticsBridge.bridgeAE = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockBridgeAE").newInstance())
-                .setTranslationKey("lb.bridge");
-        LogisticsBridge.craftingManager = ((Block) loader.loadClass("com.tom.logisticsbridge.block.BlockCraftingManager").newInstance())
-                .setTranslationKey("lb.crafting_managerAE");
+        LogisticsBridge.bridgeAE = new BlockBridgeAE().setTranslationKey("lb.bridge");
+        LogisticsBridge.craftingManager = new BlockCraftingManager().setTranslationKey("lb.crafting_managerAE");
         AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
         AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
         LogisticsBridge.registerItem(virtualPattern, true);
