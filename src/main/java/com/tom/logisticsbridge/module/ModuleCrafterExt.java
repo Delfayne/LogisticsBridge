@@ -1,6 +1,7 @@
 package com.tom.logisticsbridge.module;
 
 import com.tom.logisticsbridge.pipe.CraftingManager;
+import com.tom.logisticsbridge.pipe.CraftingManager.OriginalCrafterInfo;
 import com.tom.logisticsbridge.pipe.ResultPipe;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
@@ -264,7 +265,7 @@ public class ModuleCrafterExt extends ModuleCrafter {
         CoreRoutedPipe coreRoutedPipe = resultR.getPipe();
         if (!(coreRoutedPipe instanceof ResultPipe)) return null;
         ResultPipe res = (ResultPipe) coreRoutedPipe;
-        return res.fullFill(promise, destination, info);
+        return res.fullFill(promise, destination, OriginalCrafterInfo.wrap(mngr, info));
     }
 
     @Override

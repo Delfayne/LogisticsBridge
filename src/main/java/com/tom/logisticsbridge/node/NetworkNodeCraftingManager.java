@@ -132,7 +132,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
 
     @Override
     public String getPipeID(int id) {
-        return id == 0 ? supplyID : Integer.toString(blockingMode.ordinal());
+        return id == 0 ? supplyID : Integer.toString(blockingMode.getCustomOrdinal());
     }
 
     @Override
@@ -146,33 +146,37 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
             MainProxy.sendPacketToPlayer(packet, player);
         }
         if (id == 0) supplyID = pipeID;
-        else if (id == 1)
-            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
-    }
-
-    @Override
-    public NBTTagCompound write(NBTTagCompound compound) {
-        compound.setString("supplyName", supplyID);
-        if (uuid != null) {
-            compound.setUniqueId(NBT_UUID, uuid);
+        else if (id == 2) {
+            blockingMode = BlockingMode.valueOf(pipeID);
+            if (blockingMode == BlockingMode.WAIT_FOR_RESULT) {
+                blockingMode = BlockingMode.blockingModeByOrder(BlockingMode.WAIT_FOR_RESULT.getOrder() + 1);
+            }
         }
-        StackUtils.writeItems(patternsInventory, 0, compound);
-        compound.setByte("blockingMode", (byte) blockingMode.ordinal());
-        return super.write(compound);
     }
 
     @Override
-    public void read(NBTTagCompound compound) {
+    public NBTTagCompound write(NBTTagCompound tag) {
+        tag.setString("supplyName", supplyID);
+        if (uuid != null) {
+            tag.setUniqueId(NBT_UUID, uuid);
+        }
+        StackUtils.writeItems(patternsInventory, 0, tag);
+        blockingMode.writeToNbt(tag);
+        return super.write(tag);
+    }
+
+    @Override
+    public void read(NBTTagCompound tag) {
         this.reading = true;
-        StackUtils.readItems(patternsInventory, 0, compound);
+        StackUtils.readItems(patternsInventory, 0, tag);
         this.invalidate();
         this.reading = false;
-        supplyID = compound.getString("supplyName");
-        if (compound.hasUniqueId(NBT_UUID)) {
-            uuid = compound.getUniqueId(NBT_UUID);
+        supplyID = tag.getString("supplyName");
+        if (tag.hasUniqueId(NBT_UUID)) {
+            uuid = tag.getUniqueId(NBT_UUID);
         }
-        blockingMode = BlockingMode.values[Math.abs(compound.getByte("blockingMode")) % BlockingMode.values.length];
-        super.read(compound);
+        blockingMode = BlockingMode.readFromNbt(tag);
+        super.read(tag);
     }
 
     @Override

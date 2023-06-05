@@ -5,6 +5,7 @@ import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import com.tom.logisticsbridge.network.SyncResultNamePacket;
+import com.tom.logisticsbridge.pipe.CraftingManager.OriginalCrafterInfo;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -280,11 +281,11 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
                     IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
                     item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
                     item.setTransportMode(TransportMode.Active);
-                    item.setAdditionalTargetInformation(nextOrder.getInformation());
+                    item.setAdditionalTargetInformation(OriginalCrafterInfo.unwrap(nextOrder.getInformation(), true));
                     queueRoutedItem(item, adjacent.getDirection());
                     getItemOrderManager().sendSuccessfull(stackToSend.getCount(), ds, item);
                 } else {
-                    sendStack(stackToSend, -1, ItemSendMode.Normal, nextOrder.getInformation(), adjacent.getDirection());
+                    sendStack(stackToSend, -1, ItemSendMode.Normal, OriginalCrafterInfo.unwrap(nextOrder.getInformation(), true), adjacent.getDirection());
                     getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, null);
                 }
                 if (getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {

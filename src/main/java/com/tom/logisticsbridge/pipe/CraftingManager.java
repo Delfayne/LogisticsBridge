@@ -7,12 +7,12 @@ import com.tom.logisticsbridge.module.ModuleCrafterExt;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
+import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
@@ -25,7 +25,6 @@ import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
@@ -47,11 +46,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toMap;
 
 public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     public static TextureType texture = Textures.empty;
@@ -67,12 +73,13 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     private IInventory clientInv;
 
     private boolean readingNBT;
+    private boolean canSendNext = true;
 
     public CraftingManager(Item item) {
         super(item);
     }
 
-    public static boolean isCraftingModule(ItemStack itemStack) {
+    public static boolean isCraftingModule(@Nonnull ItemStack itemStack) {
         return itemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
     }
 
@@ -132,8 +139,8 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         }
     }
 
-    public LogisticsModule getModuleForItem(ItemStack itemStack, LogisticsModule currentModule, IWorldProvider world, IPipeServiceProvider service) {
-        if (itemStack == null && !isCraftingModule(itemStack))
+    public LogisticsModule getModuleForItem(@Nonnull ItemStack itemStack, LogisticsModule currentModule, IWorldProvider world, IPipeServiceProvider service) {
+        if (!isCraftingModule(itemStack))
             return null;
         if (currentModule != null && ModuleCrafterExt.class.equals(currentModule.getClass()))
             return currentModule;
@@ -228,7 +235,12 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     public void openGui(EntityPlayer entityPlayer) {
-        ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class).setName(isBuffered() ? Integer.toString(blockingMode.ordinal()) : "0").setId(2).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+        ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class)
+                .setName(isBuffered() ? blockingMode.name() : BlockingMode.OFF.name())
+                .setId(2)
+                .setPosX(getX())
+                .setPosY(getY())
+                .setPosZ(getZ());
         MainProxy.sendPacketToPlayer(packet, entityPlayer);
         entityPlayer.openGui(LogisticsBridge.modInstance, GuiIDs.CRAFTING_MANAGER.ordinal(), getWorld(), getX(), getY(), getZ());
         packet = PacketHandler.getPacket(SetIDPacket.class).setName(satelliteId).setId(0).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
@@ -243,7 +255,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
             return satelliteId;
         if (id == 1)
             return resultId;
-        return Integer.toString(blockingMode.ordinal());
+        return Integer.toString(blockingMode.customOrdinal);
     }
 
     @Override
@@ -260,22 +272,22 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
         if (id == 0) satelliteId = pipeID;
         else if (id == 1) resultId = pipeID;
         else if (id == 2)
-            blockingMode = BlockingMode.values[Math.abs(pipeID.charAt(0) - '0') % BlockingMode.values.length];
+            blockingMode = BlockingMode.valueOf(pipeID);
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbttagcompound) {
-        super.writeToNBT(nbttagcompound);
-        if (resultId != null) nbttagcompound.setString("resultname", resultId);
-        if (satelliteId != null) nbttagcompound.setString("satellitename", satelliteId);
-        nbttagcompound.setByte("blockingMode", (byte) blockingMode.ordinal());
+    public void writeToNBT(@Nonnull NBTTagCompound tag) {
+        super.writeToNBT(tag);
+        if (resultId != null) tag.setString("resultname", resultId);
+        if (satelliteId != null) tag.setString("satellitename", satelliteId);
+        blockingMode.writeToNbt(tag);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbttagcompound) {
+    public void readFromNBT(NBTTagCompound tag) {
         try {
             readingNBT = true;
-            super.readFromNBT(nbttagcompound);
+            super.readFromNBT(tag);
             ChassisModule modules = getModules();
 
             IItemIdentifierInventory moduleInventory = (IItemIdentifierInventory) getModuleInventory();
@@ -300,13 +312,13 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                 modules.installModule(i, crafterExt);
             }
 
-            resultId = nbttagcompound.getString("resultname");
-            satelliteId = nbttagcompound.getString("satellitename");
-            if (nbttagcompound.hasKey("resultid")) {
-                resultId = Integer.toString(nbttagcompound.getInteger("resultid"));
-                satelliteId = Integer.toString(nbttagcompound.getInteger("satelliteid"));
+            resultId = tag.getString("resultname");
+            satelliteId = tag.getString("satellitename");
+            if (tag.hasKey("resultid")) {
+                resultId = Integer.toString(tag.getInteger("resultid"));
+                satelliteId = Integer.toString(tag.getInteger("satelliteid"));
             }
-            blockingMode = BlockingMode.values[Math.abs(nbttagcompound.getByte("blockingMode")) % BlockingMode.values.length];
+            blockingMode = BlockingMode.readFromNbt(tag);
         } finally {
             readingNBT = false;
         }
@@ -474,6 +486,10 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                     return;
                 }
 
+                if (blockingMode == BlockingMode.WAIT_FOR_RESULT && !canSendNext) {
+                    return;
+                }
+
                 if (canUseEnergy(neededEnergy()) && !getAvailableAdjacent().inventories().isEmpty()) {
                     IInventoryUtil util = getAvailableAdjacent().inventories().stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
                     for (List<Pair<UUID, ItemIdentifierStack>> map : buffered) {
@@ -494,7 +510,12 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
                             }
                             useEnergy(neededEnergy(), true);
                             buffered.remove(map);
-                            if (blockingMode == BlockingMode.EMPTY_MAIN_SATELLITE) sendCooldown = Math.min(maxDist, 16);
+                            if (blockingMode == BlockingMode.EMPTY_MAIN_SATELLITE) {
+                                sendCooldown = Math.min(maxDist, 16);
+                            } else if (blockingMode == BlockingMode.WAIT_FOR_RESULT) {
+                                canSendNext = false;
+                            }
+
                             break;
                         }
                     }
@@ -565,41 +586,103 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
     }
 
     public enum BlockingMode {
-        NULL,
-        OFF,
-        //WAIT_FOR_RESULT,
-        EMPTY_MAIN_SATELLITE,
-        REDSTONE_LOW,
-        REDSTONE_HIGH,
+        NULL(0, -1),
+        OFF(1, 0),
+        WAIT_FOR_RESULT(5, 2),
+        EMPTY_MAIN_SATELLITE(2, 1),
+        REDSTONE_LOW(3, 3),
+        REDSTONE_HIGH(4, 4),
         ;
-        public static final BlockingMode[] values = values();
+
+        private static final String TAG_KEY = "blockingMode";
+
+        public static final BlockingMode[] values = Arrays.stream(values())
+                .filter(it -> it != NULL)
+                .sorted(comparingInt(it -> it.order))
+                .toArray(BlockingMode[]::new);
+
+        private static final Map<Integer, BlockingMode> blockingModeOrders = Arrays.stream(values)
+                .collect(toMap(BlockingMode::getOrder, it -> it));
+
+        public static final int MAX_ORDER = 3;
+
+        private final int customOrdinal;
+        private final int order;
+
+        BlockingMode(int customOrdinal, int order) {
+            this.customOrdinal = customOrdinal;
+            this.order = order;
+        }
+
+        public static BlockingMode blockingModeByOrder(int order) {
+            return blockingModeOrders.get(order % (BlockingMode.values.length));
+        }
+
+        public int getCustomOrdinal() {
+            return customOrdinal;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        @Nonnull
+        public static BlockingMode readFromNbt(@Nonnull NBTTagCompound tag) {
+            BlockingMode blockingMode = Optional.of(tag)
+                    .map(it -> it.getString(BlockingMode.TAG_KEY))
+                    .map(String::toUpperCase)
+                    .map(string -> EnumUtils.getEnum(BlockingMode.class, string))
+                    .orElse(OFF);
+
+            if (blockingMode != OFF) {
+                return blockingMode;
+            }
+
+            return Optional.of(tag)
+                    .map(it -> it.getString(TAG_KEY))
+                    .filter(NumberUtils::isParsable)
+                    .map(Integer::parseInt)
+                    .flatMap(ordinal -> Arrays.stream(BlockingMode.values).filter(it -> it.customOrdinal == ordinal).findFirst())
+                    .orElse(OFF);
+        }
+
+        public NBTTagCompound writeToNbt(NBTTagCompound tag) {
+            tag.setString("blockingMode", name());
+            return tag;
+        }
     }
 
-	/*public class Origin implements IAdditionalTargetInformation {
-		private final IAdditionalTargetInformation old;
-		public Origin(IAdditionalTargetInformation old) {
-			this.old = old;
-		}
+    public static class OriginalCrafterInfo implements IAdditionalTargetInformation {
+        @Nonnull
+        private final CraftingManager manager;
+        @Nullable
+        private final IAdditionalTargetInformation delegate;
 
-		public void onSent() {
-			canSendNext = true;
-		}
+        public OriginalCrafterInfo(@NotNull CraftingManager manager, @Nullable IAdditionalTargetInformation delegate) {
+            this.manager = manager;
+            this.delegate = delegate;
+        }
 
-		public IAdditionalTargetInformation getOld() {
-			return old;
-		}
-	}
+        public void onSent() {
+            manager.canSendNext = true;
+        }
 
-	public IAdditionalTargetInformation wrap(IAdditionalTargetInformation old) {
-		return new Origin(old);
-	}
+        @Nullable
+        public IAdditionalTargetInformation getDelegate() {
+            return delegate;
+        }
 
-	public static IAdditionalTargetInformation unwrap(IAdditionalTargetInformation info, boolean doFinish) {
-		if(info instanceof Origin) {
-			Origin o = (Origin) info;
-			if(doFinish)o.onSent();
-			return o.old;
-		}
-		return info;
-	}*/
+        public static IAdditionalTargetInformation wrap(@Nonnull CraftingManager manager, @Nullable IAdditionalTargetInformation delegate) {
+            return new OriginalCrafterInfo(manager, delegate);
+        }
+
+        public static IAdditionalTargetInformation unwrap(IAdditionalTargetInformation info, boolean doFinish) {
+            if (info instanceof OriginalCrafterInfo) {
+                OriginalCrafterInfo o = (OriginalCrafterInfo) info;
+                if (doFinish) o.onSent();
+                return o.delegate;
+            }
+            return info;
+        }
+    }
 }
