@@ -136,7 +136,7 @@ dependencies {
 
     if (project.use_mixins.toBoolean()) {
         // Change your mixin refmap name here:
-        String mixin = modUtils.enableMixins('org.spongepowered:mixin:0.8.3', "mixins.${project.archives_base_name}.refmap.json")
+        String mixin = modUtils.enableMixins('zone.rong:mixinbooter:8.2', "mixins.${project.archives_base_name}.refmap.json")
         api (mixin) {
             transitive = false
         }
