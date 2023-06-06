@@ -78,7 +78,7 @@ import static logisticspipes.asm.wrapper.LogisticsWrapperHandler.getWrappedProgr
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION,
         dependencies = LogisticsBridge.DEPS, updateJSON = LogisticsBridge.UPDATE)
 public class LogisticsBridge {
-    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.4.44,)";
+    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[8.2,);required-after:logisticspipes@[0.10.4.44,)";
     public static final String UPDATE = "https://raw.githubusercontent.com/Delfayne/LogisticsBridge/main/version-check.json";
     public static final Logger log = LogManager.getLogger(Reference.NAME);
     private static final String CLIENT_PROXY_CLASS = "com.tom.logisticsbridge.proxy.ClientProxy";
