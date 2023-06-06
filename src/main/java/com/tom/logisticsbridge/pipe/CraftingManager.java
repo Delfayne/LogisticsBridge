@@ -236,7 +236,7 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
 
     public void openGui(EntityPlayer entityPlayer) {
         ModernPacket packet = PacketHandler.getPacket(SetIDPacket.class)
-                .setName(isBuffered() ? blockingMode.name() : BlockingMode.OFF.name())
+                .setName(isBuffered() ? blockingMode.name() : BlockingMode.NULL.name())
                 .setId(2)
                 .setPosX(getX())
                 .setPosY(getY())
