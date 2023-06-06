@@ -9,7 +9,7 @@ import com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeCrafter;
 import com.raoulvdberge.refinedstorage.inventory.item.ItemHandlerBase;
 import com.raoulvdberge.refinedstorage.inventory.listener.ListenerNetworkNode;
 import com.raoulvdberge.refinedstorage.util.StackUtils;
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.item.VirtualPatternRS;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
@@ -75,7 +75,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
             if (!checkBlocking()) return stack;
             NetworkNodeSatellite sat = find(supplyID);
             if (sat == null) return stack;
-            if (stack.getItem() == LogisticsBridge.packageItem && stack.hasTagCompound() && stack.getTagCompound().getBoolean("__actStack")) {
+            if (stack.getItem() == LB_ItemStore.packageItem && stack.hasTagCompound() && stack.getTagCompound().getBoolean("__actStack")) {
                 String id = stack.getTagCompound().getString("__pkgDest");
                 sat = find(id);
                 if (sat == null) return stack;
@@ -256,7 +256,7 @@ public class NetworkNodeCraftingManager extends NetworkNode implements IIdPipe, 
                     boolean pkg = false;
 
                     for (NonNullList<ItemStack> nonNullList : inputs) {
-                        if (nonNullList.size() == 1 && nonNullList.get(0).getItem() == LogisticsBridge.packageItem && nonNullList.get(0).hasTagCompound()) {
+                        if (nonNullList.size() == 1 && nonNullList.get(0).getItem() == LB_ItemStore.packageItem && nonNullList.get(0).hasTagCompound()) {
                             pkg = true;
                             ItemStack is = nonNullList.get(0).copy();
                             is.getTagCompound().setBoolean("__actStack", true);

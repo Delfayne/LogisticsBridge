@@ -54,7 +54,6 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -90,28 +89,8 @@ public class LogisticsBridge {
     // https://github.com/LoliKingdom/LoliASM/blob/b4fbed33fbb6ca6dbf541ea58a59def3046add85/src/main/java/zone/rong/loliasm/core/LoliLoadingPlugin.java#L65
     public static final boolean isVMOpenJ9 = SystemUtils.JAVA_VM_NAME.toLowerCase(Locale.ROOT).contains("openj9");
 
-    public static Block bridgeAE;
-    public static Block bridgeRS;
-    public static Block craftingManager;
-    public static Item logisticsFakeItem;
-    public static Item packageItem;
     public static boolean aeLoaded;
     public static boolean rsLoaded;
-
-    @ObjectHolder("logisticspipes:pipe_lb.bridgepipe")
-    public static Item pipeBridge;
-
-    @ObjectHolder("logisticspipes:pipe_lb.resultpipe")
-    public static Item pipeResult;
-
-    @ObjectHolder("logisticspipes:pipe_lb.craftingmanager")
-    public static Item pipeCraftingManager;
-
-    @ObjectHolder("logisticspipes:upgrade_lb.buffer_upgrade")
-    public static Item upgradeBuffer;
-
-    @ObjectHolder("logisticspipes:upgrade_lb.adv_extraction_upgrade")
-    public static Item upgradeAdvExt;
 
     @Instance(Reference.MOD_ID)
     public static LogisticsBridge modInstance;
@@ -128,16 +107,16 @@ public class LogisticsBridge {
         aeLoaded = Loader.isModLoaded("appliedenergistics2");
         rsLoaded = Loader.isModLoaded("refinedstorage");
 
-        logisticsFakeItem = new FakeItem(false).setTranslationKey("lb.logisticsFakeItem");
-        packageItem = new FakeItem(true).setTranslationKey("lb.package").setCreativeTab(CreativeTabs.MISC);
+        LB_ItemStore.logisticsFakeItem = new FakeItem(false).setTranslationKey("lb.logisticsFakeItem");
+        LB_ItemStore.packageItem = new FakeItem(true).setTranslationKey("lb.package").setCreativeTab(CreativeTabs.MISC);
 
         if (aeLoaded) {
             AE2Plugin.preInit();
         }
         if (rsLoaded)
             RSPlugin.preInit();
-        registerItem(logisticsFakeItem, true);
-        registerItem(packageItem, true);
+        registerItem(LB_ItemStore.logisticsFakeItem, true);
+        registerItem(LB_ItemStore.packageItem, true);
 
         try {
             registerTexture = Textures.class.getDeclaredMethod("registerTexture", Object.class, String.class, int.class);
@@ -183,10 +162,10 @@ public class LogisticsBridge {
     }
 
     private static void loadRecipes() {
-        ResourceLocation bridgePrg = pipeBridge.delegate.name();
-        ResourceLocation resultPrg = pipeResult.delegate.name();
-        ResourceLocation craftingMgrPrg = pipeCraftingManager.delegate.name();
-        ResourceLocation bufferUpgr = upgradeBuffer.delegate.name();
+        ResourceLocation bridgePrg = LB_ItemStore.pipeBridge.delegate.name();
+        ResourceLocation resultPrg = LB_ItemStore.pipeResult.delegate.name();
+        ResourceLocation craftingMgrPrg = LB_ItemStore.pipeCraftingManager.delegate.name();
+        ResourceLocation bufferUpgr = LB_ItemStore.upgradeBuffer.delegate.name();
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bridgePrg);
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPrg);
         LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPrg);
@@ -198,31 +177,31 @@ public class LogisticsBridge {
         if (rsLoaded)
             RSPlugin.loadRecipes(group);
 
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeBridge), " p ", "fbf", "dad",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.pipeBridge), " p ", "fbf", "dad",
                 'p', getIngredientForProgrammer(bridgePrg),
                 'b', LPItems.pipeBasic,
                 'f', LPItems.chipFPGA,
                 'd', "gemDiamond",
                 'a', LPItems.chipAdvanced).
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/pipe_bridge")));
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeResult), " p ", "rar", " s ",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.pipeResult), " p ", "rar", " s ",
                 'p', getIngredientForProgrammer(resultPrg),
                 's', LPItems.pipeBasic,
                 'a', LPItems.chipFPGA,
                 'r', "dustRedstone").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/pipe_result")));
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(pipeCraftingManager), "gpg", "rsr", "gcg",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.pipeCraftingManager), "gpg", "rsr", "gcg",
                 'p', getIngredientForProgrammer(craftingMgrPrg),
                 's', LPItems.pipeBasic,
                 'g', LPItems.chipFPGA,
                 'r', "ingotGold",
                 'c', "chest").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/crafting_manager")));
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(packageItem), "pw",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.packageItem), "pw",
                 'p', Items.PAPER,
                 'w', "plankWood").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/package")));
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(upgradeBuffer), "rpr", "ici", "PnP",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.upgradeBuffer), "rpr", "ici", "PnP",
                 'p', getIngredientForProgrammer(bufferUpgr),
                 'n', LPItems.chipAdvanced,
                 'c', LPItems.chipFPGA,
@@ -230,7 +209,7 @@ public class LogisticsBridge {
                 'i', "gemDiamond",
                 'P', "paper").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/buffer_upgrade")));
-        ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, new ItemStack(upgradeAdvExt),
+        ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, new ItemStack(LB_ItemStore.upgradeAdvExt),
                 ItemUpgrade.getAndCheckUpgrade(LPItems.upgrades.get(ItemStackExtractionUpgrade.getName())),
                 "dustRedstone").
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/adv_ext_upgrade")));
@@ -284,25 +263,25 @@ public class LogisticsBridge {
     }
 
     public static ItemStack fakeStack(int count) {
-        return new ItemStack(logisticsFakeItem, count);
+        return new ItemStack(LB_ItemStore.logisticsFakeItem, count);
     }
 
     public static ItemStack fakeStack(ItemStack stack, int count) {
-        ItemStack is = new ItemStack(logisticsFakeItem, count);
+        ItemStack is = new ItemStack(LB_ItemStore.logisticsFakeItem, count);
         if (stack != null && !stack.isEmpty())
             is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
         return is;
     }
 
     public static ItemStack fakeStack(NBTTagCompound stack, int count) {
-        ItemStack is = new ItemStack(logisticsFakeItem, count);
+        ItemStack is = new ItemStack(LB_ItemStore.logisticsFakeItem, count);
         if (stack != null && !stack.isEmpty())
             is.setTagCompound(stack);
         return is;
     }
 
     public static ItemStack packageStack(ItemStack stack, int count, String id, boolean actStack) {
-        ItemStack is = new ItemStack(packageItem, count);
+        ItemStack is = new ItemStack(LB_ItemStore.packageItem, count);
         if (stack != null && !stack.isEmpty())
             is.setTagCompound(stack.writeToNBT(new NBTTagCompound()));
         if (!is.hasTagCompound())

@@ -2,6 +2,7 @@ package com.tom.logisticsbridge.tileentity;
 
 import com.raoulvdberge.refinedstorage.tile.TileNode;
 
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.network.SetIDPacket;
 import com.tom.logisticsbridge.network.SetIDPacket.IIdPipe;
@@ -10,7 +11,6 @@ import com.tom.logisticsbridge.node.NetworkNodeSatellite;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
-import network.rs485.logisticspipes.SatellitePipe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -47,7 +47,7 @@ public class TileEntitySatelliteBus extends TileNode<NetworkNodeSatellite> imple
     }
 
     public void openGui(EntityPlayer player, EnumHand hand) {
-        if (player.getHeldItem(hand).getItem() == LogisticsBridge.packageItem) {
+        if (player.getHeldItem(hand).getItem() == LB_ItemStore.packageItem) {
             ItemStack is = player.getHeldItem(hand);
             if (!is.hasTagCompound()) is.setTagCompound(new NBTTagCompound());
             is.getTagCompound().setString("__pkgDest", getNode().satelliteId);

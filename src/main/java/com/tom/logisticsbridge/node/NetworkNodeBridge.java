@@ -12,6 +12,7 @@ import com.raoulvdberge.refinedstorage.api.util.Action;
 import com.raoulvdberge.refinedstorage.api.util.IStackList;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
 import com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNode;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.api.BridgeStack;
 import com.tom.logisticsbridge.api.IDynamicPatternDetailsRS;
@@ -56,7 +57,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             lastInjectTime = world.getTotalWorldTime();
-            if (stack.getItem() == LogisticsBridge.logisticsFakeItem) {
+            if (stack.getItem() == LB_ItemStore.logisticsFakeItem) {
                 if (pushPattern(stack, simulate))
                     return ItemStack.EMPTY;
                 else return stack;
@@ -103,7 +104,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public ItemStack insert(ItemStack stack, int size, Action action) {
-        if (stack.getItem() == LogisticsBridge.logisticsFakeItem) return null;
+        if (stack.getItem() == LB_ItemStore.logisticsFakeItem) return null;
         ItemStack ret = stack.copy();
         ret.setCount(size);
         return ret;
@@ -111,7 +112,7 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
 
     @Override
     public ItemStack extract(ItemStack stack, int size, int flags, Action action) {
-        if (stack.getItem() == LogisticsBridge.logisticsFakeItem) {
+        if (stack.getItem() == LB_ItemStore.logisticsFakeItem) {
             ItemStack st = list.get(stack, flags);
             int min = Math.min(size, st.getCount());
             ItemStack ret = st.copy();
@@ -173,11 +174,11 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
         if (disableLP && !bridgeMode || network == null) return Collections.emptyList();
         return LogisticsBridge.concatStreams(
                 network.getItemStorageCache().getList().getStacks().stream().
-                        filter(e -> e != null && e.getItem() != LogisticsBridge.logisticsFakeItem).
+                        filter(e -> e != null && e.getItem() != LB_ItemStore.logisticsFakeItem).
                         map(s -> new BridgeStack<>(s, s.getCount(), false, 0)),
 
                 network.getCraftingManager().getPatterns().stream().map(ICraftingPattern::getOutputs).flatMap(NonNullList::stream).
-                        filter(s -> s != null && !s.isEmpty() && s.getItem() != LogisticsBridge.logisticsFakeItem).
+                        filter(s -> s != null && !s.isEmpty() && s.getItem() != LB_ItemStore.logisticsFakeItem).
                         map(s -> new BridgeStack<>(s, 0, true, 0)),
 
                 craftingItems.stream().
@@ -219,11 +220,11 @@ public class NetworkNodeBridge extends NetworkNode implements IStorageProvider, 
                     patterns.addStack(pattern.getStack());
                     craftingPatterns.add(pattern);
                 });
-                list.add(new ItemStack(LogisticsBridge.logisticsFakeItem, 65536));
+                list.add(new ItemStack(LB_ItemStore.logisticsFakeItem, 65536));
                 ci.stream().map(i -> VirtualPatternRS.create(i, wr, this)).forEach(pattern -> {
                     patterns.addStack(pattern.getStack());
                     craftingPatterns.add(pattern);
-                    pattern = VirtualPatternRS.create(new ItemStack(LogisticsBridge.logisticsFakeItem),
+                    pattern = VirtualPatternRS.create(new ItemStack(LB_ItemStore.logisticsFakeItem),
                             LogisticsBridge.fakeStack(pattern.getOutputs().get(0), 1), this);
                     patterns.addStack(pattern.getStack());
                     craftingPatterns.add(pattern);

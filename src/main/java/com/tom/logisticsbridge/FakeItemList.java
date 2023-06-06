@@ -14,11 +14,11 @@ import appeng.util.prioritylist.IPartitionList;
 public class FakeItemList implements IPartitionList<IAEItemStack> {
 	private final List<IAEItemStack> ITEMS = Collections.singletonList(
 			AE2Plugin.INSTANCE.api.storage().getStorageChannel(IItemStorageChannel.class).
-			createStack(new ItemStack(LogisticsBridge.logisticsFakeItem, 1)));
+			createStack(new ItemStack(LB_ItemStore.logisticsFakeItem, 1)));
 
 	@Override
 	public boolean isListed(IAEItemStack input) {
-		return !GuiScreen.isCtrlKeyDown() && (input.getItem() == LogisticsBridge.logisticsFakeItem || (input.getItem() == LogisticsBridge.packageItem && input.getStackSize() == 0));
+		return !GuiScreen.isCtrlKeyDown() && (input.getItem() == LB_ItemStore.logisticsFakeItem || (input.getItem() == LB_ItemStore.packageItem && input.getStackSize() == 0));
 	}
 
 	@Override

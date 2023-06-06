@@ -7,7 +7,7 @@ import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.util.item.AEItemStack;
 import com.tom.logisticsbridge.AE2Plugin;
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.api.IDynamicPatternDetailsAE;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -77,7 +77,7 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
         public VirtualPatternHandler(ItemStack output, IDynamicPatternDetailsAE handler) {
             this.result = output;
             ItemStack is = new ItemStack(AE2Plugin.virtualPattern);
-            ItemStack input = new ItemStack(LogisticsBridge.logisticsFakeItem);
+            ItemStack input = new ItemStack(LB_ItemStore.logisticsFakeItem);
             is.setTagCompound(new NBTTagCompound());
             NBTTagCompound tag = is.getTagCompound();
             NBTTagList l = new NBTTagList();

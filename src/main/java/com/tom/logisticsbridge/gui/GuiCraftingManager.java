@@ -1,6 +1,6 @@
 package com.tom.logisticsbridge.gui;
 
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager.SlotCraftingCard;
@@ -195,7 +195,7 @@ public class GuiCraftingManager extends LogisticsBaseGuiScreen {
         ConfigExtension ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.satellite"), new ItemStack(LPItems.pipeSatellite), 0);
         ce.registerButton(extensionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(0, guiLeft - 45, guiTop + 25, 40, 10, select))));
         extensionControllerLeft.addExtension(ce);
-        ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.result"), new ItemStack(LogisticsBridge.pipeResult), 1);
+        ce = new ConfigExtension(TextUtil.translate("gui.craftingManager.result"), new ItemStack(LB_ItemStore.pipeResult), 1);
         ce.registerButton(extensionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 45, guiTop + 25, 40, 10, select))));
         extensionControllerLeft.addExtension(ce);
 

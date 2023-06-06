@@ -23,6 +23,7 @@ import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 
 import com.tom.logisticsbridge.AE2Plugin;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.Reference;
 import com.tom.logisticsbridge.network.SetIDPacket;
@@ -155,7 +156,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements IIdPipe {
     @Override
     public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn) {
         if (Platform.isServer()) {
-            if (player.getHeldItem(hand).getItem() == LogisticsBridge.packageItem) {
+            if (player.getHeldItem(hand).getItem() == LB_ItemStore.packageItem) {
                 ItemStack is = player.getHeldItem(hand);
                 if (!is.hasTagCompound())
                     is.setTagCompound(new NBTTagCompound());

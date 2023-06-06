@@ -24,6 +24,7 @@ import appeng.util.SettingsFrom;
 import appeng.util.inv.InvOperation;
 import com.tom.logisticsbridge.AE2Plugin;
 import com.tom.logisticsbridge.GuiHandler.GuiIDs;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.item.VirtualPatternAE;
 import com.tom.logisticsbridge.item.VirtualPatternAE.VirtualPatternHandler;
@@ -118,7 +119,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
         if (bus == null) return false;
         for (int i = 0; i < table.getSizeInventory(); i++) {
             ItemStack is = table.getStackInSlot(i);
-            if (!is.isEmpty() && is.getItem() == LogisticsBridge.packageItem && is.hasTagCompound() && is.getTagCompound().getBoolean("__actStack")) {
+            if (!is.isEmpty() && is.getItem() == LB_ItemStore.packageItem && is.hasTagCompound() && is.getTagCompound().getBoolean("__actStack")) {
                 ItemStack pkgItem = new ItemStack(is.getTagCompound());
                 String id = is.getTagCompound().getString("__pkgDest");
                 PartSatelliteBus b = find(id);
@@ -239,7 +240,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
             IAEItemStack iaeItemStack = array[i];
             if (iaeItemStack != null) {
                 ItemStack is = iaeItemStack.getDefinition();
-                if (is.getItem() == LogisticsBridge.packageItem) {
+                if (is.getItem() == LB_ItemStore.packageItem) {
                     if (is.hasTagCompound() && is.getTagCompound().getBoolean("__actStack") == act) {
                         if (!act) {
                             is = is.copy();
@@ -300,7 +301,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile implements ITick
                         for (int j = 0; j < in.length; j++) {
                             IAEItemStack iaeItemStack = in[j];
                             ItemStack is = iaeItemStack == null ? ItemStack.EMPTY : iaeItemStack.asItemStackRepresentation();
-                            if (!is.isEmpty() && is.getItem() == LogisticsBridge.packageItem && pkgs.stream().anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
+                            if (!is.isEmpty() && is.getItem() == LB_ItemStore.packageItem && pkgs.stream().anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
                                 found = true;
                                 break;
                             }
