@@ -1,6 +1,5 @@
 package com.tom.logisticsbridge;
 
-import com.tom.logisticsbridge.block.BlockClassLoader;
 import com.tom.logisticsbridge.inventory.ContainerCraftingManager;
 import com.tom.logisticsbridge.item.FakeItem;
 import com.tom.logisticsbridge.module.AdvItemExtractionUpgrade;
@@ -133,13 +132,7 @@ public class LogisticsBridge {
         packageItem = new FakeItem(true).setTranslationKey("lb.package").setCreativeTab(CreativeTabs.MISC);
 
         if (aeLoaded) {
-            Thread thread = Thread.currentThread();
-            ClassLoader loader = thread.getContextClassLoader();
-            ClassLoader newLoader = new BlockClassLoader(loader);
-            thread.setContextClassLoader(newLoader);
-            Class<?> clazz = newLoader.loadClass("com.tom.logisticsbridge.AE2Plugin");
-            clazz.getMethod("preInit", ClassLoader.class).invoke(null, newLoader);
-            thread.setContextClassLoader(loader);
+            AE2Plugin.preInit();
         }
         if (rsLoaded)
             RSPlugin.preInit();
