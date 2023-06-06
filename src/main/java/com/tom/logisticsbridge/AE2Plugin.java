@@ -107,10 +107,10 @@ public class AE2Plugin {
 
     public static void preInit() {
         virtualPattern = new VirtualPatternAE();
-        LogisticsBridge.bridgeAE = new BlockBridgeAE().setTranslationKey("lb.bridge");
-        LogisticsBridge.craftingManager = new BlockCraftingManager().setTranslationKey("lb.crafting_managerAE");
-        AE2Plugin.registerBlock(LogisticsBridge.bridgeAE);
-        AE2Plugin.registerBlock(LogisticsBridge.craftingManager);
+        LB_ItemStore.bridgeAE = new BlockBridgeAE().setTranslationKey("lb.bridge");
+        LB_ItemStore.craftingManager = new BlockCraftingManager().setTranslationKey("lb.crafting_managerAE");
+        AE2Plugin.registerBlock(LB_ItemStore.bridgeAE);
+        AE2Plugin.registerBlock(LB_ItemStore.craftingManager);
         LogisticsBridge.registerItem(virtualPattern, true);
         AE2Plugin.SATELLITE_BUS = EnumHelper.addEnum(PartType.class, "SATELLITE_BUS", new Class[]{int.class, String.class, Set.class, Set.class, Class.class},
                 1024, "satellite_bus", EnumSet.of(AEFeature.CRAFTING_CPU), EnumSet.noneOf(IntegrationType.class), PartSatelliteBus.class);
@@ -118,9 +118,9 @@ public class AE2Plugin {
         AE2Plugin.SATELLITE_BUS_SRC = ItemPart.instance.createPart(AE2Plugin.SATELLITE_BUS);
 
         GameRegistry.registerTileEntity(TileEntityBridgeAE.class, new ResourceLocation(Reference.MOD_ID, "bridge"));
-        AEBaseTile.registerTileItem(TileEntityBridgeAE.class, new BlockStackSrc(LogisticsBridge.bridgeAE, 0, ActivityState.Enabled));
+        AEBaseTile.registerTileItem(TileEntityBridgeAE.class, new BlockStackSrc(LB_ItemStore.bridgeAE, 0, ActivityState.Enabled));
         GameRegistry.registerTileEntity(TileEntityCraftingManager.class, new ResourceLocation(Reference.MOD_ID, "craftingManagerAE"));
-        AEBaseTile.registerTileItem(TileEntityCraftingManager.class, new BlockStackSrc(LogisticsBridge.craftingManager, 0, ActivityState.Enabled));
+        AEBaseTile.registerTileItem(TileEntityCraftingManager.class, new BlockStackSrc(LB_ItemStore.craftingManager, 0, ActivityState.Enabled));
     }
 
     @SuppressWarnings("unchecked")
@@ -148,7 +148,7 @@ public class AE2Plugin {
 
     public static void loadRecipes(ResourceLocation group) {
         IMaterials mat = AE2Plugin.INSTANCE.api.definitions().materials();
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.bridgeAE), "iei", "bIb", "ici",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.bridgeAE), "iei", "bIb", "ici",
                 'i', "ingotIron",
                 'b', LPItems.pipeBasic,
                 'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
@@ -161,7 +161,7 @@ public class AE2Plugin {
                 'i', "ingotIron",
                 'c', mat.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
                 setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/satellite_bus")));
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.craftingManager), "IlI", "cec", "ili",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.craftingManager), "IlI", "cec", "ili",
                 'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
                 'l', mat.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
                 'i', "ingotIron",

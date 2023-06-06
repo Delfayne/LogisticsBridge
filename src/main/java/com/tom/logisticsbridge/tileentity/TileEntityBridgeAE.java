@@ -30,6 +30,7 @@ import appeng.util.inv.IMEAdaptor;
 import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import com.tom.logisticsbridge.AE2Plugin;
+import com.tom.logisticsbridge.LB_ItemStore;
 import com.tom.logisticsbridge.LogisticsBridge;
 import com.tom.logisticsbridge.api.BridgeStack;
 import com.tom.logisticsbridge.api.IDynamicPatternDetailsAE;
@@ -74,7 +75,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         OVERFLOW = new IAEItemStack[]{ITEMS.createStack(is)};
     }
 
-    private final IAEItemStack fakeItem = ITEMS.createStack(new ItemStack(LogisticsBridge.logisticsFakeItem, 1));
+    private final IAEItemStack fakeItem = ITEMS.createStack(new ItemStack(LB_ItemStore.logisticsFakeItem, 1));
     boolean readingFromNBT;
     private final Optional<IActionHost> machine = Optional.of(this);
     private final Set<ICraftingLink> links = new HashSet<>();
@@ -177,7 +178,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         List<BridgeStack<ItemStack>> list = Stream.concat(
                 StreamSupport.stream(Spliterators.spliteratorUnknownSize(items.iterator(), Spliterator.ORDERED), false).
                         map(ae -> new BridgeStack<>(ae.asItemStackRepresentation(), ae.getStackSize(), ae.isCraftable(), ae.getCountRequestable())).
-                        filter(s -> s.obj.getItem() != LogisticsBridge.logisticsFakeItem && s.obj.getItem() != LogisticsBridge.packageItem),
+                        filter(s -> s.obj.getItem() != LB_ItemStore.logisticsFakeItem && s.obj.getItem() != LB_ItemStore.packageItem),
 
                 Stream.concat(insertingStacks.stream(), dynInv.stream())
                         .map(s -> new BridgeStack<>(s, s.getCount(), false, 0))
@@ -360,13 +361,13 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
 
     @Override
     public IAEItemStack injectItems(IAEItemStack input, Actionable type, IActionSource src) {
-        if (input.asItemStackRepresentation().getItem() == LogisticsBridge.logisticsFakeItem) return null;
+        if (input.asItemStackRepresentation().getItem() == LB_ItemStore.logisticsFakeItem) return null;
         return input;
     }
 
     @Override
     public IAEItemStack extractItems(IAEItemStack request, Actionable type, IActionSource src) {
-        if (request.createItemStack().getItem() == LogisticsBridge.logisticsFakeItem) {
+        if (request.createItemStack().getItem() == LB_ItemStore.logisticsFakeItem) {
             IAEItemStack stack = fakeItems.findPrecise(request);
             if (stack == null) return null;
             long min = Math.min(stack.getStackSize(), request.getStackSize());
@@ -436,12 +437,12 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
 
     @Override
     public boolean isPrioritized(IAEItemStack input) {
-        return input.asItemStackRepresentation().getItem() == LogisticsBridge.logisticsFakeItem;
+        return input.asItemStackRepresentation().getItem() == LB_ItemStore.logisticsFakeItem;
     }
 
     @Override
     public boolean canAccept(IAEItemStack input) {
-        return input.asItemStackRepresentation().getItem() == LogisticsBridge.logisticsFakeItem;
+        return input.asItemStackRepresentation().getItem() == LB_ItemStore.logisticsFakeItem;
     }
 
     @Override
@@ -499,7 +500,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
         if (req == null) return false;
         insertingStacks.clear();
         for (int i = 0; i < table.getSizeInventory(); i++) {
-            if (table.getStackInSlot(i).getItem() != LogisticsBridge.logisticsFakeItem)
+            if (table.getStackInSlot(i).getItem() != LB_ItemStore.logisticsFakeItem)
                 insertingStacks.add(table.getStackInSlot(i));
         }
         OpResult or = req.performRequest(patternDetails.getOutputs()[0].createItemStack(), true);
@@ -509,7 +510,7 @@ public class TileEntityBridgeAE extends AENetworkInvTile implements IGridHost, I
             lastInjectTime = world.getTotalWorldTime();
             for (int i = 0; i < table.getSizeInventory(); i++) {
                 ItemStack stack = table.getStackInSlot(i);
-                if (stack.getItem() != LogisticsBridge.logisticsFakeItem)
+                if (stack.getItem() != LB_ItemStore.logisticsFakeItem)
                     dynInv.insert(stack.copy());
             }
         } else {

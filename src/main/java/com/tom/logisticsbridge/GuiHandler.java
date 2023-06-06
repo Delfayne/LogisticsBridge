@@ -81,7 +81,7 @@ public class GuiHandler implements IGuiHandler {
             case TEMPLATE_PKG: {
                 EnumHand hand = EnumHand.values()[x];
                 ItemStack is = player.getHeldItem(hand);
-                if (is.getItem() == LogisticsBridge.packageItem)
+                if (is.getItem() == LB_ItemStore.packageItem)
                     return new ContainerPackage(player, hand);
             }
             break;
@@ -131,7 +131,7 @@ public class GuiHandler implements IGuiHandler {
             case TEMPLATE_PKG: {
                 EnumHand hand = EnumHand.values()[x];
                 ItemStack is = player.getHeldItem(hand);
-                if (is.getItem() == LogisticsBridge.packageItem)
+                if (is.getItem() == LB_ItemStore.packageItem)
                     return new GuiPackage(player, hand);
             }
             break;

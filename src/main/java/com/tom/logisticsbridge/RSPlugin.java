@@ -50,8 +50,8 @@ public class RSPlugin {
         virtualPattern = new VirtualPatternRS();
         satelliteBus = new BlockSatelliteBus();
         craftingManager = new BlockCraftingManagerRS();
-        LogisticsBridge.bridgeRS = new BlockBridgeRS().setTranslationKey("lb.bridge.rs");
-        registerBlock((BlockBase) LogisticsBridge.bridgeRS);
+        LB_ItemStore.bridgeRS = new BlockBridgeRS().setTranslationKey("lb.bridge.rs");
+        registerBlock((BlockBase) LB_ItemStore.bridgeRS);
         registerBlock(satelliteBus);
         registerBlock(craftingManager);
         LogisticsBridge.registerItem(virtualPattern, true);
@@ -76,7 +76,7 @@ public class RSPlugin {
     }
 
     public static void loadRecipes(ResourceLocation group) {
-        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LogisticsBridge.bridgeRS), "iei", "bIb", "ici",
+        ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(LB_ItemStore.bridgeRS), "iei", "bIb", "ici",
                 'i', "ingotIron",
                 'b', LPItems.pipeBasic,
                 'I', RSBlocks.INTERFACE,
@@ -109,7 +109,7 @@ public class RSPlugin {
                     Object ing = s.getIngredient();
                     if (ing instanceof ItemStack) {
                         ItemStack is = (ItemStack) ing;
-                        return is.getItem() == LogisticsBridge.logisticsFakeItem || (is.getItem() == LogisticsBridge.packageItem && s.getQuantity() == 0);
+                        return is.getItem() == LB_ItemStore.logisticsFakeItem || (is.getItem() == LB_ItemStore.packageItem && s.getQuantity() == 0);
                     }
                     return false;
                 });

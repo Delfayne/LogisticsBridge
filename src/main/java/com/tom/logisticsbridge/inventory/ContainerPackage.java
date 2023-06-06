@@ -1,6 +1,6 @@
 package com.tom.logisticsbridge.inventory;
 
-import com.tom.logisticsbridge.LogisticsBridge;
+import com.tom.logisticsbridge.LB_ItemStore;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.*;
@@ -34,7 +34,7 @@ public class ContainerPackage extends Container implements Consumer<String> {
     public void onContainerClosed(@Nonnull EntityPlayer player) {
         super.onContainerClosed(player);
         ItemStack is = player.getHeldItem(hand);
-        if (is.getItem() == LogisticsBridge.packageItem && (!is.hasTagCompound() || !is.getTagCompound().getBoolean("__actStack"))) {
+        if (is.getItem() == LB_ItemStore.packageItem && (!is.hasTagCompound() || !is.getTagCompound().getBoolean("__actStack"))) {
             is.setTagCompound(inv.getStackInSlot(0).writeToNBT(new NBTTagCompound()));
             if (id != null)
                 is.getTagCompound().setString("__pkgDest", id);
