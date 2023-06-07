@@ -1,0 +1,66 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build and Release
+
+on: 
+  push:
+    paths:
+      - 'version-check.json'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Release to Github
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout branch
+      uses: actions/checkout@v2
+
+    # https://github.com/madhead/read-java-properties#error-java_home-is-set-to-an-invalid-directory
+    - name: Gather Gradle properties
+      uses: madhead/read-java-properties@latest
+      id: gradle_properties
+      with:
+        file: gradle.properties
+        all: true
+
+    - name: Set up Zulu JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Gather short SHA and changelog
+      id: vars
+      shell: bash
+      run: |
+        echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "CHANGELOG=$(awk 'NR==8' version-check.json | sed 's/"//g ; s/,//g' | awk -F": " '{print $2}')" >> $GITHUB_OUTPUT
+
+    # For caching
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}-${{ steps.vars.outputs.SHA_SHORT }}
+        path: build/libs
+
+    - name: Create GitHub Release
+      uses: KorewaLidesu/github-release@2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ steps.gradle_properties.outputs.mod_version }}
+        commitish: main
+        body:  ${{ steps.vars.outputs.CHANGELOG }}
+        name:  ${{ steps.gradle_properties.outputs.mod_version }}
+        prerelease: false
+        allow_override: true
+        gzip: false
+        files: |
+            ./LogisticsBridge-Artifact/LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}.jar
