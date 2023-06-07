@@ -1,19 +1,13 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Build Test Artifact
+name: Build Test Artifact on Main branch
 
 on:
   push:
     branches: [ main ]
     paths-ignore:
-      - '.github/workflows/Release.yml'
-      - 'LICENSE'
-      - 'README.md'
-      - 'version-check.json'
-  pull_request:
-    paths-ignore:
-      - '.github/workflows/Release.yml'
+      - '.github/workflows/Main_Release.yml'
       - 'LICENSE'
       - 'README.md'
       - 'version-check.json'
