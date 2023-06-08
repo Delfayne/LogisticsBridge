@@ -1,0 +1,57 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build Test Artifact on Main branch
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/Main_Release.yml'
+      - 'LICENSE'
+      - 'README.md'
+      - 'version-check.json'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Upload Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout branch
+      uses: actions/checkout@v2
+
+    # https://github.com/madhead/read-java-properties#error-java_home-is-set-to-an-invalid-directory
+    - name: Gather Gradle properties
+      uses: madhead/read-java-properties@latest
+      id: gradle_properties
+      with:
+        file: gradle.properties
+        all: true
+
+    - name: Set up Zulu JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+        cache: gradle # Only cache stuff since test build action happen mostly
+
+    - name: Gather short SHA and changelog
+      id: vars
+      shell: bash
+      run: |
+        echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      env:
+        CI_SHA_SHORT: ${{ steps.vars.outputs.SHA_SHORT }}
+      with:
+        arguments: build
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: LogisticsBridge-${{ steps.gradle_properties.outputs.mod_version }}-${{ steps.vars.outputs.SHA_SHORT }}
+        path: build/libs
