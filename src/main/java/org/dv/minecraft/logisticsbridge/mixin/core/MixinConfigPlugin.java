@@ -95,7 +95,7 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
                     fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 }
                 List<Path> list;
-                Path basePath = fs.getPath("com", "tom", "logisticsbridge", "mixin").toAbsolutePath();
+                Path basePath = fs.getPath("org", "dv", "minecraft", "logisticsbridge", "mixin").toAbsolutePath();
                 try(Stream<Path> stream = Files.walk(basePath)) {
                     list = stream.collect(Collectors.toList());
                 }
