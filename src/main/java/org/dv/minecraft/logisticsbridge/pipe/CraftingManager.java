@@ -639,13 +639,10 @@ public class CraftingManager extends PipeLogisticsChassis implements IIdPipe {
             }
 
             return Optional.of(tag)
-                    .map(it -> it.getString(TAG_KEY))
-                    .filter(NumberUtils::isParsable)
-                    .map(Integer::parseInt)
+                    .map(it -> it.getInteger(TAG_KEY))
                     .flatMap(ordinal -> Arrays.stream(BlockingMode.values).filter(it -> it.customOrdinal == ordinal).findFirst())
                     .orElse(OFF);
         }
-
         public NBTTagCompound writeToNbt(NBTTagCompound tag) {
             tag.setString("blockingMode", name());
             return tag;
