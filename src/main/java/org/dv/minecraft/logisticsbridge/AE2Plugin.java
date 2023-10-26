@@ -69,7 +69,6 @@ public class AE2Plugin {
     public static ItemStackSrc SATELLITE_BUS_SRC;
     public final IAppEngApi api;
 
-    public static final MethodHandle guiMEMonitorableRepoGetter;
     public static final MethodHandle itemRepoMyPartitionListGetter;
     public static final MethodHandle itemRepoMyPartitionListSetter;
     public static final MethodHandle sorterBySizeGetter;
@@ -82,7 +81,6 @@ public class AE2Plugin {
     static {
         try {
             // "I reject performance" - Korewa_Li
-            guiMEMonitorableRepoGetter = Reflector.resolveFieldGetter(GuiMEMonitorable.class, "repo");
             itemRepoMyPartitionListGetter = Reflector.resolveFieldGetter(ItemRepo.class,"myPartitionList");
             itemRepoMyPartitionListSetter = Reflector.resolveFieldSetter(ItemRepo.class,"myPartitionList");
             sorterBySizeGetter = Reflector.resolveFieldGetter(ItemSorters.class, "CONFIG_BASED_SORT_BY_SIZE");
@@ -193,6 +191,8 @@ public class AE2Plugin {
     @SuppressWarnings("unchecked")
     @SideOnly(Side.CLIENT)
     public static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event) {
+        MethodHandle guiMEMonitorableRepoGetter = Reflector.resolveFieldGetter(GuiMEMonitorable.class, "repo");
+
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.currentScreen instanceof GuiMEMonitorable) {
             GuiMEMonitorable gui = (GuiMEMonitorable) mc.currentScreen;
