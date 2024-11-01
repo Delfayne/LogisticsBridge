@@ -105,9 +105,8 @@ dependencies {
         implementation 'zone.rong:mixinbooter:8.2'
     }
 
-    // Example of deobfuscating a dependency
-    // implementation rfg.deobf('curse.maven:had-enough-items-557549:4543375')
     compileOnly rfg.deobf("curse.maven:NotEnoughItems-247694:2755792")
+    compileOnly rfg.deobf("curse.maven:the-one-probe-245211:2667280")
     implementation rfg.deobf("curse.maven:logistics-pipes-232838:4481079")
     api rfg.deobf("curse.maven:refined-storage-243076:2940914")
     api rfg.deobf("curse.maven:ThermalDynamics-227443:2920505")
