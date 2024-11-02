@@ -422,7 +422,7 @@ public class ResultPipe extends CoreRoutedPipe implements IIdPipe, IProvideItems
         return resultPipeName;
     }
 
-    public void extractCleanup(InventoryProperty cleanupInventory, boolean cleanupModeIsExclude, int i) {
+    public void extractCleanup(IItemIdentifierInventory cleanupInventory, boolean cleanupModeIsExclude, int i) {
         final List<NeighborTileEntity<TileEntity>> adjacentInventories = getAvailableAdjacent().inventories();
 
         if (!getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
